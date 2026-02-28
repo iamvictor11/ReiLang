@@ -1,0 +1,7 @@
+.git/
+.vs/
+.vscode/
+build/
+build_release/
+out/
+temp/
