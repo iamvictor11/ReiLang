@@ -580,7 +580,7 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
             {
                 lexer->current += 3;
                 lexer->column += 3;
-                return luna_MakeTokenInfo(lexer, LUNA_TOKEN_BREAT);
+                return luna_MakeTokenInfo(lexer, LUNA_TOKEN_BREAK);
             }
             lexer->current += 2;
             lexer->column += 2;
