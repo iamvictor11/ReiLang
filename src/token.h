@@ -62,7 +62,7 @@ typedef enum luna_Token
     LUNA_TOKEN_LOOP,     // <>
     LUNA_TOKEN_RETURN,   // +>
     LUNA_TOKEN_CONTINUE, // :>
-    LUNA_TOKEN_BREAT,    // :>>
+    LUNA_TOKEN_BREAK,    // :>>
     /*区域*/
     LUNA_TOKEN_LPAREN,   // (
     LUNA_TOKEN_RPAREN,   // )
