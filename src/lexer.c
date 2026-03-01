@@ -5,47 +5,103 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#pragma region Token Info List
+static luna_TokenInfo lunaLexer_ScanNextCharToTokenInfo(luna_Lexer *lexer);
+static bool lunaLexer_IsAtEnd(luna_Lexer *lexer);
+static void lunaLexer_SkipWhitespace(luna_Lexer *lexer);
+static void lunaLexer_SkipNote(luna_Lexer *lexer);
+static luna_TokenInfo luna_MakeTokenInfo(luna_Lexer *lexer, luna_Token type);
+static void lunaLexer_ClearCurrentTokenText(luna_Lexer *lexer);
+static void lunaLexer_AppendCharToCurrentTokenText(luna_Lexer *lexer, char c);
+static luna_TokenInfo lunaLexer_ReportError(luna_Lexer *lexer, const char *format, ...);
+static luna_TokenInfo lunaLexer_AnalyzeNumber(luna_Lexer *lexer);
+static luna_TokenInfo lunaLexer_AnalyzeString(luna_Lexer *lexer, char quote);
+static luna_TokenInfo lunaLexer_AnalyzeIdentifier(luna_Lexer *lexer);
+static luna_TokenInfo lunaLexer_AnalyzeDef(luna_Lexer *lexer);
+static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer);
+static void lunaTokenInfoList_Free(luna_TokenInfoList *list);
+static void lunaTokenInfoList_Add(luna_TokenInfoList *list, luna_TokenInfo info);
+
+
+#pragma region Public
+void lunaLexer_Init(luna_Lexer *lexer)
+{
+    lexer->source = NULL;
+    lexer->current = NULL;
+    lexer->line = 1;
+    lexer->column = 1;
+    lexer->current_token_text = LUNA_NULL_STRING;
+    lexer->token_info_list.tokens = NULL;
+    lexer->token_info_list.size = 0;
+    lexer->token_info_list.capacity = 0;
+    lexer->error = LUNA_NULL_ERROR;
+    lexer->has_error = false;
+}
+void lunaLexer_Free(luna_Lexer *lexer)
+{
+    lexer->current = lexer->source = NULL;
+    lexer->line = 1;
+    lexer->column = 1;
+    lunaString_Free(&(lexer->current_token_text));
+    lunaTokenInfoList_Free(&(lexer->token_info_list));
+    lunaError_Free(&lexer->error);
+    lexer->has_error = false;
+}
+void lunaLexer_Load(luna_Lexer *lexer, const char *source)
+{
+    lexer->current = lexer->source = source;
+    while (!lunaLexer_IsAtEnd(lexer))
+    {
+        luna_TokenInfo info = lunaLexer_ScanNextCharToTokenInfo(lexer);
+        lunaTokenInfoList_Add(&(lexer->token_info_list), info);
+        lunaString_Free(&(info.text));
+        if (info.type == LUNA_TOKEN_EOF)
+            return;
+    }
+}
+bool lunaLexer_HasError(luna_Lexer *lexer)
+{
+    return lexer->has_error;
+}
+luna_Error lunaLexer_GetError(luna_Lexer *lexer)
+{
+    return lexer->error;
+}
+#pragma endregion
+#pragma region Private
+/// @brief 扫描
+static luna_TokenInfo lunaLexer_ScanNextCharToTokenInfo(luna_Lexer *lexer)
+{
+    if (lexer->has_error)
+        return luna_MakeTokenInfo(lexer, LUNA_TOKEN_EOF);
+    lunaLexer_SkipWhitespace(lexer);
+    if (lunaLexer_IsAtEnd(lexer))
+        return luna_MakeTokenInfo(lexer, LUNA_TOKEN_EOF);
+    char c = *lexer->current;
+    // 注释
+    if (c == '/' && *(lexer->current + 1) == '/')
+    {
+        lunaLexer_SkipNote(lexer);
+        return lunaLexer_ScanNextCharToTokenInfo(lexer);
+    }
+    // 数字
+    if (isdigit(c) || (c == '.' && isdigit(*(lexer->current + 1))))
+        return lunaLexer_AnalyzeNumber(lexer);
+    // 字符串
+    if (c == '"' || c == '\'')
+        return lunaLexer_AnalyzeString(lexer, c);
+    // 定义
+    if (c == '#')
+        return lunaLexer_AnalyzeDef(lexer);
+    // 变量
+    if (isalpha(c) || c == '_')
+        return lunaLexer_AnalyzeIdentifier(lexer);
+    // 操作符
+    return lunaLexer_AnalyzeOperator(lexer);
+}
 static bool lunaLexer_IsAtEnd(luna_Lexer *lexer)
 {
     return *lexer->current == '\0';
 }
-static void lunaTokenInfoList_Free(luna_TokenInfoList *list)
-{
-    for (int i = 0; i < list->size; i++)
-    {
-        if (!lunaString_IsEmpty(&(list->tokens[i].text)))
-            lunaString_Free(&(list->tokens[i].text));
-    }
-    free(list->tokens);
-    list->tokens = NULL;
-}
-static void lunaTokenInfoList_Add(luna_TokenInfoList *list, luna_TokenInfo info)
-{
-    if (list->size >= list->capacity)
-    {
-        int new_capacity = list->capacity == 0 ? 64 : list->capacity * 2;
-        luna_TokenInfo *new_tokens = realloc(list->tokens, new_capacity * sizeof(luna_TokenInfo));
-        if (!new_tokens)
-        {
-            // TODO: 内存分配失败
-            return;
-        }
-        list->tokens = new_tokens;
-        list->capacity = new_capacity;
-    }
-    list->tokens[list->size] = info;
-    if (!lunaString_IsEmpty(&(info.text)))
-    {
-        luna_String new_str = LUNA_NULL_STRING;
-        lunaString_Malloc(&new_str, info.text.len + 1);
-        lunaString_AppendObj(&new_str, &(info.text));
-        list->tokens[list->size].text = new_str;
-    }
-    list->size++;
-}
-#pragma endregion
-#pragma region Private
 /// @brief 跳过空白字符
 static void lunaLexer_SkipWhitespace(luna_Lexer *lexer)
 {
@@ -190,7 +246,6 @@ static luna_TokenInfo lunaLexer_AnalyzeNumber(luna_Lexer *lexer)
     }
     return luna_MakeTokenInfo(lexer, is_float ? LUNA_TOKEN_LIT_FLOAT : LUNA_TOKEN_LIT_INT);
 }
-
 /// @brief 解析字符串字面量
 static luna_TokenInfo lunaLexer_AnalyzeString(luna_Lexer *lexer, char quote)
 {
@@ -247,7 +302,7 @@ static luna_TokenInfo lunaLexer_AnalyzeIdentifier(luna_Lexer *lexer)
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_LIT_NIL);
     return luna_MakeTokenInfo(lexer, LUNA_TOKEN_VAR);
 }
-/// @brief 解析定义语句
+/// @brief 解析定义符号
 static luna_TokenInfo lunaLexer_AnalyzeDef(luna_Lexer *lexer)
 {
     lunaLexer_ClearCurrentTokenText(lexer);
@@ -557,78 +612,40 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
         return lunaLexer_ReportError(lexer, "无法识别的字符 '%c' (ASCII: %d)", c, c);
     }
 }
-static luna_TokenInfo lunaLexer_NextTokenInfo(luna_Lexer *lexer)
-{
-    if (lexer->has_error)
-        return luna_MakeTokenInfo(lexer, LUNA_TOKEN_EOF);
-    lunaLexer_SkipWhitespace(lexer);
-    if (lunaLexer_IsAtEnd(lexer))
-        return luna_MakeTokenInfo(lexer, LUNA_TOKEN_EOF);
-    char c = *lexer->current;
-    // 注释
-    if (c == '/' && *(lexer->current + 1) == '/')
-    {
-        lunaLexer_SkipNote(lexer);
-        return lunaLexer_NextTokenInfo(lexer);
-    }
-    // 数字
-    if (isdigit(c) || (c == '.' && isdigit(*(lexer->current + 1))))
-        return lunaLexer_AnalyzeNumber(lexer);
-    // 字符串
-    if (c == '"' || c == '\'')
-        return lunaLexer_AnalyzeString(lexer, c);
-    // 定义
-    if (c == '#')
-        return lunaLexer_AnalyzeDef(lexer);
-    // 变量
-    if (isalpha(c) || c == '_')
-        return lunaLexer_AnalyzeIdentifier(lexer);
-    // 操作符
-    return lunaLexer_AnalyzeOperator(lexer);
-}
 #pragma endregion
-#pragma region Public
-void lunaLexer_Init(luna_Lexer *lexer)
+#pragma region Token Info List
+static void lunaTokenInfoList_Free(luna_TokenInfoList *list)
 {
-    lexer->source = NULL;
-    lexer->current = NULL;
-    lexer->line = 1;
-    lexer->column = 1;
-    lexer->current_token_text = LUNA_NULL_STRING;
-    lexer->token_info_list.tokens = NULL;
-    lexer->token_info_list.size = 0;
-    lexer->token_info_list.capacity = 0;
-    lexer->error = LUNA_NULL_ERROR;
-    lexer->has_error = false;
-}
-void lunaLexer_Free(luna_Lexer *lexer)
-{
-    lexer->current = lexer->source = NULL;
-    lexer->line = 1;
-    lexer->column = 1;
-    lunaString_Free(&(lexer->current_token_text));
-    lunaTokenInfoList_Free(&(lexer->token_info_list));
-    lunaError_Free(&lexer->error);
-    lexer->has_error = false;
-}
-void lunaLexer_Load(luna_Lexer *lexer, const char *source)
-{
-    lexer->current = lexer->source = source;
-    while (!lunaLexer_IsAtEnd(lexer))
+    for (int i = 0; i < list->size; i++)
     {
-        luna_TokenInfo info = lunaLexer_NextTokenInfo(lexer);
-        lunaTokenInfoList_Add(&(lexer->token_info_list), info);
-        lunaString_Free(&(info.text));
-        if (info.type == LUNA_TOKEN_EOF)
-            return;
+        if (!lunaString_IsEmpty(&(list->tokens[i].text)))
+            lunaString_Free(&(list->tokens[i].text));
     }
+    free(list->tokens);
+    list->tokens = NULL;
 }
-bool lunaLexer_HasError(luna_Lexer *lexer)
+static void lunaTokenInfoList_Add(luna_TokenInfoList *list, luna_TokenInfo info)
 {
-    return lexer->has_error;
-}
-luna_Error lunaLexer_GetError(luna_Lexer *lexer)
-{
-    return lexer->error;
+    if (list->size >= list->capacity)
+    {
+        int new_capacity = list->capacity == 0 ? 64 : list->capacity * 2;
+        luna_TokenInfo *new_tokens = realloc(list->tokens, new_capacity * sizeof(luna_TokenInfo));
+        if (!new_tokens)
+        {
+            // TODO: 内存分配失败
+            return;
+        }
+        list->tokens = new_tokens;
+        list->capacity = new_capacity;
+    }
+    list->tokens[list->size] = info;
+    if (!lunaString_IsEmpty(&(info.text)))
+    {
+        luna_String new_str = LUNA_NULL_STRING;
+        lunaString_Malloc(&new_str, info.text.len + 1);
+        lunaString_AppendObj(&new_str, &(info.text));
+        list->tokens[list->size].text = new_str;
+    }
+    list->size++;
 }
 #pragma endregion
