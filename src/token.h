@@ -6,8 +6,8 @@ typedef enum luna_Token
     /*注释*/
     LUNA_TOKEN_NOTE, // //
     /*定义/赋值/变量名/字面量*/
-    LUNA_TOKEN_DEF,        // #
-    LUNA_TOKEN_ASSIGN,      // =
+    LUNA_TOKEN_DEF,    // #
+    LUNA_TOKEN_ASSIGN, // =
     LUNA_TOKEN_VAR,
     LUNA_TOKEN_LIT_NIL,
     LUNA_TOKEN_LIT_INT,
@@ -56,11 +56,13 @@ typedef enum luna_Token
     LUNA_TOKEN_AND, // &&
     LUNA_TOKEN_OR,  // ||
     /*关键字*/
-    LUNA_TOKEN_IF,     // ?
-    LUNA_TOKEN_ELIF,   // :?
-    LUNA_TOKEN_ELSE,   // :
-    LUNA_TOKEN_LOOP,   // <>
-    LUNA_TOKEN_RETURN, // +>
+    LUNA_TOKEN_IF,       // ?
+    LUNA_TOKEN_ELIF,     // :?
+    LUNA_TOKEN_ELSE,     // :
+    LUNA_TOKEN_LOOP,     // <>
+    LUNA_TOKEN_RETURN,   // +>
+    LUNA_TOKEN_CONTINUE, // :>
+    LUNA_TOKEN_BREAT,    // :>>
     /*区域*/
     LUNA_TOKEN_LPAREN,   // (
     LUNA_TOKEN_RPAREN,   // )
@@ -68,7 +70,7 @@ typedef enum luna_Token
     LUNA_TOKEN_RBRACKET, // ]
     LUNA_TOKEN_LBRACE,   // {
     LUNA_TOKEN_RBRACE,   // }
-    /*多意符号*/
+    /*功能*/
     LUNA_TOKEN_RARROW,  // ->
     LUNA_TOKEN_LARROW,  // <-
     LUNA_TOKEN_RDARROW, // ->>
