@@ -573,6 +573,19 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
             lexer->column += 2;
             return luna_MakeTokenInfo(lexer, LUNA_TOKEN_ELIF);
         }
+        else if (next == '>')
+        {
+            char next1 = *(lexer->current + 2);
+            if (next1 == '>')
+            {
+                lexer->current += 3;
+                lexer->column += 3;
+                return luna_MakeTokenInfo(lexer, LUNA_TOKEN_BREAT);
+            }
+            lexer->current += 2;
+            lexer->column += 2;
+            return luna_MakeTokenInfo(lexer, LUNA_TOKEN_CONTINUE);
+        }
         lexer->current++;
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_ELSE);
