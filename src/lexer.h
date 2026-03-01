@@ -6,32 +6,35 @@
 #include "error.h"
 #include <stdio.h>
 
+typedef struct luna_TokenInfo
+{
+    luna_Token type;
+    luna_String text;
+    int line;
+    int column;
+} luna_TokenInfo;
+typedef struct luna_TokenInfoList
+{
+    luna_TokenInfo *tokens;
+    int size;
+    int capacity;
+} luna_TokenInfoList;
 typedef struct luna_Lexer
 {
-    luna_VM *vm;
-    luna_Error error;
     const char *source;
     const char *current;
     int line;
     int column;
-    luna_String *current_token_text;
+    luna_String current_token_text;
+    luna_TokenInfoList token_info_list;
+    luna_Error error;
     bool has_error;
 } luna_Lexer;
 
-typedef struct luna_TokenInfo
-{
-    luna_Token type;
-    luna_String *text;
-    int line;
-    int column;
-} luna_TokenInfo;
-
-void lunaLexer_Init(luna_Lexer *lexer, luna_VM *vm, const char *source);
+void lunaLexer_Init(luna_Lexer *lexer);
 void lunaLexer_Free(luna_Lexer *lexer);
-luna_TokenInfo lunaLexer_NextToken(luna_Lexer *lexer);
-bool lunaLexer_IsAtEnd(luna_Lexer *lexer);
+void lunaLexer_Load(luna_Lexer *lexer, const char *source);
 bool lunaLexer_HasError(luna_Lexer *lexer);
 luna_Error lunaLexer_GetError(luna_Lexer *lexer);
-void lunaLexer_ClearError(luna_Lexer *lexer);
 
 #endif

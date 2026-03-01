@@ -22,6 +22,9 @@ void lunaPoolHeader_Free(luna_PoolHeader *header, luna_Ref ref)
 }
 bool lunaPoolHeader_IsValid(luna_PoolHeader *header, luna_Ref ref)
 {
+    if (header)
+    {
+    }
     return ref != LUNA_NULL_REF;
     // if (ref == LUNA_NULL_REF)
     //     return false;

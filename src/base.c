@@ -32,7 +32,7 @@ luna_Var lunaVar_ToString(luna_Var v)
     switch (v.type)
     {
     case LUNA_TYPE_NIL:
-        lunaString_Append(s, "nil");
+        lunaString_AppendLen(s, "nil", 3);
         break;
     case LUNA_TYPE_INT:
         sprintf(buf, "%d", v.data.i);
@@ -46,13 +46,13 @@ luna_Var lunaVar_ToString(luna_Var v)
         lunaString_AppendObj(s, LUNA_POOL_AT(vm->strings, luna_String, v.data.r));
         break;
     case LUNA_TYPE_TABLE:
-        lunaString_Append(s, "[table]");
+        lunaString_AppendLen(s, "[table]", 7);
         break;
     case LUNA_TYPE_FUNC:
-        lunaString_Append(s, "[func]");
+        lunaString_AppendLen(s, "[func]", 6);
         break;
     default:
-        lunaString_Append(s, "[unknown]");
+        lunaString_AppendLen(s, "[unknown]", 9);
         break;
     }
     return res_v;
@@ -154,18 +154,19 @@ void lunaString_Malloc(luna_String *s, luna_UInt cap)
     s->len = 0;
     s->capacity = cap;
 }
-bool lunaString_IsEmpty(luna_String *s)
+bool lunaString_IsEmpty(const luna_String *s)
 {
     return !s->data || s->len == 0;
 }
 void lunaString_Append(luna_String *s, const char *str)
 {
-    if (str == NULL)
+    lunaString_AppendLen(s, str, strlen(str));
+}
+void lunaString_AppendLen(luna_String *s, const char *str, luna_UInt len)
+{
+    if (str == NULL || len == 0)
         return;
-    luna_UInt append_len = (luna_UInt)strlen(str);
-    if (append_len == 0)
-        return;
-    luna_UInt total_needed = s->len + append_len;
+    luna_UInt total_needed = s->len + len;
     if (total_needed + 1 > s->capacity)
     {
         luna_UInt new_cap = (s->capacity == 0) ? 16 : s->capacity * 2;
@@ -180,7 +181,7 @@ void lunaString_Append(luna_String *s, const char *str)
         s->data = new_data;
         s->capacity = new_cap;
     }
-    memcpy(s->data + s->len, str, append_len);
+    memcpy(s->data + s->len, str, len);
     s->len = total_needed;
     s->data[s->len] = '\0';
 }
@@ -188,24 +189,7 @@ void lunaString_AppendObj(luna_String *s, const luna_String *other)
 {
     if (other == NULL || other->len == 0)
         return;
-    luna_UInt total_needed = s->len + other->len;
-    if (total_needed + 1 > s->capacity)
-    {
-        luna_UInt new_cap = (s->capacity == 0) ? 16 : s->capacity * 2;
-        if (new_cap < total_needed + 1)
-            new_cap = total_needed + 1;
-        char *new_data = (char *)realloc(s->data, new_cap);
-        if (new_data == NULL)
-        {
-            // TODO: 内存分配失败
-            return;
-        }
-        s->data = new_data;
-        s->capacity = new_cap;
-    }
-    memcpy(s->data + s->len, other->data, other->len);
-    s->len = total_needed;
-    s->data[s->len] = '\0';
+    lunaString_AppendLen(s, other->data, other->len);
 }
 luna_Var lunaString_ToInt(luna_String *s)
 {
@@ -327,5 +311,9 @@ void lunaTable_Free(luna_Table *t)
 void lunaFunc_Free(luna_Func *f)
 {
     // TODO: 函数释放
+    if (f)
+    {
+        
+    }
 }
 #pragma endregion

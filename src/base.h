@@ -90,8 +90,9 @@ void lunaObj_Retain(luna_Var v);
 void lunaObj_Release(luna_Var v);
 
 void lunaString_Malloc(luna_String *s, luna_UInt cap);
-bool lunaString_IsEmpty(luna_String *s);
+bool lunaString_IsEmpty(const luna_String *s);
 void lunaString_Append(luna_String *s, const char *str);
+void lunaString_AppendLen(luna_String *s, const char *str, luna_UInt len);
 void lunaString_AppendObj(luna_String *s, const luna_String *other);
 luna_Var lunaString_ToInt(luna_String *s);
 luna_Var lunaString_ToFloat(luna_String *s);

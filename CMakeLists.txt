@@ -29,6 +29,7 @@ PRIVATE
 target_sources(luna
 PRIVATE
     "src/base.c"
+    "src/error.c"
     "src/lexer.c"
     "src/pool.c"
     "src/vm.c"

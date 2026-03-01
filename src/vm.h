@@ -1,6 +1,7 @@
 #ifndef LUNA_VM_H
 #define LUNA_VM_H
 #include "pool.h"
+#include "lexer.h"
 
 typedef struct luna_State
 {
@@ -24,15 +25,19 @@ typedef struct luna_State
 typedef struct luna_VM
 {
     luna_State state;
+
     luna_StringPool strings;
     luna_TablePool tables;
     luna_FuncPool funcs;
+
+    luna_Lexer lexer;
 } luna_VM;
 
 luna_VM luna_CreateVM(luna_State state);
 void luna_DestroyVM(luna_VM *vm);
 
-void lunaVM_Clear(luna_VM *vm);
+void lunaVM_Load(luna_VM *vm, const char* soure);
+void lunaVM_Free(luna_VM *vm);
 // void lunaVM_GC(luna_VM *vm);
 
 #endif

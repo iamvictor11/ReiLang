@@ -6,11 +6,12 @@ luna_VM luna_CreateVM(luna_State state)
     LUNA_POOL_INIT(vm.strings, luna_String, LUNA_MAX_OBJ_POOL_SIZE);
     LUNA_POOL_INIT(vm.tables, luna_Table, LUNA_MAX_OBJ_POOL_SIZE);
     LUNA_POOL_INIT(vm.funcs, luna_Func, LUNA_MAX_OBJ_POOL_SIZE);
+    lunaLexer_Init(&vm.lexer);
     return vm;
 }
 void luna_DestroyVM(luna_VM *vm)
 {
-    lunaVM_Clear(vm);
+    lunaVM_Free(vm);
     free(vm->strings.data);
     free(vm->strings.header.next_free);
     free(vm->tables.data);
@@ -19,7 +20,12 @@ void luna_DestroyVM(luna_VM *vm)
     free(vm->funcs.header.next_free);
     memset(vm, 0, sizeof(luna_VM));
 }
-void lunaVM_Clear(luna_VM *vm)
+
+void lunaVM_Load(luna_VM *vm, const char* source)
+{
+    lunaLexer_Load(&vm->lexer, source);
+}
+void lunaVM_Free(luna_VM *vm)
 {
     for (luna_UInt i = 0; i < vm->tables.header.capacity; i++) {
         luna_Table *t = &vm->tables.data[i];
@@ -39,6 +45,7 @@ void lunaVM_Clear(luna_VM *vm)
     LUNA_POOL_RESET(vm->strings, vm->state.max_ObjPoolSize);
     LUNA_POOL_RESET(vm->tables, vm->state.max_ObjPoolSize);
     LUNA_POOL_RESET(vm->funcs, vm->state.max_ObjPoolSize);
+    lunaLexer_Free(&(vm->lexer));
 }
 // void lunaVM_GC(luna_VM *vm)
 // {

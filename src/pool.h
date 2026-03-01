@@ -67,18 +67,19 @@ bool lunaPoolHeader_IsValid(luna_PoolHeader *header, luna_Ref ref);
         (_pool).header.next_free[(_cap)-1] = LUNA_NULL_REF;        \
         memset((_pool).data, 0, (_cap) * sizeof(*((_pool).data))); \
     } while (0)
-// #define LUNA_POOL_GC(_pool, _type, _free_func)                  \
-//     do                                                          \
-//     {                                                           \
-//         for (luna_UInt i = 0; i < (_pool).header.capacity; i++) \
-//         {                                                       \
-//             _type *raw = (_pool).data + i;                      \
-//             if (raw->header.ref_count == 0)                     \
-//             {                                                   \
-//                 _free_func(raw);                                \
-//                 lunaPoolHeader_Free(&((_pool).header), i);      \
-//             }                                                   \
-//         }                                                       \
-//     } while (0)
-
+/*
+#define LUNA_POOL_GC(_pool, _type, _free_func)                  \
+    do                                                          \
+    {                                                           \
+        for (luna_UInt i = 0; i < (_pool).header.capacity; i++) \
+        {                                                       \
+            _type *raw = (_pool).data + i;                      \
+            if (raw->header.ref_count == 0)                     \
+            {                                                   \
+                _free_func(raw);                                \
+                lunaPoolHeader_Free(&((_pool).header), i);      \
+            }                                                   \
+        }                                                       \
+    } while (0)
+*/
 #endif

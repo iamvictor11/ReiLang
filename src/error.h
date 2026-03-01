@@ -7,13 +7,15 @@ typedef struct luna_Error
 {
     int line;
     int column;
-    luna_String *message;
+    luna_String message;
 } luna_Error;
+
+#define LUNA_NULL_ERROR \
+    (luna_Error) { .line = 0, .column = 0, .message = LUNA_NULL_STRING }
 
 luna_Error luna_MakeError(int line, int column, const char *format, ...);
 void lunaError_Free(luna_Error *error);
 void lunaError_Copy(luna_Error *dest, const luna_Error *src);
 bool lunaError_IsValid(const luna_Error *error);
-void lunaError_Clear(luna_Error *error);
 
 #endif
