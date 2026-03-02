@@ -17,7 +17,7 @@ static luna_TokenInfo lunaLexer_ReportError(luna_Lexer *lexer, const char *forma
 static luna_TokenInfo lunaLexer_AnalyzeNumber(luna_Lexer *lexer);
 static luna_TokenInfo lunaLexer_AnalyzeString(luna_Lexer *lexer, char quote);
 static luna_TokenInfo lunaLexer_AnalyzeIdentifier(luna_Lexer *lexer);
-static luna_TokenInfo lunaLexer_AnalyzeDef(luna_Lexer *lexer);
+static luna_TokenInfo lunaLexer_AnalyzeDefOrImport(luna_Lexer *lexer, char c);
 static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer);
 static void lunaTokenInfoList_Free(luna_TokenInfoList *list);
 static void lunaTokenInfoList_Add(luna_TokenInfoList *list, luna_TokenInfo info);
@@ -87,8 +87,8 @@ static luna_TokenInfo lunaLexer_ScanNextCharToTokenInfo(luna_Lexer *lexer)
         return lunaLexer_AnalyzeNumber(lexer);
     else if (c == '"' || c == '\'')// 字符串
         return lunaLexer_AnalyzeString(lexer, c);
-    else if (c == '#')// 定义
-        return lunaLexer_AnalyzeDef(lexer);
+    else if (c == '#' || c == '@')// 定义/导入
+        return lunaLexer_AnalyzeDefOrImport(lexer, c);
     else if (isalpha(c) || c == '_')// 变量
         return lunaLexer_AnalyzeIdentifier(lexer);
     else// 操作符
@@ -372,17 +372,17 @@ static luna_TokenInfo lunaLexer_AnalyzeIdentifier(luna_Lexer *lexer)
     }
     if (!lunaString_IsEmpty(&(lexer->current_token_text)) && strcmp(lexer->current_token_text.data, "nil") == 0)
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_LIT_NIL, LUNA_NIL_VAR);
-    return luna_MakeTokenInfo(lexer, LUNA_TOKEN_VAR, LUNA_NIL_VAR);
+    return luna_MakeTokenInfo(lexer, LUNA_TOKEN_NAME, LUNA_NIL_VAR);
 }
 /// @brief 解析定义符号
-static luna_TokenInfo lunaLexer_AnalyzeDef(luna_Lexer *lexer)
+static luna_TokenInfo lunaLexer_AnalyzeDefOrImport(luna_Lexer *lexer, char c)
 {
     lunaLexer_ClearCurrentTokenText(lexer);
     lexer->current_char++;
     lexer->column++;
     // 标识符
     if (lunaLexer_IsAtEnd(lexer) || (!isalpha(*lexer->current_char) && *lexer->current_char != '_'))
-        return lunaLexer_ReportError(lexer, "定义名称必须是标识符");
+        return lunaLexer_ReportError(lexer, "定义或导入后必须是标识符");
     // 名称
     while (!lunaLexer_IsAtEnd(lexer) && (isalnum(*lexer->current_char) || *lexer->current_char == '_'))
     {
@@ -390,7 +390,7 @@ static luna_TokenInfo lunaLexer_AnalyzeDef(luna_Lexer *lexer)
         lexer->current_char++;
         lexer->column++;
     }
-    return luna_MakeTokenInfo(lexer, LUNA_TOKEN_DEF, LUNA_NIL_VAR);
+    return luna_MakeTokenInfo(lexer, c == '#' ? LUNA_TOKEN_DEF : LUNA_TOKEN_IMPORT, LUNA_NIL_VAR);
 }
 /// @brief 解析符号
 static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
@@ -586,13 +586,7 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_LT, LUNA_NIL_VAR);
     case '>':
-        if (next == '_')
-        {
-            lexer->current_char += 2;
-            lexer->column += 2;
-            return luna_MakeTokenInfo(lexer, LUNA_TOKEN_TERMINAL, LUNA_NIL_VAR);
-        }
-        else if (next == '>')
+        if (next == '>')
         {
             char next1 = *(lexer->current_char + 2);
             if (next1 == '=')
@@ -639,7 +633,13 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_IF, LUNA_NIL_VAR);
     case ':':
-        if (next == '?')
+        if (next == ':')
+        {
+            lexer->current_char += 2;
+            lexer->column += 2;
+            return luna_MakeTokenInfo(lexer, LUNA_TOKEN_DCOLON, LUNA_NIL_VAR);
+        }
+        else if (next == '?')
         {
             lexer->current_char += 2;
             lexer->column += 2;
@@ -670,6 +670,16 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_RBRACE, LUNA_NIL_VAR);
     case '[':
+        if (next == ']')
+        {
+            char next1 = *(lexer->current_char + 2);
+            if (next1 == '{')
+            {
+                lexer->current_char += 2;
+                lexer->column += 2;
+                return luna_MakeTokenInfo(lexer, LUNA_TOKEN_LIT_TABLE, LUNA_NIL_VAR);
+            }
+        }
         lexer->current_char++;
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_LBRACKET, LUNA_NIL_VAR);
@@ -686,6 +696,16 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_COMMA, LUNA_NIL_VAR);
     case '(':
+        if (next == ')')
+        {
+            char next1 = *(lexer->current_char + 2);
+            if (next1 == '{')
+            {
+                lexer->current_char += 2;
+                lexer->column += 2;
+                return luna_MakeTokenInfo(lexer, LUNA_TOKEN_LIT_FUNC, LUNA_NIL_VAR);
+            }
+        }
         lexer->current_char++;
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_LPAREN, LUNA_NIL_VAR);
@@ -693,6 +713,14 @@ static luna_TokenInfo lunaLexer_AnalyzeOperator(luna_Lexer *lexer)
         lexer->current_char++;
         lexer->column++;
         return luna_MakeTokenInfo(lexer, LUNA_TOKEN_RPAREN, LUNA_NIL_VAR);
+    case '$':
+        lexer->current_char++;
+        lexer->column++;
+        return luna_MakeTokenInfo(lexer, LUNA_TOKEN_TAKE, LUNA_NIL_VAR);
+    case ';':
+        lexer->current_char++;
+        lexer->column++;
+        return luna_MakeTokenInfo(lexer, LUNA_TOKEN_RETURN, LUNA_NIL_VAR);
     default:
         return lunaLexer_ReportError(lexer, "无法识别的字符 '%c' (ASCII: %d)", c, c);
     }

@@ -12,17 +12,21 @@ const char *lunaTokenInfo_ToString(luna_TokenInfo info)
     case LUNA_TOKEN_NOTE:
         type_name = "NOTE";
         break;
-    /*定义/赋值*/
+    /*基础*/
     case LUNA_TOKEN_DEF:
         type_name = "DEF";
         break;
     case LUNA_TOKEN_ASSIGN:
         type_name = "ASSIGN";
         break;
-    /*变量名/字面量*/
-    case LUNA_TOKEN_VAR:
-        type_name = "VAR";
+    case LUNA_TOKEN_IMPORT:
+        type_name = "IMPORT";
         break;
+    /*标识符*/
+    case LUNA_TOKEN_NAME:
+        type_name = "NAME";
+        break;
+    /*字面量*/
     case LUNA_TOKEN_LIT_NIL:
         type_name = "LIT_NIL";
         break;
@@ -34,6 +38,12 @@ const char *lunaTokenInfo_ToString(luna_TokenInfo info)
         break;
     case LUNA_TOKEN_LIT_STRING:
         type_name = "LIT_STRING";
+        break;
+    case LUNA_TOKEN_LIT_TABLE:
+        type_name = "LIT_TABLE";
+        break;
+    case LUNA_TOKEN_LIT_FUNC:
+        type_name = "LIT_FUNC";
         break;
     /*数学运算*/
     case LUNA_TOKEN_ADD:
@@ -157,6 +167,9 @@ const char *lunaTokenInfo_ToString(luna_TokenInfo info)
     case LUNA_TOKEN_LOOP:
         type_name = "LOOP";
         break;
+    case LUNA_TOKEN_TAKE:
+        type_name = "TAKE";
+        break;
     case LUNA_TOKEN_RETURN:
         type_name = "RETURN";
         break;
@@ -204,9 +217,8 @@ const char *lunaTokenInfo_ToString(luna_TokenInfo info)
     case LUNA_TOKEN_COMMA:
         type_name = "COMMA";
         break;
-    /*终端*/
-    case LUNA_TOKEN_TERMINAL:
-        type_name = "TERMINAL";
+    case LUNA_TOKEN_DCOLON:
+        type_name = "DCOLON";
         break;
     /*其他*/
     case LUNA_TOKEN_EOF:
@@ -223,7 +235,7 @@ const char *lunaTokenInfo_ToString(luna_TokenInfo info)
         sprintf(buf, "[%d:%d] %s: %lld", info.line, info.column, type_name, (long long)info.value.data.i);
     else if (info.type == LUNA_TOKEN_LIT_FLOAT)
         sprintf(buf, "[%d:%d] %s: %g", info.line, info.column, type_name, info.value.data.f);
-    else if (info.type == LUNA_TOKEN_LIT_STRING || info.type == LUNA_TOKEN_DEF || info.type == LUNA_TOKEN_VAR)
+    else if (info.type == LUNA_TOKEN_LIT_STRING || info.type == LUNA_TOKEN_DEF || info.type == LUNA_TOKEN_NAME || info.type == LUNA_TOKEN_IMPORT)
         sprintf(buf, "[%d:%d] %s: \"%s\"", info.line, info.column, type_name, info.text.data);
     else
         sprintf(buf, "[%d:%d] %s", info.line, info.column, type_name);

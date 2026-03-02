@@ -5,18 +5,20 @@ typedef enum luna_Token
 {
     /*注释*/
     LUNA_TOKEN_NOTE, // //
-    /*定义/赋值*/
+    /*基础*/
     LUNA_TOKEN_DEF,    // #
     LUNA_TOKEN_ASSIGN, // =
-    /*变量名/字面量*/
-    LUNA_TOKEN_VAR,
+    LUNA_TOKEN_IMPORT, // @
+    /*标识符*/
+    LUNA_TOKEN_NAME,
+    /*字面量*/
     LUNA_TOKEN_LIT_NIL,
     LUNA_TOKEN_LIT_INT,
     LUNA_TOKEN_LIT_FLOAT,
-    LUNA_TOKEN_LIT_STRING,
-    // 复杂字面量在 Lexer 阶段不解析
-    // LUNA_TOKEN_LIT_TABLE,
-    // LUNA_TOKEN_LIT_FUNC,
+    LUNA_TOKEN_LIT_STRING, // "" ''
+    /*复杂字面量在 Lexer 阶段不完全解析*/
+    LUNA_TOKEN_LIT_TABLE, // []{}
+    LUNA_TOKEN_LIT_FUNC,  // (){}
     /*数学运算*/
     LUNA_TOKEN_ADD,      // +
     LUNA_TOKEN_SUB,      // -
@@ -61,7 +63,8 @@ typedef enum luna_Token
     LUNA_TOKEN_ELIF,     // :?
     LUNA_TOKEN_ELSE,     // :
     LUNA_TOKEN_LOOP,     // <>
-    LUNA_TOKEN_RETURN,   // +>
+    LUNA_TOKEN_TAKE,     // $
+    LUNA_TOKEN_RETURN,   // ;
     LUNA_TOKEN_CONTINUE, // :>
     LUNA_TOKEN_BREAK,    // :>>
     /*区域*/
@@ -78,8 +81,7 @@ typedef enum luna_Token
     LUNA_TOKEN_LDARROW, // <<-
     LUNA_TOKEN_DOT,     // .
     LUNA_TOKEN_COMMA,   // ,
-    /*终端*/
-    LUNA_TOKEN_TERMINAL, // >_
+    LUNA_TOKEN_DCOLON,  // ::
     /*其他*/
     LUNA_TOKEN_EOF,
     LUNA_TOKEN_ERROR
