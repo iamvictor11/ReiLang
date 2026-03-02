@@ -1,15 +1,14 @@
 #include "vm.h"
-
-luna_VM luna_CreateVM(luna_State state)
+#include <stdio.h>
+void lunaVM_Init(luna_VM *vm, luna_State state)
 {
-    luna_VM vm = {.state = state};
-    LUNA_POOL_INIT(vm.strings, luna_String, LUNA_MAX_OBJ_POOL_SIZE);
-    LUNA_POOL_INIT(vm.tables, luna_Table, LUNA_MAX_OBJ_POOL_SIZE);
-    LUNA_POOL_INIT(vm.funcs, luna_Func, LUNA_MAX_OBJ_POOL_SIZE);
-    lunaLexer_Init(&vm.lexer);
-    return vm;
+    vm->state = state;
+    LUNA_POOL_INIT(vm->strings, luna_String, state.max_ObjPoolSize);
+    LUNA_POOL_INIT(vm->tables, luna_Table, state.max_ObjPoolSize);
+    LUNA_POOL_INIT(vm->funcs, luna_Func, state.max_ObjPoolSize);
+    lunaLexer_Init(&(vm->lexer), vm);
 }
-void luna_DestroyVM(luna_VM *vm)
+void lunaVM_Term(luna_VM *vm)
 {
     lunaVM_Free(vm);
     free(vm->strings.data);
@@ -21,23 +20,26 @@ void luna_DestroyVM(luna_VM *vm)
     memset(vm, 0, sizeof(luna_VM));
 }
 
-void lunaVM_Load(luna_VM *vm, const char* source)
+void lunaVM_Load(luna_VM *vm, const char *source)
 {
     lunaLexer_Load(&vm->lexer, source);
 }
 void lunaVM_Free(luna_VM *vm)
 {
-    for (luna_UInt i = 0; i < vm->tables.header.capacity; i++) {
+    for (luna_UInt i = 0; i < vm->tables.header.capacity; i++)
+    {
         luna_Table *t = &vm->tables.data[i];
         if (t->data != NULL)
             lunaTable_Free(t);
     }
-    for (luna_UInt i = 0; i < vm->strings.header.capacity; i++) {
+    for (luna_UInt i = 0; i < vm->strings.header.capacity; i++)
+    {
         luna_String *s = &vm->strings.data[i];
         if (s->data != NULL)
             lunaString_Free(s);
     }
-    for (luna_UInt i = 0; i < vm->funcs.header.capacity; i++) {
+    for (luna_UInt i = 0; i < vm->funcs.header.capacity; i++)
+    {
         luna_Func *f = &vm->funcs.data[i];
         if (f->bytecode != NULL)
             lunaFunc_Free(f);

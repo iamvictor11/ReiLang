@@ -12,7 +12,7 @@ typedef struct luna_State
     luna_UInt ini_TableCap;
 } luna_State;
 
-#define LUNA_DEFAULT_STRING                        \
+#define LUNA_DEFAULT_STATE                         \
     (luna_State)                                   \
     {                                              \
         .max_VarCount = LUNA_MAX_VAR_COUNT,        \
@@ -33,10 +33,10 @@ typedef struct luna_VM
     luna_Lexer lexer;
 } luna_VM;
 
-luna_VM luna_CreateVM(luna_State state);
-void luna_DestroyVM(luna_VM *vm);
+void lunaVM_Init(luna_VM *vm, luna_State state);
+void lunaVM_Term(luna_VM *vm);
 
-void lunaVM_Load(luna_VM *vm, const char* soure);
+void lunaVM_Load(luna_VM *vm, const char *soure);
 void lunaVM_Free(luna_VM *vm);
 // void lunaVM_GC(luna_VM *vm);
 

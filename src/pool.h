@@ -6,8 +6,7 @@
 
 typedef struct luna_PoolHeader
 {
-    luna_UInt free_list;
-    luna_Byte *data;
+    luna_UInt free_head;
     luna_UInt *next_free;
     luna_UInt size;
     luna_UInt capacity;
@@ -45,11 +44,11 @@ bool lunaPoolHeader_IsValid(luna_PoolHeader *header, luna_Ref ref);
         for (luna_UInt i = 0; i < (_cap)-1; i++)                                    \
             (_pool).header.next_free[i] = i + 1;                                    \
         (_pool).header.next_free[(_cap)-1] = LUNA_NULL_REF;                         \
-        (_pool).header.free_list = 0;                                               \
+        (_pool).header.free_head = 0;                                               \
     } while (0)
 #define LUNA_POOL_ALLOC(_pool) lunaPoolHeader_Alloc(&((_pool).header))
 #define LUNA_POOL_IS_VALID(_pool) lunaPoolHeader_IsValid(&((_pool).header))
-#define LUNA_POOL_AT(_pool, _type, _ref) ((_type *)((_pool).data + (_ref)))
+#define LUNA_POOL_AT(_pool, _ref) ((_pool).data + (_ref))
 #define LUNA_POOL_FREE(_pool, _type, _free_func, _ref)  \
     do                                                  \
     {                                                   \
@@ -61,25 +60,10 @@ bool lunaPoolHeader_IsValid(luna_PoolHeader *header, luna_Ref ref);
     do                                                             \
     {                                                              \
         (_pool).header.size = 0;                                   \
-        (_pool).header.free_list = 0;                              \
+        (_pool).header.free_head = 0;                              \
         for (luna_UInt i = 0; i < (_cap)-1; i++)                   \
             (_pool).header.next_free[i] = i + 1;                   \
         (_pool).header.next_free[(_cap)-1] = LUNA_NULL_REF;        \
         memset((_pool).data, 0, (_cap) * sizeof(*((_pool).data))); \
     } while (0)
-/*
-#define LUNA_POOL_GC(_pool, _type, _free_func)                  \
-    do                                                          \
-    {                                                           \
-        for (luna_UInt i = 0; i < (_pool).header.capacity; i++) \
-        {                                                       \
-            _type *raw = (_pool).data + i;                      \
-            if (raw->header.ref_count == 0)                     \
-            {                                                   \
-                _free_func(raw);                                \
-                lunaPoolHeader_Free(&((_pool).header), i);      \
-            }                                                   \
-        }                                                       \
-    } while (0)
-*/
 #endif

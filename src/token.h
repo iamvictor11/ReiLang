@@ -5,9 +5,10 @@ typedef enum luna_Token
 {
     /*注释*/
     LUNA_TOKEN_NOTE, // //
-    /*定义/赋值/变量名/字面量*/
+    /*定义/赋值*/
     LUNA_TOKEN_DEF,    // #
     LUNA_TOKEN_ASSIGN, // =
+    /*变量名/字面量*/
     LUNA_TOKEN_VAR,
     LUNA_TOKEN_LIT_NIL,
     LUNA_TOKEN_LIT_INT,

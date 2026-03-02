@@ -33,4 +33,5 @@ PRIVATE
     "src/lexer.c"
     "src/pool.c"
     "src/vm.c"
+    "src/debug/token.c"
 )

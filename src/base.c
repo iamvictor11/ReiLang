@@ -26,7 +26,7 @@ luna_Var lunaVar_ToString(luna_Var v)
 {
     luna_VM *vm = v.vm;
     luna_Var res_v = {.vm = vm, .type = LUNA_TYPE_STRING, .data.r = LUNA_POOL_ALLOC(vm->strings)};
-    luna_String *s = LUNA_POOL_AT(vm->strings, luna_String, res_v.data.r);
+    luna_String *s = LUNA_POOL_AT(vm->strings, res_v.data.r);
     lunaString_Malloc(s, 32);
     char buf[32];
     switch (v.type)
@@ -43,7 +43,7 @@ luna_Var lunaVar_ToString(luna_Var v)
         lunaString_Append(s, buf);
         break;
     case LUNA_TYPE_STRING:
-        lunaString_AppendObj(s, LUNA_POOL_AT(vm->strings, luna_String, v.data.r));
+        lunaString_AppendObj(s, LUNA_POOL_AT(vm->strings, v.data.r));
         break;
     case LUNA_TYPE_TABLE:
         lunaString_AppendLen(s, "[table]", 7);
@@ -76,7 +76,7 @@ void lunaVar_Free(luna_Var *v)
         break;
     case LUNA_TYPE_TABLE:
     {
-        luna_Table *t = LUNA_POOL_AT(vm->tables, luna_Table, v->data.r);
+        luna_Table *t = LUNA_POOL_AT(vm->tables, v->data.r);
         if (t->data)
             for (size_t i = 0; i < t->size; i++)
                 lunaObj_Release(t->data[i]);
@@ -105,13 +105,13 @@ void lunaObj_Retain(luna_Var v)
     switch (v.type)
     {
     case LUNA_TYPE_STRING:
-        header = &LUNA_POOL_AT(vm->strings, luna_String, v.data.r)->header;
+        header = &LUNA_POOL_AT(vm->strings, v.data.r)->header;
         break;
     case LUNA_TYPE_TABLE:
-        header = &LUNA_POOL_AT(vm->tables, luna_Table, v.data.r)->header;
+        header = &LUNA_POOL_AT(vm->tables, v.data.r)->header;
         break;
     case LUNA_TYPE_FUNC:
-        header = &LUNA_POOL_AT(vm->funcs, luna_Func, v.data.r)->header;
+        header = &LUNA_POOL_AT(vm->funcs, v.data.r)->header;
         break;
     default:
         return;
@@ -128,13 +128,13 @@ void lunaObj_Release(luna_Var v)
     switch (v.type)
     {
     case LUNA_TYPE_STRING:
-        header = &LUNA_POOL_AT(vm->strings, luna_String, v.data.r)->header;
+        header = &LUNA_POOL_AT(vm->strings, v.data.r)->header;
         break;
     case LUNA_TYPE_TABLE:
-        header = &LUNA_POOL_AT(vm->tables, luna_Table, v.data.r)->header;
+        header = &LUNA_POOL_AT(vm->tables, v.data.r)->header;
         break;
     case LUNA_TYPE_FUNC:
-        header = &LUNA_POOL_AT(vm->funcs, luna_Func, v.data.r)->header;
+        header = &LUNA_POOL_AT(vm->funcs, v.data.r)->header;
         break;
     default:
         return;
