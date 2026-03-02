@@ -54,7 +54,6 @@ void lunaLexer_Load(luna_Lexer *lexer, const char *source)
     {
         luna_TokenInfo info = lunaLexer_ScanNextCharToTokenInfo(lexer);
         lunaTokenInfoList_Add(&(lexer->token_info_list), info);
-        lunaString_Free(&(info.text));
         if (info.type == LUNA_TOKEN_EOF)
             return;
     }
@@ -727,13 +726,6 @@ static void lunaTokenInfoList_Add(luna_TokenInfoList *list, luna_TokenInfo info)
         list->capacity = new_capacity;
     }
     list->tokens[list->size] = info;
-    if (!lunaString_IsEmpty(&(info.text)))
-    {
-        luna_String new_str = LUNA_NULL_STRING;
-        lunaString_Malloc(&new_str, info.text.len + 1);
-        lunaString_AppendObj(&new_str, &(info.text));
-        list->tokens[list->size].text = new_str;
-    }
     list->size++;
 }
 #pragma endregion
