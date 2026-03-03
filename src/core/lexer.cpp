@@ -1,5 +1,4 @@
 #include "lexer.hpp"
-#include "util/error.hpp"
 #include <cctype>
 #include <charconv>
 
@@ -24,6 +23,7 @@ namespace luna
             _scan();
         }
         _tokens.emplace_back(Token::TK_EOF, "", 0, _cursor.pos);
+        _error_reporter = nullptr;
         return _tokens;
     }
 #pragma region Scan

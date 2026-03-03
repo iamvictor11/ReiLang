@@ -1,12 +1,9 @@
 #pragma once
 #include "base/token.hpp"
+#include "util/error.hpp"
 
 namespace luna
 {
-    namespace Error
-    {
-        class Reporter;
-    }
     class Lexer final
     {
     private:
