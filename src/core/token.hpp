@@ -123,23 +123,20 @@ namespace luna::Token
                 return "UNKNOWN";
         }
     }
-    using Literal = uint64_t;
     struct Unit final
     {
     public:
         Type type;
-        std::string lexeme;
-        Literal literal = 0;
+        std::string_view lexeme;
+        Value literal;
         Position pos;
     public:
-        Unit(Type t, std::string l, Position p)
-            : type(t), lexeme(std::move(l)), pos(p) {}
-        Unit(Type t, std::string l, Literal lit, Position p)
-            : type(t), lexeme(std::move(l)), literal(lit), pos(p) {}
+        Unit(Type t, std::string_view l, Position p) : type(t), lexeme(l), pos(p) {}
+        Unit(Type t, std::string_view l, Value v, Position p) : type(t), lexeme(l), literal(std::move(v)), pos(p) {}
     public:
         std::string toString() const
         {
-            return std::string(to_string(type)) + " " + lexeme;
+            return std::string(to_string(type));
         }
         const char* symbol() const
         {
