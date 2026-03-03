@@ -28,6 +28,7 @@ PRIVATE
 )
 target_sources(luna
 PRIVATE
+    "src/core/common.cpp"
     "src/core/lexer.cpp"
     "src/core/vm.cpp"
     "src/debug/log.cpp"
