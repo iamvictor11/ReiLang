@@ -102,46 +102,21 @@ namespace luna::Token
         #undef LUNA_TOKEN_X
         TK_COUNT
     };
-    inline const char* to_symbol(Type type)
-    {
-        switch (type) {
-            #define LUNA_TOKEN_X(name, symbol) case TK_##name: return symbol;
-            LUNA_TOKEN_TYPE_LIST
-            #undef LUNA_TOKEN_X
-            default:
-                return "<?>";
-        }
-    }
-    inline const char* to_string(Type type)
-    {
-        switch (type)
-        {
-            #define LUNA_TOKEN_X(name, symbol) case TK_##name: return #name;
-            LUNA_TOKEN_TYPE_LIST
-            #undef LUNA_TOKEN_X
-            default:
-                return "UNKNOWN";
-        }
-    }
+    std::string to_symbol(Type type);
+    std::string to_string(Type type);
     struct Unit final
     {
     public:
         Type type;
         std::string_view lexeme;
-        Value literal;
+        Value::Data literal;
         Position pos;
     public:
         Unit(Type t, std::string_view l, Position p) : type(t), lexeme(l), pos(p) {}
-        Unit(Type t, std::string_view l, Value v, Position p) : type(t), lexeme(l), literal(std::move(v)), pos(p) {}
+        Unit(Type t, std::string_view l, Value::Data v, Position p) : type(t), lexeme(l), literal(std::move(v)), pos(p) {}
     public:
-        std::string toString() const
-        {
-            return std::string(to_string(type));
-        }
-        const char* symbol() const
-        {
-            return to_symbol(type);
-        }
+        std::string toString() const;
+        std::string symbol() const;
     };
     using List = std::vector<Unit>;
 }
