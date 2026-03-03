@@ -32,6 +32,7 @@ PRIVATE
     "src/core/base/string.cpp"
     "src/core/base/token.cpp"
     "src/core/lexer.cpp"
+    "src/core/parser.cpp"
     "src/core/vm.cpp"
     "src/debug/log.cpp"
     "src/util/error.cpp"

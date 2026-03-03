@@ -20,7 +20,7 @@ namespace luna
         Lexer(std::string&& s, Error::Reporter* er) : _source(std::move(s)), _error_reporter(er) {};
         ~Lexer() = default;
     public:
-        [[nodiscard]] const Token::List& start();
+        [[nodiscard]] Token::List& start();
     private:
         void _scan();
         void _moveCursor();

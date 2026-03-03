@@ -14,7 +14,7 @@ namespace luna
         return c >= '0' && c <= '7';
     }
 #pragma endregion
-    const Token::List& Lexer::start()
+    Token::List& Lexer::start()
     {
         while (!_isAtEnd() && _error_reporter->empty())
             _scan();
