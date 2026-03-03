@@ -279,7 +279,7 @@ void Lexer::_lexString(char beg)
         return;
     }
     _pass();
-    std::string value = _source.substr(_cursor.start, _cursor.current - _cursor.start);
+    std::string value = _source.substr(_cursor.start + 1, _cursor.current - 2 - _cursor.start);
     _addToken(Token::TK_LIT_STRING, value);
 }
 void Lexer::_lexIdentifier()
