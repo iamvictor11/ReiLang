@@ -1,5 +1,5 @@
 #include "common.hpp"
-#include "base/string.hpp"
+#include "string.hpp"
 
 namespace luna
 {
