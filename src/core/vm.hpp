@@ -1,22 +1,21 @@
 #pragma once
 #include <string>
+#include <memory>
 #include "util/error.hpp"
-#include "lexer.hpp"
 
 namespace luna
 {
-    class VirtualMachine final
+    class Lexer;
+    class VM final
     {
     private:
         Error::Reporter _error_reporter;
-        Lexer lexer;
+        std::unique_ptr<Lexer> _lexer;
     public:
-        VirtualMachine() = default;
-        ~VirtualMachine() = default;
+        VM();
+        ~VM();
     public:
         void runSimple(const std::string& source);
         void runFile(const std::string& path);
     };
-
-    using VM = VirtualMachine;
 }

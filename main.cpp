@@ -1,10 +1,9 @@
 #include "luna/luna.hpp"
-#include <windows.h>
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
-    SetConsoleOutputCP(CP_UTF8);
+    luna::kua::setConsoleOutputCPToUTF8();
     if (argc == 1)
     {
     }
@@ -13,7 +12,11 @@ int main(int argc, char *argv[])
         for (int i = 0; i < argc; i++)
             std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
     }
-    std::cout << "按任意键退出...";
+
+    luna::VM vm {};
+    vm.runFile("test.luna");
+
+    std::cout << "按 Enter 键退出...";
     std::cin.get();
     return 0;
 }
