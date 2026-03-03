@@ -23,18 +23,31 @@ namespace luna
         Lexer() = default;
         ~Lexer() = default;
     public:
-        const Token::List& tokenize(const std::string& s, Error::Reporter* er);
+        [[nodiscard]] const Token::List& tokenize(const std::string& s, Error::Reporter* er);
     private:
         void _scan();
         void _moveCursor();
         void _moveCursorln();
+        void _smartMoceCursor(char c);
     private:
         bool _isAtEnd() const;
+        bool _isAtEnd(size_t offset) const;
         char _advance();
-        bool _match(char expected);
-        char _peek();
+        void _pass();
+        void _pass(size_t step);
+        bool _match(char c);
+        char _peek() const;
+        char _peek(size_t offset) const;
+    private:
+        void _skipNote();
+        void _skipWhite();
+    private:
+        void _lexNumber();
+        void _lexString(char beg);
+        void _lexIdentifier();
     private:
         void _addToken(Token::Type type);
-        void _addToken(Token::Type type, Token::Literal literal);
+        void _addToken(Token::Type type, Value::Data literal);
+        void _addToken(Token::Type type, std::string_view lexeme, Value::Data literal);
     };
 }
