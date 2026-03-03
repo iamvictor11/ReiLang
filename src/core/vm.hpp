@@ -10,10 +10,9 @@ namespace luna
     {
     private:
         Error::Reporter _error_reporter;
-        std::unique_ptr<Lexer> _lexer;
     public:
-        VM();
-        ~VM();
+        VM() = default;
+        ~VM() = default;
     public:
         void runSimple(const std::string& source);
         void runFile(const std::string& path);

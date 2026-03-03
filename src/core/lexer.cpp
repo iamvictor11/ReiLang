@@ -14,16 +14,11 @@ namespace luna
         return c >= '0' && c <= '7';
     }
 #pragma endregion
-    const Token::List& Lexer::tokenize(const std::string& s, Error::Reporter* er)
+    const Token::List& Lexer::start()
     {
-        _source = s;
-        _error_reporter = er;
         while (!_isAtEnd() && _error_reporter->empty())
-        {
             _scan();
-        }
         _tokens.emplace_back(Token::TK_EOF, "", 0, _cursor.pos);
-        _error_reporter = nullptr;
         return _tokens;
     }
 #pragma region Scan

@@ -15,12 +15,12 @@ namespace luna
             uint64_t current = 0;
             Position pos = {1, 1};
         } _cursor;
-        Error::Reporter* _error_reporter = nullptr;
+        Error::Reporter* _error_reporter;
     public:
-        Lexer() = default;
+        Lexer(std::string&& s, Error::Reporter* er) : _source(std::move(s)), _error_reporter(er) {};
         ~Lexer() = default;
     public:
-        [[nodiscard]] const Token::List& tokenize(const std::string& s, Error::Reporter* er);
+        [[nodiscard]] const Token::List& start();
     private:
         void _scan();
         void _moveCursor();
