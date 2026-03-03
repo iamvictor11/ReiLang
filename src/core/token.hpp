@@ -11,6 +11,7 @@ namespace luna::Token
         TK_NOTE, // //
         /* 基础 */
         TK_ASSIGN, // =
+        TK_WALRUS, // :=
         /* 标识符 */
         TK_IDENT, // <ident>
         /* 字面量 */
@@ -57,40 +58,45 @@ namespace luna::Token
         TK_OR,  // ||
         TK_NOT, // !
         /* 保留词 */
-        TK_NIL,       // nil
-        TK_TRUE,      // true
-        TK_FALSE,     // false
-        TK_DEF,       // def
-        TK_VAR,       // var
-        TK_LET,       // let
-        TK_IMPORT,    // import
-        TK_IF,        // if
-        TK_ELIF,      // elif
-        TK_ELSE,      // else
-        TK_LOOP,      // loop
-        TK_CONTINUE,  // continue
-        TK_BREAK,     // break
-        TK_FUNC,      // func
-        TK_RETURN,    // return
-        TK_STRUCT,    // struct
-        TK_NAMESPACE, // namespace
-        TK_GLOBAL,    // global
-        TK_LOCAL,     // local
-        TK_INTERFACE, // interface
-        TK_CLASS,     // class
-        TK_STATIC,    // static
-        TK_SUPER,     // super
-        TK_PUBLIC,    // public
-        TK_PROTECTED, // protected
-        TK_PRIVATE,   // private
-        TK_VIRTUAL,   // virtual
-        TK_OVERRIDE,  // override
-        TK_IS,        // is
-        TK_ENTITY,    // entity
-        TK_COMPONENT, // component
-        TK_HAS,       // has
-        TK_NEW,       // new
-        TK_DEL,       // del
+        TK_NIL,         // nil
+        TK_TRUE,        // true
+        TK_FALSE,       // false
+        TK_DEF,         // def
+        TK_VAR,         // var
+        TK_LET,         // let
+        TK_REF,         // ref
+        TK_TYPE_INT,    // int
+        TK_TYPE_FLOAT,  // float
+        TK_TYPE_STRING, // string
+        TK_PACKAGE,     // package
+        TK_IMPORT,      // import
+        TK_IF,          // if
+        TK_ELIF,        // elif
+        TK_ELSE,        // else
+        TK_LOOP,        // loop
+        TK_CONTINUE,    // continue
+        TK_BREAK,       // break
+        TK_FUNC,        // func
+        TK_RETURN,      // return
+        TK_STRUCT,      // struct
+        TK_NAMESPACE,   // namespace
+        TK_GLOBAL,      // global
+        TK_LOCAL,       // local
+        TK_INTERFACE,   // interface
+        TK_CLASS,       // class
+        TK_STATIC,      // static
+        TK_SUPER,       // super
+        TK_PUBLIC,      // public
+        TK_PROTECTED,   // protected
+        TK_PRIVATE,     // private
+        TK_VIRTUAL,     // virtual
+        TK_OVERRIDE,    // override
+        TK_IS,          // is
+        TK_ENTITY,      // entity
+        TK_COMPONENT,   // component
+        TK_HAS,         // has
+        TK_NEW,         // new
+        TK_DEL,         // del
         /* 区域 */
         TK_LPAREN,   // (
         TK_RPAREN,   // )
@@ -117,9 +123,11 @@ namespace luna::Token
         std::string_view lexeme;
         Value::Data literal;
         Position pos;
+
     public:
         Unit(Type t, std::string_view l, Position p) : type(t), lexeme(l), pos(p) {}
         Unit(Type t, std::string_view l, Value::Data v, Position p) : type(t), lexeme(l), literal(std::move(v)), pos(p) {}
+
     public:
         std::string toString() const;
         std::string toSymbol() const;

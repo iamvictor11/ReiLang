@@ -36,7 +36,7 @@ namespace luna
         {
         case ',': _addToken(Token::TK_COMMA); break;
         case '.': _addToken(Token::TK_DOT); break;
-        case ':': _addToken(_match(':') ? Token::TK_DCOLON : Token::TK_COLON); break;
+        case ':': _addToken(_match(':') ? Token::TK_DCOLON : (_match('=') ? Token::TK_WALRUS : Token::TK_COLON)); break;
         case ';': _addToken(Token::TK_SEMICOLON); break;
         case '(': _addToken(Token::TK_LPAREN); break;
         case ')': _addToken(Token::TK_RPAREN); break;

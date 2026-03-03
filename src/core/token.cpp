@@ -20,6 +20,12 @@ namespace luna::Token
                 {"def", TK_DEF},
                 {"var", TK_VAR},
                 {"let", TK_LET},
+                {"ref", TK_REF},
+                {"int", TK_TYPE_INT},
+                {"float", TK_TYPE_FLOAT},
+                {"string", TK_TYPE_STRING},
+                {"package", TK_PACKAGE},
+                {"import", TK_IMPORT},
                 {"if", TK_IF},
                 {"elif", TK_ELIF},
                 {"else", TK_ELSE},
@@ -67,6 +73,7 @@ namespace luna::Token
         LUNA_TOKEN_X(NOTE, "//") \
         /* 基础 */ \
         LUNA_TOKEN_X(ASSIGN, "=") \
+        LUNA_TOKEN_X(WALRUS, ":=") \
         /* 标识符 */ \
         LUNA_TOKEN_X(IDENT, "<ident>") \
         /* 字面量 */ \
@@ -119,6 +126,11 @@ namespace luna::Token
         LUNA_TOKEN_X(DEF, "def") \
         LUNA_TOKEN_X(VAR, "var") \
         LUNA_TOKEN_X(LET, "let") \
+        LUNA_TOKEN_X(REF, "ref") \
+        LUNA_TOKEN_X(TYPE_INT, "int") \
+        LUNA_TOKEN_X(TYPE_FLOAT, "float") \
+        LUNA_TOKEN_X(TYPE_STRING, "string") \
+        LUNA_TOKEN_X(PACKAGE, "package") \
         LUNA_TOKEN_X(IMPORT, "import") \
         LUNA_TOKEN_X(IF, "if") \
         LUNA_TOKEN_X(ELIF, "elif") \
