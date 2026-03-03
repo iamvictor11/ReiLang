@@ -84,8 +84,9 @@ namespace luna::Token
         TK_LOCAL,       // local
         TK_INTERFACE,   // interface
         TK_CLASS,       // class
-        TK_STATIC,      // static
+        TK_THIS,        // this
         TK_SUPER,       // super
+        TK_STATIC,      // static
         TK_PUBLIC,      // public
         TK_PROTECTED,   // protected
         TK_PRIVATE,     // private
@@ -123,11 +124,9 @@ namespace luna::Token
         std::string_view lexeme;
         Value::Data literal;
         Position pos;
-
     public:
         Unit(Type t, std::string_view l, Position p) : type(t), lexeme(l), pos(p) {}
         Unit(Type t, std::string_view l, Value::Data v, Position p) : type(t), lexeme(l), literal(std::move(v)), pos(p) {}
-
     public:
         std::string toString() const;
         std::string toSymbol() const;

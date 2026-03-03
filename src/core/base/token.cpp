@@ -40,8 +40,9 @@ namespace luna::Token
                 {"local", TK_LOCAL},
                 {"interface", TK_INTERFACE},
                 {"class", TK_CLASS},
-                {"static", TK_STATIC},
+                {"this", TK_THIS},
                 {"super", TK_SUPER},
+                {"static", TK_STATIC},
                 {"public", TK_PUBLIC},
                 {"protected", TK_PROTECTED},
                 {"private", TK_PRIVATE},
@@ -146,8 +147,9 @@ namespace luna::Token
         LUNA_TOKEN_X(LOCAL, "local") \
         LUNA_TOKEN_X(INTERFACE, "interface") \
         LUNA_TOKEN_X(CLASS, "class") \
-        LUNA_TOKEN_X(STATIC, "static") \
+        LUNA_TOKEN_X(THIS, "this") \
         LUNA_TOKEN_X(SUPER, "super") \
+        LUNA_TOKEN_X(STATIC, "static") \
         LUNA_TOKEN_X(PUBLIC, "public") \
         LUNA_TOKEN_X(PROTECTED, "protected") \
         LUNA_TOKEN_X(PRIVATE, "private") \
