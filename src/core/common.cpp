@@ -1,7 +1,50 @@
 #include "common.hpp"
+#include "base/string.hpp"
 
 namespace luna
 {
+    namespace Value
+    {
+        std::string toString(Value::Data data)
+        {
+            return std::visit([](auto&& arg) -> std::string
+            {
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (std::is_same_v<T, Nil>)
+                {
+                    return "nil";
+                }
+                else if constexpr (std::is_same_v<T, Bool>)
+                {
+                    return arg ? "true" : "false";
+                }
+                else if constexpr (std::is_same_v<T, Int>)
+                {
+                    return std::to_string(arg);
+                }
+                else if constexpr (std::is_same_v<T, Float>)
+                {
+                    return std::to_string(arg);
+                }
+                else if constexpr (std::is_same_v<T, String>)
+                {
+                    return "\"" + escape(arg) + "\"";
+                }
+                else if constexpr (std::is_same_v<T, Ref<Table>>)
+                {
+                    return "table(" + std::to_string(arg->size()) + ")";
+                }
+                else if constexpr (std::is_same_v<T, Ref<Function>>)
+                {
+                    return "function";
+                }
+                else
+                {
+                    return "unknown";
+                }
+            }, data);
+        }
+    }
 #pragma region Table
     size_t Table::size() const
     {
@@ -11,13 +54,13 @@ namespace luna
     {
         return data.capacity();
     }
-    Value Table::get(size_t index) const
+    Value::Data Table::get(size_t index) const
     {
         if (index < data.size())
             return data[index];
         return Nil{};
     }
-    void Table::set(size_t index, Value value)
+    void Table::set(size_t index, Value::Data value)
     {
         if (index >= data.size())
             data.resize(index + 1);
@@ -50,7 +93,7 @@ namespace luna
             }
         }
     }
-    void Table::insert(size_t index, Value value)
+    void Table::insert(size_t index, Value::Data value)
     {
         if (index > data.size())
         {
@@ -64,13 +107,13 @@ namespace luna
                     i++;
         }
     }
-    Value Table::get(const String& key) const
+    Value::Data Table::get(const String& key) const
     {
         if (auto it = map.find(key); it != map.end())
             return get(it->second);
         return Nil{};
     }
-    void Table::set(const String& key, Value value)
+    void Table::set(const String& key, Value::Data value)
     {
         if (auto it = map.find(key); it != map.end())
         {
@@ -110,7 +153,7 @@ namespace luna
         data.clear();
         map.clear();
     }
-    size_t Table::find(const Value& value) const
+    size_t Table::find(const Value::Data& value) const
     {
         for (size_t i = 0; i < data.size(); ++i)
         {

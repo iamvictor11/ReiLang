@@ -9,7 +9,13 @@ namespace luna
 {
     struct Position final
     {
+    public:
         uint64_t line = 1, column = 1;
+    public:
+        std::string toString() const
+        {
+            return std::to_string(line) + ":" + std::to_string(column);
+        }
     };
 
     struct Table;
@@ -23,15 +29,19 @@ namespace luna
     template<typename T>
     using Ref = std::shared_ptr<T>;
 
-    using Value = std::variant<Nil, Bool, Int, Float, String, Ref<Table>, Ref<Function>>;
-    
+    namespace Value
+    {
+        using Data = std::variant<Nil, Bool, Int, Float, String, Ref<Table>, Ref<Function>>;
+        std::string toString(Value::Data data);
+    }
+
     struct Variable final
     {
     public:
-        Value value;
+        Value::Data value;
     public:
         Variable() = default;
-        Variable(Value v) : value(std::move(v)) {}
+        Variable(Value::Data v) : value(std::move(v)) {}
     public:
         template<typename T>
         bool is() const
@@ -54,24 +64,24 @@ namespace luna
     public:
         static constexpr size_t npos = static_cast<size_t>(-1);
     public:
-        std::vector<Value> data;
+        std::vector<Value::Data> data;
         std::unordered_map<String, size_t> map;
     public:
         size_t size() const;
         size_t capacity() const;
-        Value get(size_t index) const;
-        void set(size_t index, Value value);
+        Value::Data get(size_t index) const;
+        void set(size_t index, Value::Data value);
         void remove(size_t index);
         void erase(size_t index);
-        void insert(size_t index, Value value);
-        Value get(const String& key) const;
-        void set(const String& key, Value value);
+        void insert(size_t index, Value::Data value);
+        Value::Data get(const String& key) const;
+        void set(const String& key, Value::Data value);
         void remove(const String& key);
         void erase(const String& key);
         void affix(size_t index, const String& key);
         void detach(const String& key);
         void clear();
-        size_t find(const Value& value) const;
+        size_t find(const Value::Data& value) const;
     };
     struct Function final : public std::enable_shared_from_this<Function>
     {
