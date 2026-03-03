@@ -1,5 +1,5 @@
 #pragma once
-#include "base/token.hpp"
+#include "token.hpp"
 #include "util/error.hpp"
 
 namespace luna

@@ -1,7 +1,7 @@
 #include "vm.hpp"
 #include "util/file.hpp"
-#include "lexer.hpp"
-#include "parser.hpp"
+#include "lexer/lexer.hpp"
+#include "parser/parser.hpp"
 #include <iostream>
 
 namespace luna

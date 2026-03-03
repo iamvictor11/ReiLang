@@ -30,9 +30,9 @@ target_sources(luna
 PRIVATE
     "src/core/base/common.cpp"
     "src/core/base/string.cpp"
-    "src/core/base/token.cpp"
-    "src/core/lexer.cpp"
-    "src/core/parser.cpp"
+    "src/core/lexer/lexer.cpp"
+    "src/core/lexer/token.cpp"
+    "src/core/parser/parser.cpp"
     "src/core/vm.cpp"
     "src/debug/log.cpp"
     "src/util/error.cpp"

@@ -1,7 +1,7 @@
 #pragma once
-#include "base/token.hpp"
+#include "core/lexer/token.hpp"
 #include "util/error.hpp"
-#include "ast/node.hpp"
+#include "node.hpp"
 
 namespace luna
 {
