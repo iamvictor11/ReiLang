@@ -63,20 +63,8 @@ namespace luna
         case '>': _addToken(_match('=') ? Token::TK_GE : (_match('>') ? (_match('=') ? Token::TK_SELF_BIT_SHR : Token::TK_BIT_SHR) : (_match('-') ? Token::TK_RARROW : Token::TK_GT))); break;
         case '"': _lexString('"'); break;
         case '\'': _lexString('\''); break;
-        case 'r': if (_peek() == '\'' || _peek() == '"') _lexRawString(_advance()); break;
-        default: 
-            if (isdigit(c))
-            {
-                _lexNumber();
-                break;
-            }
-            else if (isalpha(c) || c == '_')
-            {
-                _lexIdentifier();
-                break;
-            }
-            _error_reporter->report("unknown character", _cursor.pos);
-            break;
+        case 'r': if (_peek() == '\'' || _peek() == '"') _lexRawString(_advance()); else _lexOther('r'); break;
+        default: _lexOther(c); break;
         }
     }
     void Lexer::_moveCursor()
@@ -172,6 +160,20 @@ void Lexer::_skipWhite()
 }
 #pragma endregion
 #pragma region Lex
+void Lexer::_lexOther(char c)
+{
+    if (isdigit(c))
+    {
+        _lexNumber();
+        return;
+    }
+    else if (isalpha(c) || c == '_')
+    {
+        _lexIdentifier();
+        return;
+    }
+    _error_reporter->report("未知的字符", _cursor.pos);
+}
 void Lexer::_lexNumber()
 {
     bool is_float = false;

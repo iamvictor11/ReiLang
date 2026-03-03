@@ -42,6 +42,7 @@ namespace luna
         void _skipNote();
         void _skipWhite();
     private:
+        void _lexOther(char c);
         void _lexNumber();
         void _lexString(char beg);
         void _lexRawString(char beg);
