@@ -63,6 +63,7 @@ namespace luna
         case '>': _addToken(_match('=') ? Token::TK_GE : (_match('>') ? (_match('=') ? Token::TK_SELF_BIT_SHR : Token::TK_BIT_SHR) : (_match('-') ? Token::TK_RARROW : Token::TK_GT))); break;
         case '"': _lexString('"'); break;
         case '\'': _lexString('\''); break;
+        case 'r': if (_peek() == '\'' || _peek() == '"') _lexRawString(_advance()); break;
         default: 
             if (isdigit(c))
             {
@@ -272,14 +273,69 @@ void Lexer::_lexNumber()
 }
 void Lexer::_lexString(char beg)
 {
-    while (_peek() != beg && !_isAtEnd()) _pass();
+    std::string value;
+    while (_peek() != beg && !_isAtEnd())
+    {
+        char c = _advance();
+        // 转义字符
+        if (c == '\\')
+        {
+            if (_isAtEnd()) break;
+            char next = _advance();
+            switch (next)
+            {
+                case 'n':  value += '\n'; break;
+                case 'r':  value += '\r'; break;
+                case 't':  value += '\t'; break;
+                case '\\': value += '\\'; break;
+                case '"':  value += '"';  break;
+                case '\'': value += '\''; break;
+                default: value += c; value += next; break;
+            }
+        }
+        else
+        {
+            value += c;
+        }
+    }
     if (_isAtEnd())
     {
         _error_reporter->report("字符串未闭合", _cursor.pos);
         return;
     }
     _pass();
-    std::string value = _source.substr(_cursor.start + 1, _cursor.current - 2 - _cursor.start);
+    _addToken(Token::TK_LIT_STRING, value);
+}
+void Lexer::_lexRawString(char beg)
+{
+    std::string value;
+    while (_peek() != beg && !_isAtEnd())
+    {
+        char c = _advance();
+        // 转义字符
+        if (c == '\\')
+        {
+            if (_isAtEnd()) break;
+            char next = _advance();
+            switch (next)
+            {
+                case '\\': value += '\\'; break;
+                case '"':  value += '"';  break;
+                case '\'': value += '\''; break;
+                default: value += c; value += next; break;
+            }
+        }
+        else
+        {
+            value += c;
+        }
+    }
+    if (_isAtEnd())
+    {
+        _error_reporter->report("字符串未闭合", _cursor.pos);
+        return;
+    }
+    _pass();
     _addToken(Token::TK_LIT_STRING, value);
 }
 void Lexer::_lexIdentifier()

@@ -44,6 +44,7 @@ namespace luna
     private:
         void _lexNumber();
         void _lexString(char beg);
+        void _lexRawString(char beg);
         void _lexIdentifier();
     private:
         void _addToken(Token::Type type);
