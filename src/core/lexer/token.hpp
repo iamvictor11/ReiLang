@@ -117,6 +117,7 @@ namespace luna::Token
         TK_EOF // <eof>
     };
     Type toTypeFromKeyword(std::string_view s);
+    Value::Data toLiteralFromKeyword(Type t);
     struct Unit final
     {
     public:

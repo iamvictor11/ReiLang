@@ -69,6 +69,20 @@ namespace luna::Token
             return it->second;
         return TK_IDENT;
     }
+    Value::Data toLiteralFromKeyword(Type t)
+    {
+        switch (t)
+        {
+        case Type::TK_NIL:
+            return Nil{};
+        case Type::TK_TRUE:
+            return true;
+        case Type::TK_FALSE:
+            return false;
+        default:
+            return Nil{};
+        }
+    }
     #define LUNA_TOKEN_TYPE_LIST \
         /* 注释 */ \
         LUNA_TOKEN_X(NOTE, "//") \

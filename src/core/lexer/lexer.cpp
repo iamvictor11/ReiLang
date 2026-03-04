@@ -371,7 +371,9 @@ void Lexer::_lexIdentifier()
     };
     while (isidentifier(_peek())) _pass();
     std::string_view lexeme {_source.data() + _cursor.start, _cursor.current - _cursor.start};
-    _addToken(Token::toTypeFromKeyword(lexeme), lexeme, 0);
+    Token::Type type = Token::toTypeFromKeyword(lexeme);
+    Value::Data literal = Token::toLiteralFromKeyword(type);
+    _addToken(type, lexeme, literal);
 }
 #pragma endregion
 #pragma region Xie
