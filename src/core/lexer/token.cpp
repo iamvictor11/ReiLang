@@ -225,13 +225,7 @@ namespace luna::Token
     std::string Unit::toString() const
     {
         std::string res = _toString(type);
-        int tabCount = 0;
-        if (res.length() < 8)
-            tabCount = 2;
-        else if (res.length() < 16)
-            tabCount = 1;
-        else
-            tabCount = 0;
+        int tabCount = 2 - res.length() / 8;
         for (int i = 0; i < tabCount; i++)
             res += "\t";
         if (type == TK_LIT_INT || type == TK_LIT_FLOAT || type == TK_LIT_STRING)
