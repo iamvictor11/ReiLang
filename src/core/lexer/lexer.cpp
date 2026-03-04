@@ -41,7 +41,7 @@ namespace luna
         case '}': _addToken(Token::TK_RBRACE); break;
         case '+': _addToken(_match('=') ? Token::TK_SELF_ADD : Token::TK_ADD); break;
         case '-': _addToken(_match('=') ? Token::TK_SELF_SUB : (_match('>') ? Token::TK_RARROW : Token::TK_SUB)); break;
-        case '*': _addToken(_match('=') ? Token::TK_SELF_MUL : Token::TK_MUL); break;
+        case '*': _addToken(_match('=') ? Token::TK_SELF_MUL : (_match('*') ? Token::TK_POW : Token::TK_MUL)); break;
         case '/':
             if (_match('/')) _skipNote();
             else _addToken(_match('=') ? Token::TK_SELF_DIV : Token::TK_DIV);
