@@ -1,7 +1,7 @@
 #include "vm.hpp"
 #include "util/file.hpp"
 #include "lexer/lexer.hpp"
-#include "parser/parser.hpp"
+#include "parser/parser.RD.hpp"
 #include <iostream>
 
 namespace luna
@@ -13,9 +13,11 @@ namespace luna
     void VM::runFile(const std::string& path)
     {
         Lexer lexer {util::fileToString(path), &_error_reporter};
+        std::cout << "词法分析：" << std::endl;
         auto& tokens = lexer.start();
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
+        std::cout << "语法分析：" << std::endl;
         // Parser parser {std::move(tokens), &_error_reporter};
         // parser.start();
     }

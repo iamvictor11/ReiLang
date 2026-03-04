@@ -1,21 +1,21 @@
-#include "parser.hpp"
+#include "parser.RD.hpp"
 
 namespace luna
 {
-    void Parser::start()
+    void Parser<PT_RD>::start()
     {
         
     }
-    ast::NRef Parser::_program()
+    ast::NRef Parser<PT_RD>::_program()
     {
 
     }
 #pragma region Expr
-    ast::NRef Parser::_expression()
+    ast::NRef Parser<PT_RD>::_expression()
     {
-        return Parser::_assignment();
+        return Parser<PT_RD>::_assignment();
     }
-    ast::NRef Parser::_assignment()
+    ast::NRef Parser<PT_RD>::_assignment()
     {
         ast::NRef expr = _logical_or();
         if (_match({
@@ -31,7 +31,7 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_logical_or()
+    ast::NRef Parser<PT_RD>::_logical_or()
     {
         ast::NRef expr = _logical_and();
         while (_match({Token::TK_OR}))
@@ -42,18 +42,18 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_logical_and()
+    ast::NRef Parser<PT_RD>::_logical_and()
     {
-        ast::NRef expr = _equality();
+        ast::NRef expr = _bitwise_or();
         while (_match({Token::TK_AND}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _equality();
+            ast::NRef right = _bitwise_or();
             expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser::_bitwise_or()
+    ast::NRef Parser<PT_RD>::_bitwise_or()
     {
         ast::NRef expr = _bitwise_xor();
         while (_match({Token::TK_BIT_OR}))
@@ -64,7 +64,7 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_bitwise_xor()
+    ast::NRef Parser<PT_RD>::_bitwise_xor()
     {
         ast::NRef expr = _bitwise_and();
         while (_match({Token::TK_BIT_XOR, Token::TK_BIT_XNOR}))
@@ -75,7 +75,7 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_bitwise_and()
+    ast::NRef Parser<PT_RD>::_bitwise_and()
     {
         ast::NRef expr = _equality();
         while (_match({Token::TK_BIT_AND}))
@@ -86,7 +86,7 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_equality()
+    ast::NRef Parser<PT_RD>::_equality()
     {
         ast::NRef expr = _comparison();
         while (_match({Token::TK_EQ, Token::TK_NE}))
@@ -97,7 +97,7 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_comparison()
+    ast::NRef Parser<PT_RD>::_comparison()
     {
         ast::NRef expr = _term();
         while (_match({Token::TK_GT, Token::TK_GE, Token::TK_LT, Token::TK_LE}))
@@ -108,7 +108,7 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_term()
+    ast::NRef Parser<PT_RD>::_term()
     {
         ast::NRef expr = _factor();
         while (_match({Token::TK_ADD, Token::TK_SUB}))
@@ -119,18 +119,18 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_factor()
+    ast::NRef Parser<PT_RD>::_factor()
     {
-        ast::NRef expr = _unary();
+        ast::NRef expr = _pow();
         while (_match({Token::TK_MUL, Token::TK_DIV, Token::TK_MOD}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _unary();
+            ast::NRef right = _pow();
             expr = ast::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
         }
         return expr;
     }
-    ast::NRef Parser::_pow()
+    ast::NRef Parser<PT_RD>::_pow()
     {
         ast::NRef expr = _unary();
         if (_match({Token::TK_POW}))
@@ -141,7 +141,7 @@ namespace luna
         }
         return expr;
     }
-    ast::NRef Parser::_unary()
+    ast::NRef Parser<PT_RD>::_unary()
     {
         if (_match({Token::TK_NOT, Token::TK_SUB, Token::TK_BIT_NOT}))
         {
@@ -151,7 +151,7 @@ namespace luna
         }
         return _primary();
     }
-    ast::NRef Parser::_primary()
+    ast::NRef Parser<PT_RD>::_primary()
     {   
         if (_match({
             Token::TK_NIL,
@@ -159,7 +159,7 @@ namespace luna
             Token::TK_LIT_STRING
         }))
         {
-            return ast::make_ref(Expr::Literal{_prev().type});
+            return ast::make_ref(Expr::Literal{_prev().literal});
         }
         if (_match({Token::TK_LPAREN}))
         {
@@ -167,42 +167,42 @@ namespace luna
             _consume(Token::TK_RPAREN, "括号未闭合");
             return ast::make_ref(Expr::Grouping{std::move(expr)});
         }
-        _error_reporter->report("没有对应匹配", _peek().pos);
+        _error_reporter->report("没有对应匹配", _advance().pos);
         return nullptr;
     }
 #pragma endregion
 #pragma region Kan/Move
-    bool Parser::_isAtEnd() const
+    bool Parser<PT_RD>::_isAtEnd() const
     {
-        return _cursor.current == _tokens.size() - 1;
+        return _cursor.current >= _tokens.size();
     }
-    Token::Unit& Parser::_advance()
+    Token::Unit& Parser<PT_RD>::_advance()
     {
         if (!_isAtEnd()) _cursor.current++;
         return _prev();
     }
-    void Parser::_pass()
+    void Parser<PT_RD>::_pass()
     {
-        if (!_isAtEnd()) _cursor.current++;\
+        if (!_isAtEnd()) _cursor.current++;
     }
-    Token::Unit& Parser::_prev()
+    Token::Unit& Parser<PT_RD>::_prev()
     {
         return _tokens.at(_cursor.current - 1);
     }
-    Token::Unit& Parser::_peek()
+    Token::Unit& Parser<PT_RD>::_peek()
     {
         return _tokens.at(_cursor.current);
     }
-    Token::Unit& Parser::_next()
+    Token::Unit& Parser<PT_RD>::_next()
     {
         return _tokens.at(_cursor.current + 1);
     }
-    bool Parser::_check(Token::Type type)
+    bool Parser<PT_RD>::_check(Token::Type type)
     {
         if (_isAtEnd()) return false;
         return _peek().type == type;
     }
-    bool Parser::_match(std::initializer_list<Token::Type> types)
+    bool Parser<PT_RD>::_match(std::initializer_list<Token::Type> types)
     {
         for (Token::Type type : types)
         {
@@ -214,7 +214,7 @@ namespace luna
         }
         return false;
     }
-    Token::Type Parser::_consume(Token::Type type, const std::string& message)
+    Token::Type Parser<PT_RD>::_consume(Token::Type type, const std::string& message)
     {
         if (_check(type))
             return _advance().type;

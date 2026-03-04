@@ -13,11 +13,12 @@ int main(int argc, char *argv[])
             std::cout << "argv[" << i << "] = " << argv[i] << std::endl;
     }
 
-    luna::ast::NRef ln = luna::ast::make_ref(luna::Expr::Literal(1));
-    luna::ast::NRef rn = luna::ast::make_ref(luna::Expr::Literal(2));
-    luna::ast::NRef bn = luna::ast::make_ref(luna::Expr::Binary(std::move(ln), luna::Token::TK_ADD, std::move(rn)));
-    luna::ast::Printer printer{};
-    printer(bn->tempRef());
+    // std::cout << "打印抽象语法树：" << std::endl;
+    // luna::ast::NRef ln = luna::ast::make_ref(luna::Expr::Literal(1));
+    // luna::ast::NRef rn = luna::ast::make_ref(luna::Expr::Literal(2));
+    // luna::ast::NRef bn = luna::ast::make_ref(luna::Expr::Binary(std::move(ln), luna::Token::TK_ADD, std::move(rn)));
+    // luna::ast::Printer printer{};
+    // printer(bn->tempRef());
 
     luna::VM vm {};
     vm.runFile("test.luna");

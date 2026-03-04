@@ -3,8 +3,6 @@
 #include "core/base/common.hpp"
 #include "core/vm.hpp"
 
-#include "core/parser/visitor.hpp"
-
 namespace luna
 {
 }
