@@ -1,7 +1,7 @@
 #include "visitor.hpp"
 #include <iostream>
 
-namespace luna
+namespace luna::ast
 {
     Value::Data Printer::operator()(const Node& node)
     {
