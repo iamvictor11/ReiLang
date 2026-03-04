@@ -53,7 +53,9 @@ namespace luna::Token
                 {"component", TK_COMPONENT},
                 {"has", TK_HAS},
                 {"new", TK_NEW},
-                {"del", TK_DEL}
+                {"del", TK_DEL},
+                {"print", TK_PRINT},
+                {"println", TK_PRINTLN}
             });
             std::ranges::sort(arr, std::less<>{}, &std::pair<std::string_view, Type>::first);
             return arr;
@@ -175,6 +177,8 @@ namespace luna::Token
         LUNA_TOKEN_X(HAS, "has") \
         LUNA_TOKEN_X(NEW, "new") \
         LUNA_TOKEN_X(DEL, "del") \
+        LUNA_TOKEN_X(PRINT, "print") \
+        LUNA_TOKEN_X(PRINTLN, "println") \
         /* 区域 */ \
         LUNA_TOKEN_X(LPAREN, "(") \
         LUNA_TOKEN_X(RPAREN, ")") \

@@ -98,6 +98,8 @@ namespace luna::Token
         TK_HAS,         // has
         TK_NEW,         // new
         TK_DEL,         // del
+        TK_PRINT,       // print
+        TK_PRINTLN,     // println
         /* 区域 */
         TK_LPAREN,   // (
         TK_RPAREN,   // )
