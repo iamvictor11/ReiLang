@@ -216,17 +216,30 @@ namespace luna::Token
     }
     std::string toString(Type t)
     {
-        return toString(t);
+        return _toString(t);
     }
     std::string toSymbol(Type t)
     {
-        return toSymbol(t);
+        return _toSymbol(t);
     }
     std::string Unit::toString() const
     {
-        std::string res = _toString(type) + " " + _toSymbol(type);
+        std::string res = _toString(type);
+        int tabCount = 0;
+        if (res.length() < 8)
+            tabCount = 2;
+        else if (res.length() < 16)
+            tabCount = 1;
+        else
+            tabCount = 0;
+        for (int i = 0; i < tabCount; i++)
+            res += "\t";
         if (type == TK_LIT_INT || type == TK_LIT_FLOAT || type == TK_LIT_STRING)
-            res += " " + Value::toString(literal);
+            res += Value::toString(literal);
+        else if (type == TK_IDENT)
+            res += std::string(lexeme);
+        else
+            res += _toSymbol(type);
         return res;
     }
     std::string Unit::toSymbol() const
