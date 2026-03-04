@@ -20,9 +20,8 @@ namespace luna
         ast::NRef expr = _logical_or();
         if (_match({
             Token::TK_ASSIGN, Token::TK_WALRUS,
-            Token::TK_SELF_ADD, Token::TK_SELF_SUB, Token::TK_SELF_MUL,
-            Token::TK_SELF_DIV, Token::TK_SELF_MOD, Token::TK_SELF_POW,
-            Token::TK_SELF_BIT_AND, Token::TK_SELF_BIT_OR, Token::TK_SELF_BIT_XOR
+            Token::TK_SELF_ADD, Token::TK_SELF_SUB, Token::TK_SELF_MUL, Token::TK_SELF_DIV, Token::TK_SELF_MOD, Token::TK_SELF_POW,
+            Token::TK_SELF_BIT_AND, Token::TK_SELF_BIT_OR, Token::TK_SELF_BIT_XOR, Token::TK_SELF_BIT_XNOR, Token::TK_SELF_BIT_SHL, Token::TK_SELF_BIT_SHR
         }))
         {
             Token::Type oper = _prev().type;
