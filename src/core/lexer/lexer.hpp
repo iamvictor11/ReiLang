@@ -33,6 +33,7 @@ namespace luna
         void _pass();
         void _pass(size_t step);
         bool _match(char c);
+        bool _match(const char* s, size_t omit = 1);
         char _peek() const;
         char _peek(size_t offset) const;
     private:

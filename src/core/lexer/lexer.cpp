@@ -40,7 +40,7 @@ namespace luna
         case '{': _addToken(Token::TK_LBRACE); break;
         case '}': _addToken(Token::TK_RBRACE); break;
         case '+': _addToken(_match('=') ? Token::TK_SELF_ADD : Token::TK_ADD); break;
-        case '-': _addToken(_match('=') ? Token::TK_SELF_SUB : Token::TK_SUB); break;
+        case '-': _addToken(_match('=') ? Token::TK_SELF_SUB : (_match('>') ? Token::TK_RARROW : Token::TK_SUB)); break;
         case '*': _addToken(_match('=') ? Token::TK_SELF_MUL : Token::TK_MUL); break;
         case '/':
             if (_match('/')) _skipNote();
@@ -54,8 +54,21 @@ namespace luna
         case '~': _addToken(_match('=') ? Token::TK_SELF_BIT_NOT : Token::TK_BIT_NOT); break;
         case '=': _addToken(_match('=') ? Token::TK_EQ : Token::TK_ASSIGN); break;
         case '!': _addToken(_match('=') ? Token::TK_NE : Token::TK_NOT); break;
-        case '<': _addToken(_match('=') ? Token::TK_LE : (_match('<') ? (_match('=') ? Token::TK_SELF_BIT_SHL : Token::TK_BIT_SHL) : (_match('-') ? Token::TK_LARROW : Token::TK_LT))); break;
-        case '>': _addToken(_match('=') ? Token::TK_GE : (_match('>') ? (_match('=') ? Token::TK_SELF_BIT_SHR : Token::TK_BIT_SHR) : (_match('-') ? Token::TK_RARROW : Token::TK_GT))); break;
+        // case '<': _addToken(_match('=') ? Token::TK_LE : (_match('<') ? (_match('=') ? Token::TK_SELF_BIT_SHL : Token::TK_BIT_SHL) : (_match('-') ? Token::TK_LARROW : Token::TK_LT))); break;
+        // case '>': _addToken(_match('=') ? Token::TK_GE : (_match('>') ? (_match('=') ? Token::TK_SELF_BIT_SHR : Token::TK_BIT_SHR) : (_match('-') ? Token::TK_RARROW : Token::TK_GT))); break;
+        case '<':
+            if (_match("<<=")) _addToken(Token::TK_SELF_BIT_SHL);
+            else if (_match("<=")) _addToken(Token::TK_LE);
+            else if (_match("<<")) _addToken(Token::TK_BIT_SHL);
+            else if (_match("<-")) _addToken(Token::TK_LARROW);
+            else _addToken(Token::TK_LT);
+            break;
+        case '>':
+            if (_match(">>=")) _addToken(Token::TK_SELF_BIT_SHR);
+            else if (_match(">=")) _addToken(Token::TK_GE);
+            else if (_match(">>")) _addToken(Token::TK_BIT_SHR);
+            else _addToken(Token::TK_GT);
+            break;
         case '"': _lexString('"'); break;
         case '\'': _lexString('\''); break;
         case 'r': if (_peek() == '\'' || _peek() == '"') _lexRawString(_advance()); else _lexOther('r'); break;
@@ -102,7 +115,7 @@ namespace luna
     }
     void Lexer::_pass(size_t step)
     {
-        while (step <= 0)
+        while (step > 0)
         {
             if (_isAtEnd()) return;
             _smartMoceCursor(_source.at(_cursor.current));
@@ -114,6 +127,21 @@ namespace luna
         if (_isAtEnd() || _source.at(_cursor.current) != c)
             return false;
         _smartMoceCursor(c);
+        return true;
+    }
+    bool Lexer::_match(const char* s, size_t omit)
+    {
+        size_t i = 0;
+        const char* p = s + omit;
+        for (; *p != '\0'; p++)
+        {
+            if (_isAtEnd(i))
+                return false;
+            if (_peek(i) != *p)
+                return false;
+            i++;
+        }
+        _pass(i);
         return true;
     }
     char Lexer::_peek() const

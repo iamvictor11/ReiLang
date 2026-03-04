@@ -14,9 +14,9 @@ namespace luna
     {
         Lexer lexer {util::fileToString(path), &_error_reporter};
         auto& tokens = lexer.start();
-        // for (const auto& token : tokens)
-        //     std::cout << token.toString() << std::endl;
-        Parser parser {std::move(tokens), &_error_reporter};
-        parser.start();
+        for (const auto& token : tokens)
+            std::cout << token.toString() << std::endl;
+        // Parser parser {std::move(tokens), &_error_reporter};
+        // parser.start();
     }
 }
