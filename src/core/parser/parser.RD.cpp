@@ -171,6 +171,63 @@ namespace luna
         return nullptr;
     }
 #pragma endregion
+#pragma Stmt
+void Parser<PT_RD>::_synchronize()
+{
+    using namespace Token;
+    _advance();
+    while (!_isAtEnd())
+    {
+        if (_prev().type == TK_SEMICOLON) return;
+        switch (_peek().type)
+        {
+        case TK_DEF:
+        case TK_VAR:
+        case TK_LET:
+        case TK_REF:
+        case TK_TYPE_INT:
+        case TK_TYPE_FLOAT:
+        case TK_TYPE_STRING:
+        case TK_PACKAGE:
+        case TK_IMPORT:
+        case TK_IF:
+        case TK_ELIF:
+        case TK_ELSE:
+        case TK_LOOP:
+        case TK_CONTINUE:
+        case TK_BREAK:
+        case TK_FUNC:
+        case TK_RETURN:
+        case TK_STRUCT:
+        case TK_NAMESPACE:
+        case TK_GLOBAL:
+        case TK_LOCAL:
+        case TK_INTERFACE:
+        case TK_CLASS:
+        case TK_THIS:
+        case TK_SUPER:
+        case TK_STATIC:
+        case TK_PUBLIC:
+        case TK_PROTECTED:
+        case TK_PRIVATE:
+        case TK_VIRTUAL:
+        case TK_OVERRIDE:
+        case TK_IS:
+        case TK_ENTITY:
+        case TK_COMPONENT:
+        case TK_HAS:
+        case TK_NEW:
+        case TK_DEL:
+        case TK_PRINT:
+        case TK_PRINTLN:
+            return;
+        default:
+            break;
+        }
+        _advance();
+    }
+}
+#pragma endregion
 #pragma region Kan/Move
     bool Parser<PT_RD>::_isAtEnd() const
     {

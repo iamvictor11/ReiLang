@@ -11,6 +11,7 @@ namespace luna
     {
     private:
         Token::List _tokens;
+        ast::NRef _programNodeRef = nullptr;
         struct
         {
             uint64_t current = 0;
@@ -37,6 +38,8 @@ namespace luna
         ast::NRef _pow();
         ast::NRef _unary();
         ast::NRef _primary();
+    private:
+        void _synchronize();
     private:
         bool _isAtEnd() const;
         Token::Unit& _advance();
