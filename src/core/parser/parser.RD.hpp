@@ -33,6 +33,7 @@ namespace luna
         ast::NRef _bitwise_and();
         ast::NRef _equality();
         ast::NRef _comparison();
+        ast::NRef _bitwise_shift();
         ast::NRef _term();
         ast::NRef _factor();
         ast::NRef _pow();

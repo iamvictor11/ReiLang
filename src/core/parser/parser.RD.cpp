@@ -99,8 +99,19 @@ namespace luna
     }
     ast::NRef Parser<PT_RD>::_comparison()
     {
-        ast::NRef expr = _term();
+        ast::NRef expr = _bitwise_shift();
         while (_match({Token::TK_GT, Token::TK_GE, Token::TK_LT, Token::TK_LE}))
+        {
+            Token::Type oper = _prev().type;
+            ast::NRef right = _bitwise_shift();
+            expr = ast::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
+        }
+        return expr;
+    }
+    ast::NRef Parser<PT_RD>::_bitwise_shift()
+    {
+        ast::NRef expr = _term();
+        while (_match({Token::TK_BIT_SHL, Token::TK_BIT_SHR}))
         {
             Token::Type oper = _prev().type;
             ast::NRef right = _term();
