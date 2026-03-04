@@ -214,6 +214,14 @@ namespace luna::Token
                 return "UNKNOWN";
         }
     }
+    std::string toString(Type t)
+    {
+        return toString(t);
+    }
+    std::string toSymbol(Type t)
+    {
+        return toSymbol(t);
+    }
     std::string Unit::toString() const
     {
         std::string res = _toString(type) + " " + _toSymbol(type);

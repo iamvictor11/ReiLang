@@ -118,6 +118,8 @@ namespace luna::Token
     };
     Type toTypeFromKeyword(std::string_view s);
     Value::Data toLiteralFromKeyword(Type t);
+    std::string toString(Type t);
+    std::string toSymbol(Type t);
     struct Unit final
     {
     public:
