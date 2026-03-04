@@ -143,7 +143,7 @@ namespace luna
     }
     ast::NRef Parser<PT_RD>::_unary()
     {
-        if (_match({Token::TK_NOT, Token::TK_SUB, Token::TK_BIT_NOT}))
+        if (_match({Token::TK_SUB, Token::TK_NOT, Token::TK_BIT_NOT}))
         {
             Token::Type oper = _prev().type;
             ast::NRef right = _unary();
