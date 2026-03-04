@@ -1,13 +1,29 @@
 #pragma once
 #include "node.hpp"
 
-namespace luna
+namespace luna::ast
 {
-    struct Visitor
+    template <class... Ts>
+    struct overloaded : Ts...
     {
-        virtual void visit(const Expr::Literal& expr) = 0;
-        virtual void visit(const Expr::Unary& expr) = 0;
-        virtual void visit(const Expr::Binary& expr) = 0;
-        virtual void visit(const Expr::Grouping& expr) = 0;
+        using Ts::operator()...;
+    };
+    template <class... Ts>
+    overloaded(Ts...) -> overloaded<Ts...>;
+
+    struct Evaluator final
+    {
+    public:
+        Value::Data operator()(const ast::Node& node);
+    };
+    struct Printer final
+    {
+    private:
+        int _indent_level = 0;
+        char _indent_char = '\t';
+    public:
+        Value::Data operator()(const ast::Node& node);
+    private:
+        void _printIndent() const;
     };
 }

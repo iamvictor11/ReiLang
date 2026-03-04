@@ -19,12 +19,31 @@ namespace luna
         ~Parser() = default;
     public:
         void start();
+        ast::NRef _program();
     private:
-        std::unique_ptr<Node> _expression();
-        std::unique_ptr<Node> _equality();
-        std::unique_ptr<Node> _term();
-        std::unique_ptr<Node> _factor();
-        std::unique_ptr<Node> _unary();
-        std::unique_ptr<Node> _primary();
+        ast::NRef _expression();
+        ast::NRef _assignment();
+        ast::NRef _logical_or();
+        ast::NRef _logical_and();
+        ast::NRef _bitwise_or();
+        ast::NRef _bitwise_xor();
+        ast::NRef _bitwise_and();
+        ast::NRef _equality();
+        ast::NRef _comparison();
+        ast::NRef _term();
+        ast::NRef _factor();
+        ast::NRef _pow();
+        ast::NRef _unary();
+        ast::NRef _primary();
+    private:
+        bool _isAtEnd() const;
+        Token::Unit& _advance();
+        void _pass();
+        Token::Unit& _prev();
+        Token::Unit& _peek();
+        Token::Unit& _next();
+        bool _check(Token::Type type);
+        bool _match(std::initializer_list<Token::Type> types);
+        Token::Type _consume(Token::Type type, const std::string& message);
     };
 }

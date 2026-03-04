@@ -4,7 +4,11 @@
 
 namespace luna
 {
-    struct Node;
+    namespace ast
+    {
+        struct Node;
+        using NRef = std::unique_ptr<Node>;
+    }
     namespace Expr
     {
         struct Literal final
@@ -14,25 +18,48 @@ namespace luna
         struct Unary final
         {
             Token::Type op;
-            std::unique_ptr<Node> right;
+            ast::NRef right;
         };
         struct Binary final
         {
-            std::unique_ptr<Node> left;
+            ast::NRef left;
             Token::Type op;
-            std::unique_ptr<Node> right;
+            ast::NRef right;
         };
         struct Grouping final
         {
-            std::unique_ptr<Node> expression;
+            ast::NRef expression;
         };
     }
-    struct Node final
+    namespace Stmt
     {
-        using Data = std::variant<
-            Expr::Literal, Expr::Unary, Expr::Binary, Expr::Grouping
-        >;
-        Data data;
-        Node(Data d) : data(std::move(d)) {}
-    };
+        
+    }
+    namespace ast
+    {
+        struct Node final
+        {
+        public:
+            using Data = std::variant<
+                Expr::Literal, Expr::Unary, Expr::Binary, Expr::Grouping
+                // Stmt::
+            >;
+        public:
+            Data data;
+        public:
+            Node(Data d) : data(std::move(d)) {}
+            explicit Node() = default;
+            ~Node() = default;
+            Node(const Node&) = delete;
+            auto operator=(const Node&) -> Node& = delete;
+            Node(Node&&) = delete;
+            auto operator=(Node &&) -> Node& = delete;
+        public:
+            Node& tempRef() { return *this; };
+        };
+        inline NRef make_ref(Node::Data d)
+        {
+            return std::make_unique<Node>(std::move(d));
+        }
+    }
 }

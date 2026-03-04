@@ -33,6 +33,7 @@ PRIVATE
     "src/core/lexer/lexer.cpp"
     "src/core/lexer/token.cpp"
     "src/core/parser/parser.cpp"
+    "src/core/parser/visitor.cpp"
     "src/core/vm.cpp"
     "src/debug/log.cpp"
     "src/util/error.cpp"
