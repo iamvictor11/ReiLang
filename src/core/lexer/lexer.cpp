@@ -1,6 +1,7 @@
 #include "lexer.hpp"
 #include <cctype>
 #include <charconv>
+#include <format>
 
 namespace luna
 {
@@ -29,6 +30,7 @@ namespace luna
         char c = _advance();
         switch (c)
         {
+        case '\0': break;
         case ',': _addToken(Token::TK_COMMA); break;
         case '.': _addToken(Token::TK_DOT); break;
         case ':': _addToken(_match(':') ? Token::TK_DCOLON : (_match('=') ? Token::TK_WALRUS : Token::TK_COLON)); break;
@@ -195,7 +197,7 @@ void Lexer::_lexOther(char c)
         _lexIdentifier();
         return;
     }
-    _error_reporter->report("未知的字符", _cursor.pos);
+    _error_reporter->report(std::format("未知的字符'{}'(HEX: 0x{:02x})", c, (unsigned char)c), _cursor.pos);
 }
 void Lexer::_lexNumber()
 {
