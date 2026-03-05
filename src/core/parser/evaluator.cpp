@@ -41,13 +41,9 @@ namespace luna::ast
         {
         case TK_ADD:
             if constexpr (IsInteger<L> && IsInteger<R>)
-            {
                 return Integer(left + right);
-            }
             else
-            {
                 return Float(static_cast<Float>(left) + static_cast<Float>(right));
-            }
         case TK_SUB:
             if constexpr (IsInteger<L> && IsInteger<R>)
                 return Integer(left - right);
