@@ -32,7 +32,12 @@ namespace luna
     namespace Value
     {
         using Data = std::variant<Nil, Boolean, Integer, Float, String, Ref<Table>, Ref<Function>>;
+        bool toBoolean(const Value::Data& data);
+        Integer toInteger(const Value::Data& data);
+        Float toFloat(const Value::Data& data);
         std::string toString(Value::Data data);
+        template<typename T>
+        uintptr_t toAddress(const Ref<T>& ref);
     }
 
     template<typename T>
