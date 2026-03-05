@@ -13,6 +13,17 @@ namespace luna::ast
 
     struct Evaluator final
     {
+    private:
+        template<typename L, typename R>
+        static Value::Data _binaryDist(L&& left, R&& right, Token::Type op);
+        template<typename L, typename R>
+        static Value::Data _numberBinary(L&& left, R&& right, Token::Type op);
+        template<typename L, typename R>
+        static Value::Data _stringBinary(L&& left, R&& right, Token::Type op);
+        template<typename L, typename R>
+        static Value::Data _referenceBinary(L&& left, R&& right, Token::Type op);
+        template<typename L, typename R>
+        static Value::Data _mixedBinary(L&& left, R&& right, Token::Type op);
     public:
         Value::Data operator()(const ast::Node& node);
     };
