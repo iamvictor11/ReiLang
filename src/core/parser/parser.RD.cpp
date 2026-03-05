@@ -181,7 +181,7 @@ namespace luna
         return nullptr;
     }
 #pragma endregion
-#pragma Stmt
+#pragma region Stmt
 void Parser<PT_RD>::_synchronize()
 {
     using namespace Token;
