@@ -10,7 +10,7 @@ namespace luna::ast
             [&](const Expr::Literal& e)
             {
                 _printIndent();
-                std::cout << "Literal: " << Value::toString(e.value) << std::endl;
+                std::cout << "Literal: " << Value::getDebugString(e.value) << std::endl;
             },
             [&](const Expr::Unary& e)
             {
