@@ -30,8 +30,10 @@ namespace luna::ast
     struct Printer final
     {
     private:
+        static constexpr char _indent_char_s = '\t';
+        // static constexpr char _indent_char_s = '-';
+    private:
         int _indent_level = 0;
-        char _indent_char = '\t';
     public:
         Value::Data operator()(const ast::Node& node);
     private:

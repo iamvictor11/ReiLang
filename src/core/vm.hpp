@@ -2,6 +2,7 @@
 #include <string>
 #include <memory>
 #include "util/error.hpp"
+#include "parser/node.hpp"
 
 namespace luna
 {
@@ -9,12 +10,18 @@ namespace luna
     class VM final
     {
     private:
+        ast::NRef _program;
         Error::Reporter _error_reporter;
     public:
         VM() = default;
         ~VM() = default;
     public:
-        void runSimple(const std::string& source);
-        void runFile(const std::string& path);
+        void loadSimple(const std::string& source);
+        void loadFile(const std::string& path);
+    public:
+        void run();
+    public:
+        bool hasError();
+        Error::Msg popError();
     };
 }

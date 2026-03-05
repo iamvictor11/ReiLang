@@ -7,11 +7,11 @@
 #include "parser/visitor.hpp"
 namespace luna
 {
-    void VM::runSimple(const std::string& source)
+    void VM::loadSimple(const std::string& source)
     {
         auto s = util::fileToString(source);
     }
-    void VM::runFile(const std::string& path)
+    void VM::loadFile(const std::string& path)
     {
         Lexer lexer {util::fileToString(path), &_error_reporter};
         auto& tokens = lexer.start();
@@ -22,14 +22,27 @@ namespace luna
             std::cout << token.toString() << std::endl;
     #endif
         Parser<PT_RD> parser {std::move(tokens), &_error_reporter};
-        auto nodeRef = parser.start();
+        _program = parser.start();
         if (!_error_reporter.empty()) return;
     #ifdef LUNA_DEBUG_ENABLE
         std::cout << "语法分析：" << std::endl;
         luna::ast::Printer printer{};
-        printer(nodeRef->tempRef());
-        luna::ast::Evaluator evaluator{};
-        evaluator(nodeRef->tempRef());
+        printer(_program->tempRef());
     #endif
+    }
+
+    void VM::run()
+    {
+        luna::ast::Evaluator evaluator{};
+        evaluator(_program->tempRef());
+    }
+
+    bool VM::hasError()
+    {
+        return _error_reporter.empty();
+    }
+    Error::Msg VM::popError()
+    {
+        return _error_reporter.pop();
     }
 }
