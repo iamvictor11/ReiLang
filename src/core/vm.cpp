@@ -14,22 +14,22 @@ namespace luna
     void VM::runFile(const std::string& path)
     {
         Lexer lexer {util::fileToString(path), &_error_reporter};
-        std::cout << "词法分析：" << std::endl;
         auto& tokens = lexer.start();
         if (!_error_reporter.empty()) return;
     #ifdef LUNA_DEBUG_ENABLE
+        std::cout << "词法分析：" << std::endl;
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
     #endif
-        std::cout << "语法分析：" << std::endl;
         Parser<PT_RD> parser {std::move(tokens), &_error_reporter};
         auto nodeRef = parser.start();
         if (!_error_reporter.empty()) return;
     #ifdef LUNA_DEBUG_ENABLE
+        std::cout << "语法分析：" << std::endl;
         luna::ast::Printer printer{};
         printer(nodeRef->tempRef());
         luna::ast::Evaluator evaluator{};
-        std::cout << Value::toString(evaluator(nodeRef->tempRef())) << std::endl;
+        evaluator(nodeRef->tempRef());
     #endif
     }
 }
