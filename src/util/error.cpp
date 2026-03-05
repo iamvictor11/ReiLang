@@ -23,7 +23,7 @@ namespace luna::Error
     }
     void Reporter::report(const std::string& data, Position pos)
     {
-        LUNA_DEBUG_LOG_ERROR("{}", data);
+        LUNA_DEBUG_LOG_ERROR("{}{}", data, pos.toString());
         _stack.emplace_back(data, pos);
     }
     Msg Reporter::pop()
