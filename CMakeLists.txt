@@ -34,6 +34,8 @@ PRIVATE
     "src/core/lexer/token.cpp"
     "src/core/parser/parser.RD.cpp"
     "src/core/parser/evaluator.cpp"
+    "src/core/parser/evaluator.expr.cpp"
+    "src/core/parser/evaluator.stmt.cpp"
     "src/core/parser/printer.cpp"
     "src/core/vm.cpp"
     "src/debug/log.cpp"

@@ -34,7 +34,7 @@ namespace luna
         {
             Token::Type oper = _prev().type;
             NRef value = _assignmentExpr();
-            return Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(value)});
+            return Node::make_ref(Expr::Assign{std::move(expr), oper, std::move(value)});
         }
         return expr;
     }
@@ -204,6 +204,12 @@ ast::NRef Parser<PT_RD>::_printStmt()
         _error_reporter->report("打印语句缺失表达式", punit.pos);
     _consume(Token::TK_SEMICOLON, "打印语句后要有';'结尾");
     return Node::make_ref(Stmt::Print{punit.type, std::move(val)});
+}
+ast::NRef Parser<PT_RD>::_expressionStmt()
+{
+    // ast::NRef expr = _expression();
+    // _consume(Token::TK_SEMICOLON, "表达式语句后要有';'结尾");
+    // return Node::make_ref(Stmt::Expression{punit.type, std::move(val)});
 }
 void Parser<PT_RD>::_synchronize()
 {

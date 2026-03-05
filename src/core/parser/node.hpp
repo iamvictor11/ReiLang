@@ -16,6 +16,16 @@ namespace luna::ast
         {
             Value::Data value;
         };
+        struct VarName final
+        {
+            std::string name;
+        };
+        struct Assign final
+        {
+            NRef left;
+            Token::Type op;
+            NRef right;
+        };
         struct Unary final
         {
             Token::Type op;
@@ -34,6 +44,10 @@ namespace luna::ast
     }
     namespace Stmt
     {
+        struct Expression final
+        {
+            NRef expression;
+        };
         struct Print final
         {
             Token::Type kw;
@@ -43,12 +57,6 @@ namespace luna::ast
         {
             std::string name;
             NRef initializer;
-        };
-        struct Assign final
-        {
-            NRef left;
-            Token::Type op;
-            NRef right;
         };
         struct Block final
         {
@@ -60,9 +68,8 @@ namespace luna::ast
     public:
         using Data = std::variant<
             Program,
-            Expr::Literal, Expr::Unary, Expr::Binary, Expr::Grouping,
-            Stmt::Print
-            // , Stmt::VarDecl, Stmt::Assign, Stmt::Block
+            Expr::Literal, Expr::VarName, Expr::Assign, Expr::Unary, Expr::Binary, Expr::Grouping,
+            Stmt::Expression, Stmt::Print, Stmt::VarDecl, Stmt::Block
         >;
     public:
         Data data;

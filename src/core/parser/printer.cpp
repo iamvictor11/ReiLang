@@ -20,6 +20,12 @@ namespace luna::ast
                     "\033[1m\033[36m" << Value::getDebugString(e.value) <<
                     "\033[0m" << std::endl;
             },
+            [&](const Expr::VarName& e)
+            {
+            },
+            [&](const Expr::Assign& e)
+            {
+            },
             [&](const Expr::Unary& e)
             {
                 _printIndent();
@@ -49,6 +55,9 @@ namespace luna::ast
                 this->operator()(*e.expression);
                 _indent_level--;
             },
+            [&](const Stmt::Expression& s)
+            {
+            },
             [&](const Stmt::Print& s)
             {
                 _printIndent();
@@ -57,6 +66,12 @@ namespace luna::ast
                 else
                     std::cout << "Println: " << std::endl;
                 this->operator()(*s.value);
+            },
+            [&](const Stmt::VarDecl& s)
+            {
+            },
+            [&](const Stmt::Block& s)
+            {
             }
         }, node.data);
         return Nil{};

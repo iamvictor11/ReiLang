@@ -13,29 +13,28 @@ namespace luna::ast
 
     struct Evaluator final
     {
-    private:
-        template<typename L, typename R>
-        static Value::Data _binaryDist(L&& left, R&& right, Token::Type op);
-        template<typename L, typename R>
-        static Value::Data _numberBinary(L&& left, R&& right, Token::Type op);
-        template<typename L, typename R>
-        static Value::Data _stringBinary(L&& left, R&& right, Token::Type op);
-        template<typename L, typename R>
-        static Value::Data _referenceBinary(L&& left, R&& right, Token::Type op);
-        template<typename L, typename R>
-        static Value::Data _mixedBinary(L&& left, R&& right, Token::Type op);
     public:
-        Value::Data operator()(const ast::Node& node);
+        Value::Data operator()(const Node& node);
+    private:
+        Value::Data _execute(const Program& n);
+        Value::Data _execute(const Expr::VarName& n);
+        Value::Data _execute(const Expr::Assign& n);
+        Value::Data _execute(const Expr::Unary& n);
+        Value::Data _execute(const Expr::Binary& n);
+        Value::Data _execute(const Expr::Grouping& n);
+        Value::Data _execute(const Stmt::Expression& n);
+        Value::Data _execute(const Stmt::Print& n);
+        Value::Data _execute(const Stmt::VarDecl& n);
+        Value::Data _execute(const Stmt::Block& n);
     };
     struct Printer final
     {
     private:
         static constexpr char _indent_char_s = '\t';
-        // static constexpr char _indent_char_s = '-';
     private:
         int _indent_level = 0;
     public:
-        Value::Data operator()(const ast::Node& node);
+        Value::Data operator()(const Node& node);
     private:
         void _printIndent() const;
     };
