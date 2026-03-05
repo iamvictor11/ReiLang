@@ -99,7 +99,7 @@ namespace luna
                 else if constexpr (std::is_same_v<T, Float>)
                     return std::to_string(arg);
                 else if constexpr (std::is_same_v<T, String>)
-                    return escape(arg);
+                    return arg;
                 else if constexpr (std::is_same_v<T, Ref<Table>>)
                     return "table(" + std::to_string(arg->size()) + ")";
                 else if constexpr (std::is_same_v<T, Ref<Function>>)
@@ -113,6 +113,29 @@ namespace luna
         {
             if (!ref) return 0;
             return reinterpret_cast<uintptr_t>(&(*ref));
+        }
+        std::string getDebugString(Value::Data data)
+        {
+            return std::visit([](auto&& arg) -> std::string
+            {
+                using T = std::decay_t<decltype(arg)>;
+                if constexpr (std::is_same_v<T, Nil>)
+                    return "nil";
+                else if constexpr (std::is_same_v<T, Boolean>)
+                    return arg ? "true" : "false";
+                else if constexpr (std::is_same_v<T, Integer>)
+                    return std::to_string(arg);
+                else if constexpr (std::is_same_v<T, Float>)
+                    return std::to_string(arg);
+                else if constexpr (std::is_same_v<T, String>)
+                    return "\"" + escape(arg) + "\"";
+                else if constexpr (std::is_same_v<T, Ref<Table>>)
+                    return "table(" + std::to_string(arg->size()) + ")";
+                else if constexpr (std::is_same_v<T, Ref<Function>>)
+                    return "function";
+                else
+                    return "unknown";
+            }, data);
         }
     }
 #pragma region Table

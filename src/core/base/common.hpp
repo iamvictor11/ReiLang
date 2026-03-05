@@ -38,6 +38,7 @@ namespace luna
         std::string toString(Value::Data data);
         template<typename T>
         uintptr_t toAddress(const Ref<T>& ref);
+        std::string getDebugString(Value::Data data);
     }
 
     template<typename T>
@@ -45,11 +46,15 @@ namespace luna
     template<typename T>
     constexpr bool is_num = std::is_same_v<T, Integer> || std::is_same_v<T, Float> || std::is_same_v<T, Boolean>;
     template<typename T>
+    constexpr bool is_str = std::is_same_v<T, String>;
+    template<typename T>
     constexpr bool is_ref = std::is_same_v<T, Ref<Table>> || std::is_same_v<T, Ref<Function>>;
     template<typename T>
     concept IsNil = is_nil<std::decay_t<T>>;
     template<typename T>
-    concept IsNumeric = is_num<std::decay_t<T>>;
+    concept IsNumber = is_num<std::decay_t<T>>;
+    template<typename T>
+    concept IsString = is_str<std::decay_t<T>>;
     template<typename T>
     concept IsReference = is_ref<std::decay_t<T>>;
 

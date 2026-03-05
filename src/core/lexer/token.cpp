@@ -233,7 +233,7 @@ namespace luna::Token
         for (int i = 0; i < tabCount; i++)
             res += "\t";
         if (type == TK_LIT_INT || type == TK_LIT_FLOAT || type == TK_LIT_STRING)
-            res += Value::toString(literal);
+            res += Value::getDebugString(literal);
         else if (type == TK_IDENT)
             res += std::string(lexeme);
         else
