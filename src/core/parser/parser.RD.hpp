@@ -21,7 +21,7 @@ namespace luna
         Parser(Token::List&& ts, Error::Reporter* er) : _tokens(std::move(ts)), _error_reporter(er) {};
         ~Parser() = default;
     public:
-        void start();
+        [[nodiscard]] ast::NRef start();
         ast::NRef _program();
     private:
         ast::NRef _expression();

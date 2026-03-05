@@ -2,9 +2,10 @@
 
 namespace luna
 {
-    void Parser<PT_RD>::start()
+    ast::NRef Parser<PT_RD>::start()
     {
-        
+        _programNodeRef = _expression();
+        return std::move(_programNodeRef);
     }
     ast::NRef Parser<PT_RD>::_program()
     {
