@@ -22,8 +22,8 @@ namespace luna
     struct Function;
 
     using Nil = std::monostate;
-    using Bool = bool;
-    using Int = int64_t;
+    using Boolean = bool;
+    using Integer = int64_t;
     using Float = double;
     using String = std::string;
     template<typename T>
@@ -31,9 +31,22 @@ namespace luna
 
     namespace Value
     {
-        using Data = std::variant<Nil, Bool, Int, Float, String, Ref<Table>, Ref<Function>>;
+        using Data = std::variant<Nil, Boolean, Integer, Float, String, Ref<Table>, Ref<Function>>;
         std::string toString(Value::Data data);
     }
+
+    template<typename T>
+    constexpr bool is_nil = std::is_same_v<T, Nil>;
+    template<typename T>
+    constexpr bool is_num = std::is_same_v<T, Integer> || std::is_same_v<T, Float> || std::is_same_v<T, Boolean>;
+    template<typename T>
+    constexpr bool is_ref = std::is_same_v<T, Ref<Table>> || std::is_same_v<T, Ref<Function>>;
+    template<typename T>
+    concept IsNil = is_nil<std::decay_t<T>>;
+    template<typename T>
+    concept IsNumeric = is_num<std::decay_t<T>>;
+    template<typename T>
+    concept IsReference = is_ref<std::decay_t<T>>;
 
     struct Variable final
     {

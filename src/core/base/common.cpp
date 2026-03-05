@@ -14,11 +14,11 @@ namespace luna
                 {
                     return "nil";
                 }
-                else if constexpr (std::is_same_v<T, Bool>)
+                else if constexpr (std::is_same_v<T, Boolean>)
                 {
                     return arg ? "true" : "false";
                 }
-                else if constexpr (std::is_same_v<T, Int>)
+                else if constexpr (std::is_same_v<T, Integer>)
                 {
                     return std::to_string(arg);
                 }

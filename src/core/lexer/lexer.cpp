@@ -210,7 +210,7 @@ void Lexer::_lexNumber()
             _pass(2);
             while (isBdigit(_peek())) _pass();
             std::string_view lexeme {start, _cursor.current - _cursor.start};
-            Int value = 0;
+            Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); ++i)
                 value = (value << 1) | (lexeme[i] - '0');
             _addToken(Token::TK_LIT_INT, lexeme, value);
@@ -222,7 +222,7 @@ void Lexer::_lexNumber()
             _pass(2);
             while (isOdigit(_peek())) _pass();
             std::string_view lexeme {start, _cursor.current - _cursor.start};
-            Int value = 0;
+            Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); ++i)
                 value = value * 8 + (lexeme[i] - '0');
             _addToken(Token::TK_LIT_INT, lexeme, value);
@@ -234,7 +234,7 @@ void Lexer::_lexNumber()
             _pass(2);
             while (isxdigit(_peek())) _pass();
             std::string_view lexeme {start, _cursor.current - _cursor.start};
-            Int value = 0;
+            Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); ++i)
             {
                 char c = lexeme[i];
@@ -290,7 +290,7 @@ void Lexer::_lexNumber()
     }
     else
     {
-        Int value;
+        Integer value;
         auto [ptr, ec] = std::from_chars(start, end, value);
         if (ec == std::errc()) _addToken(Token::TK_LIT_INT, lexeme, value);
         else _error_reporter->report("错误的整数格式", _cursor.pos);
