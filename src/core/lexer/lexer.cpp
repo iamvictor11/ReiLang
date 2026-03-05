@@ -17,7 +17,7 @@ namespace luna
 #pragma endregion
     Token::List& Lexer::start()
     {
-        while (!_isAtEnd() && _error_reporter->empty())
+        while (!_isAtEnd())
             _scan();
         _tokens.emplace_back(Token::TK_EOF, "", 0, _cursor.pos);
         return _tokens;
