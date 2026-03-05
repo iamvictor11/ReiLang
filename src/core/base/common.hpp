@@ -14,7 +14,7 @@ namespace luna
     public:
         std::string toString() const
         {
-            return std::to_string(line) + ":" + std::to_string(column);
+            return "[" + std::to_string(line) + ":" + std::to_string(column) + "]";
         }
     };
 
@@ -44,6 +44,12 @@ namespace luna
     template<typename T>
     constexpr bool is_nil = std::is_same_v<T, Nil>;
     template<typename T>
+    constexpr bool is_int = std::is_same_v<T, Integer>;
+    template<typename T>
+    constexpr bool is_float = std::is_same_v<T, Float>;
+    template<typename T>
+    constexpr bool is_bool = std::is_same_v<T, Boolean>;
+    template<typename T>
     constexpr bool is_num = std::is_same_v<T, Integer> || std::is_same_v<T, Float> || std::is_same_v<T, Boolean>;
     template<typename T>
     constexpr bool is_str = std::is_same_v<T, String>;
@@ -51,6 +57,12 @@ namespace luna
     constexpr bool is_ref = std::is_same_v<T, Ref<Table>> || std::is_same_v<T, Ref<Function>>;
     template<typename T>
     concept IsNil = is_nil<std::decay_t<T>>;
+    template<typename T>
+    concept IsInteger = is_int<std::decay_t<T>>;
+    template<typename T>
+    concept IsFloat = is_float<std::decay_t<T>>;
+    template<typename T>
+    concept IsBoolean = is_bool<std::decay_t<T>>;
     template<typename T>
     concept IsNumber = is_num<std::decay_t<T>>;
     template<typename T>
