@@ -2,13 +2,14 @@
 #include "core/lexer/token.hpp"
 #include "core/base/common.hpp"
 
-namespace luna
+namespace luna::ast
 {
-    namespace ast
+    struct Node;
+    using NRef = std::unique_ptr<Node>;
+    struct Program final
     {
-        struct Node;
-        using NRef = std::unique_ptr<Node>;
-    }
+        std::vector<NRef> nodes;
+    };
     namespace Expr
     {
         struct Literal final
@@ -18,48 +19,64 @@ namespace luna
         struct Unary final
         {
             Token::Type op;
-            ast::NRef right;
+            NRef right;
         };
         struct Binary final
         {
-            ast::NRef left;
+            NRef left;
             Token::Type op;
-            ast::NRef right;
+            NRef right;
         };
         struct Grouping final
         {
-            ast::NRef expression;
+            NRef expression;
         };
     }
     namespace Stmt
     {
-        
-    }
-    namespace ast
-    {
-        struct Node final
+        struct Print final
         {
-        public:
-            using Data = std::variant<
-                Expr::Literal, Expr::Unary, Expr::Binary, Expr::Grouping
-                // Stmt::
-            >;
-        public:
-            Data data;
-        public:
-            Node(Data d) : data(std::move(d)) {}
-            explicit Node() = default;
-            ~Node() = default;
-            Node(const Node&) = delete;
-            auto operator=(const Node&) -> Node& = delete;
-            Node(Node&&) = delete;
-            auto operator=(Node &&) -> Node& = delete;
-        public:
-            Node& tempRef() { return *this; };
+            Token::Type kw;
+            NRef value;
         };
-        inline NRef make_ref(Node::Data d)
+        struct VarDecl final
         {
-            return std::make_unique<Node>(std::move(d));
-        }
+            std::string name;
+            NRef initializer;
+        };
+        struct Assign final
+        {
+            NRef left;
+            Token::Type op;
+            NRef right;
+        };
+        struct Block final
+        {
+            std::vector<NRef> statements;
+        };
     }
+    struct Node final
+    {
+    public:
+        using Data = std::variant<
+            Program,
+            Expr::Literal, Expr::Unary, Expr::Binary, Expr::Grouping,
+            Stmt::Print
+            // , Stmt::VarDecl, Stmt::Assign, Stmt::Block
+        >;
+    public:
+        Data data;
+    public:
+        Node(Data d) : data(std::move(d)) {}
+        explicit Node() = default;
+        ~Node() = default;
+        Node(const Node&) = delete;
+        auto operator=(const Node&) -> Node& = delete;
+        Node(Node&&) = delete;
+        auto operator=(Node &&) -> Node& = delete;
+    public:
+        Node& tempRef() { return *this; };
+    public:
+        static NRef make_ref(Node::Data d) { return std::make_unique<Node>(std::move(d)); }
+    };
 }

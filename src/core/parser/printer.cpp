@@ -7,6 +7,14 @@ namespace luna::ast
     {
         std::visit(overloaded
         {
+            [&](const Program& p)
+            {
+                std::cout << "Program:" << std::endl;
+                std::cout << "BEG" << std::endl;
+                for (size_t i = 0; i < p.nodes.size(); i++)
+                    this->operator()(*p.nodes[i]);
+                std::cout << "END" << std::endl;
+            },
             [&](const Expr::Literal& e)
             {
                 _printIndent();
@@ -35,6 +43,16 @@ namespace luna::ast
                 std::cout << "Grouping:" << std::endl;
                 _indent_level++;
                 this->operator()(*e.expression);
+                _indent_level--;
+            },
+            [&](const Stmt::Print& s)
+            {
+                if (s.kw == Token::TK_PRINT)
+                    std::cout << "Print:";
+                else
+                    std::cout << "Println";
+                _indent_level++;
+                this->operator()(*s.value);
                 _indent_level--;
             }
         }, node.data);

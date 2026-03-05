@@ -2,23 +2,30 @@
 
 namespace luna
 {
-    ast::NRef Parser<PT_RD>::start()
+    using namespace ast;
+    NRef Parser<PT_RD>::start()
     {
-        _programNodeRef = _expression();
+        _programNodeRef = _program();
         return std::move(_programNodeRef);
     }
-    ast::NRef Parser<PT_RD>::_program()
+    NRef Parser<PT_RD>::_program()
     {
-
+        Program p{};
+        while (!_isAtEnd())
+        {
+            NRef nr = _statement();
+            if (nr) p.nodes.push_back(std::move(nr));
+        }
+        return Node::make_ref(std::move(p));
     }
 #pragma region Expr
-    ast::NRef Parser<PT_RD>::_expression()
+    NRef Parser<PT_RD>::_expression()
     {
-        return Parser<PT_RD>::_assignment();
+        return Parser<PT_RD>::_assignmentExpr();
     }
-    ast::NRef Parser<PT_RD>::_assignment()
+    NRef Parser<PT_RD>::_assignmentExpr()
     {
-        ast::NRef expr = _logical_or();
+        NRef expr = _logicalOrExpr();
         if (_match({
             Token::TK_ASSIGN, Token::TK_WALRUS,
             Token::TK_SELF_ADD, Token::TK_SELF_SUB, Token::TK_SELF_MUL, Token::TK_SELF_DIV, Token::TK_SELF_MOD, Token::TK_SELF_POW,
@@ -26,143 +33,143 @@ namespace luna
         }))
         {
             Token::Type oper = _prev().type;
-            ast::NRef value = _assignment();
-            return ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(value)});
+            NRef value = _assignmentExpr();
+            return Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(value)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_logical_or()
+    NRef Parser<PT_RD>::_logicalOrExpr()
     {
-        ast::NRef expr = _logical_and();
+        NRef expr = _logicalAndExpr();
         while (_match({Token::TK_OR}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _logical_and();
-            expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
+            NRef right = _logicalAndExpr();
+            expr = Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_logical_and()
+    NRef Parser<PT_RD>::_logicalAndExpr()
     {
-        ast::NRef expr = _bitwise_or();
+        NRef expr = _bitwiseOrExpr();
         while (_match({Token::TK_AND}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _bitwise_or();
-            expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
+            NRef right = _bitwiseOrExpr();
+            expr = Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_bitwise_or()
+    NRef Parser<PT_RD>::_bitwiseOrExpr()
     {
-        ast::NRef expr = _bitwise_xor();
+        NRef expr = _bitwiseXorExpr();
         while (_match({Token::TK_BIT_OR}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _bitwise_xor();
-            expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
+            NRef right = _bitwiseXorExpr();
+            expr = Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_bitwise_xor()
+    NRef Parser<PT_RD>::_bitwiseXorExpr()
     {
-        ast::NRef expr = _bitwise_and();
+        NRef expr = _bitwiseAndExpr();
         while (_match({Token::TK_BIT_XOR, Token::TK_BIT_XNOR}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _bitwise_and();
-            expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
+            NRef right = _bitwiseAndExpr();
+            expr = Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_bitwise_and()
+    NRef Parser<PT_RD>::_bitwiseAndExpr()
     {
-        ast::NRef expr = _equality();
+        NRef expr = _equalityExpr();
         while (_match({Token::TK_BIT_AND}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _equality();
-            expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
+            NRef right = _equalityExpr();
+            expr = Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_equality()
+    NRef Parser<PT_RD>::_equalityExpr()
     {
-        ast::NRef expr = _comparison();
+        NRef expr = _comparisonExpr();
         while (_match({Token::TK_EQ, Token::TK_NE}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _comparison();
-            expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
+            NRef right = _comparisonExpr();
+            expr = Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_comparison()
+    NRef Parser<PT_RD>::_comparisonExpr()
     {
-        ast::NRef expr = _bitwise_shift();
+        NRef expr = _bitwiseShiftExpr();
         while (_match({Token::TK_GT, Token::TK_GE, Token::TK_LT, Token::TK_LE}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _bitwise_shift();
-            expr = ast::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
+            NRef right = _bitwiseShiftExpr();
+            expr = Node::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_bitwise_shift()
+    NRef Parser<PT_RD>::_bitwiseShiftExpr()
     {
-        ast::NRef expr = _term();
+        NRef expr = _termExpr();
         while (_match({Token::TK_BIT_SHL, Token::TK_BIT_SHR}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _term();
-            expr = ast::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
+            NRef right = _termExpr();
+            expr = Node::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_term()
+    NRef Parser<PT_RD>::_termExpr()
     {
-        ast::NRef expr = _factor();
+        NRef expr = _factorExpr();
         while (_match({Token::TK_ADD, Token::TK_SUB}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _factor();
-            expr = ast::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
+            NRef right = _factorExpr();
+            expr = Node::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_factor()
+    NRef Parser<PT_RD>::_factorExpr()
     {
-        ast::NRef expr = _pow();
+        NRef expr = _powExpr();
         while (_match({Token::TK_MUL, Token::TK_DIV, Token::TK_MOD}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _pow();
-            expr = ast::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
+            NRef right = _powExpr();
+            expr = Node::make_ref(Expr::Binary(std::move(expr), oper, std::move(right)));
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_pow()
+    NRef Parser<PT_RD>::_powExpr()
     {
-        ast::NRef expr = _unary();
+        NRef expr = _unaryExpr();
         if (_match({Token::TK_POW}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _pow();
-            expr = ast::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
+            NRef right = _powExpr();
+            expr = Node::make_ref(Expr::Binary{std::move(expr), oper, std::move(right)});
         }
         return expr;
     }
-    ast::NRef Parser<PT_RD>::_unary()
+    NRef Parser<PT_RD>::_unaryExpr()
     {
         if (_match({Token::TK_SUB, Token::TK_NOT, Token::TK_BIT_NOT}))
         {
             Token::Type oper = _prev().type;
-            ast::NRef right = _unary();
-            return ast::make_ref(Expr::Unary(oper, std::move(right)));
+            NRef right = _unaryExpr();
+            return Node::make_ref(Expr::Unary(oper, std::move(right)));
         }
         return _primary();
     }
-    ast::NRef Parser<PT_RD>::_primary()
+    NRef Parser<PT_RD>::_primary()
     {   
         if (_match({
             Token::TK_NIL,
@@ -170,19 +177,34 @@ namespace luna
             Token::TK_LIT_STRING
         }))
         {
-            return ast::make_ref(Expr::Literal{_prev().literal});
+            return Node::make_ref(Expr::Literal{_prev().literal});
         }
         if (_match({Token::TK_LPAREN}))
         {
-            ast::NRef expr = _expression();
+            NRef expr = _expression();
             _consume(Token::TK_RPAREN, "括号未闭合");
-            return ast::make_ref(Expr::Grouping{std::move(expr)});
+            return Node::make_ref(Expr::Grouping{std::move(expr)});
         }
-        _error_reporter->report("没有对应匹配", _advance().pos);
+        _error_reporter->report("缺失表达式", _advance().pos);
         return nullptr;
     }
 #pragma endregion
 #pragma region Stmt
+ast::NRef Parser<PT_RD>::_statement()
+{
+    if (_match({Token::TK_PRINT, Token::TK_PRINTLN}))
+        return _printStmt();
+    return nullptr;
+}
+ast::NRef Parser<PT_RD>::_printStmt()
+{
+    Token::Unit punit = _prev();
+    NRef val = _expression();
+    if (val == nullptr)
+        _error_reporter->report("打印语句缺失表达式", punit.pos);
+    _consume(Token::TK_SEMICOLON, "打印语句后要有';'结尾");
+    return Node::make_ref(Stmt::Print{punit.type, std::move(val)});
+}
 void Parser<PT_RD>::_synchronize()
 {
     using namespace Token;
@@ -242,7 +264,7 @@ void Parser<PT_RD>::_synchronize()
 #pragma region Kan/Move
     bool Parser<PT_RD>::_isAtEnd() const
     {
-        return _cursor.current >= _tokens.size();
+        return _tokens.at(_cursor.current).type == Token::TK_EOF;
     }
     Token::Unit& Parser<PT_RD>::_advance()
     {

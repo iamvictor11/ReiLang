@@ -25,21 +25,23 @@ namespace luna
         ast::NRef _program();
     private:
         ast::NRef _expression();
-        ast::NRef _assignment();
-        ast::NRef _logical_or();
-        ast::NRef _logical_and();
-        ast::NRef _bitwise_or();
-        ast::NRef _bitwise_xor();
-        ast::NRef _bitwise_and();
-        ast::NRef _equality();
-        ast::NRef _comparison();
-        ast::NRef _bitwise_shift();
-        ast::NRef _term();
-        ast::NRef _factor();
-        ast::NRef _pow();
-        ast::NRef _unary();
+        ast::NRef _assignmentExpr();
+        ast::NRef _logicalOrExpr();
+        ast::NRef _logicalAndExpr();
+        ast::NRef _bitwiseOrExpr();
+        ast::NRef _bitwiseXorExpr();
+        ast::NRef _bitwiseAndExpr();
+        ast::NRef _equalityExpr();
+        ast::NRef _comparisonExpr();
+        ast::NRef _bitwiseShiftExpr();
+        ast::NRef _termExpr();
+        ast::NRef _factorExpr();
+        ast::NRef _powExpr();
+        ast::NRef _unaryExpr();
         ast::NRef _primary();
     private:
+        ast::NRef _statement();
+        ast::NRef _printStmt();
         void _synchronize();
     private:
         bool _isAtEnd() const;
