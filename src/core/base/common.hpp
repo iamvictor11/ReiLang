@@ -73,7 +73,7 @@ namespace luna
     struct Variable final
     {
     public:
-        Value::Data value;
+        Value::Data value = Nil{};
         bool is_const = false;
     public:
         Variable() = default;
