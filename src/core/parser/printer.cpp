@@ -22,9 +22,21 @@ namespace luna::ast
             },
             [&](const Expr::VarName& e)
             {
+                _printIndent();
+                std::cout << "VarName: " <<
+                    "\033[1m\033[36m" << Value::getDebugString(e.name) <<
+                    "\033[0m" << std::endl;
             },
             [&](const Expr::Assign& e)
             {
+                _printIndent();
+                std::cout << "Assign: " <<
+                    "\033[1m\033[36m" << Token::toSymbol(e.op) <<
+                    "\033[0m" << std::endl;
+                _indent_level++;
+                this->operator()(*e.left);
+                this->operator()(*e.right);
+                _indent_level--;
             },
             [&](const Expr::Unary& e)
             {
@@ -50,28 +62,51 @@ namespace luna::ast
             [&](const Expr::Grouping& e)
             {
                 _printIndent();
-                std::cout << "Grouping:" << std::endl;
+                std::cout << "Grouping: " <<
+                    "\033[1m\033[36m" << "(" <<
+                    "\033[0m" << std::endl;
                 _indent_level++;
                 this->operator()(*e.expression);
                 _indent_level--;
+                std::cout <<
+                    "\033[1m\033[36m" << ")" <<
+                    "\033[0m" << std::endl;
             },
             [&](const Stmt::Expression& s)
             {
+                _printIndent();
+                std::cout << "Expression:" << std::endl;
+                this->operator()(*s.expression);
             },
             [&](const Stmt::Print& s)
             {
                 _printIndent();
                 if (s.kw == Token::TK_PRINT)
-                    std::cout << "Print: " << std::endl;
+                    std::cout << "Print:" << std::endl;
                 else
-                    std::cout << "Println: " << std::endl;
+                    std::cout << "Println:" << std::endl;
                 this->operator()(*s.value);
             },
             [&](const Stmt::VarDecl& s)
             {
+                _printIndent();
+                std::cout << "VarDecl: " <<
+                    "\033[1m\033[36m" << Value::getDebugString(s.name) <<
+                    "\033[0m" << std::endl;
             },
             [&](const Stmt::Block& s)
             {
+                _printIndent();
+                std::cout << "Block: " <<
+                    "\033[1m\033[36m" << "{" <<
+                    "\033[0m" << std::endl;
+                _indent_level++;
+                for (size_t i = 0; i < s.statements.size(); i++)
+                    this->operator()(*s.statements[i]);
+                _indent_level--;
+                std::cout <<
+                    "\033[1m\033[36m" << "}" <<
+                    "\033[0m" << std::endl;
             }
         }, node.data);
         return Nil{};
