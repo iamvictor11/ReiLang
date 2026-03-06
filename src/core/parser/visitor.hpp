@@ -4,12 +4,12 @@
 namespace luna::ast
 {
     template <class... Ts>
-    struct overloaded : Ts...
+    struct LambdaOverloaded : Ts...
     {
         using Ts::operator()...;
     };
     template <class... Ts>
-    overloaded(Ts...) -> overloaded<Ts...>;
+    LambdaOverloaded(Ts...) -> LambdaOverloaded<Ts...>;
 
     struct Evaluator final
     {

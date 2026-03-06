@@ -136,7 +136,7 @@ Value::Data Evaluator::_execute(const Expr::Assign& n)
     case TK_SELF_BIT_SHR: break;
     default: break;
     }
-    return Nil{};
+    return operator()(*n.right);
 }
 Value::Data Evaluator::_execute(const Expr::Unary& n)
 {
@@ -162,7 +162,7 @@ Value::Data Evaluator::_execute(const Expr::Binary& n)
     }
     Value::Data left = operator()(*n.left);
     Value::Data right = operator()(*n.right);
-    return std::visit(overloaded
+    return std::visit(LambdaOverloaded
     {
         [&](auto&& l, auto&& r) -> Value::Data
         requires ((IsNumber<decltype(l)> || IsNil<decltype(l)>) && (IsNumber<decltype(r)> || IsNil<decltype(r)>))

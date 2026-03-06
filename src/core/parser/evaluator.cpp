@@ -5,7 +5,7 @@ namespace luna::ast
     Value::Data Evaluator::operator()(const Node& node)
     {
         using namespace Token;
-        return std::visit(overloaded
+        return std::visit(LambdaOverloaded
         {
             [&](const Program& n) { return _execute(n); },
             [](const Expr::Literal& n) { return n.value; },

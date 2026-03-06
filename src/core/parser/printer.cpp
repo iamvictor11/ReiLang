@@ -5,7 +5,7 @@ namespace luna::ast
 {
     Value::Data Printer::operator()(const Node& node)
     {
-        std::visit(overloaded
+        std::visit(LambdaOverloaded
         {
             [&](const Program& p)
             {
