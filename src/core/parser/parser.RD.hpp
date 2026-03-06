@@ -38,7 +38,7 @@ namespace luna
         ast::NRef _factorExpr();
         ast::NRef _powExpr();
         ast::NRef _unaryExpr();
-        ast::NRef _primary();
+        ast::NRef _primaryExpr();
     private:
         ast::NRef _statement();
         ast::NRef _printStmt();

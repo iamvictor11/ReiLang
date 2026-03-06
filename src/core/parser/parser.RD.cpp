@@ -167,9 +167,9 @@ namespace luna
             NRef right = _unaryExpr();
             return Node::make_ref(Expr::Unary(oper, std::move(right)));
         }
-        return _primary();
+        return _primaryExpr();
     }
-    NRef Parser<PT_RD>::_primary()
+    NRef Parser<PT_RD>::_primaryExpr()
     {   
         if (_match({
             Token::TK_NIL,
