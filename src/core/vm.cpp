@@ -21,20 +21,20 @@ namespace luna
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
     #endif
-    //     Parser<PT_RD> parser {std::move(tokens), &_error_reporter};
-    //     _program = parser.start();
-    //     if (!_error_reporter.empty()) return;
-    // #ifdef LUNA_DEBUG_ENABLE
-    //     std::cout << "语法分析：" << std::endl;
-    //     luna::ast::Printer printer{};
-    //     printer(_program->tempRef());
-    // #endif
+        Parser<PT_RD> parser {std::move(tokens), &_error_reporter};
+        _program = parser.start();
+        if (!_error_reporter.empty()) return;
+    #ifdef LUNA_DEBUG_ENABLE
+        std::cout << "语法分析：" << std::endl;
+        luna::ast::Printer printer{};
+        printer(_program->tempRef());
+    #endif
     }
 
     void VM::run()
     {
-        // luna::ast::Evaluator evaluator{};
-        // evaluator(_program->tempRef());
+        luna::ast::Evaluator evaluator{&_env};
+        evaluator(_program->tempRef());
     }
 
     bool VM::hasError()

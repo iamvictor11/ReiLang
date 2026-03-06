@@ -2,7 +2,7 @@
 
 namespace luna::ast
 {
-    Value::Data Evaluator::operator()(const Node& node)
+    Evaluator::ResType Evaluator::operator()(const Node& node)
     {
         using namespace Token;
         return std::visit(LambdaOverloaded
@@ -20,10 +20,10 @@ namespace luna::ast
             [&](const Stmt::Block& n) { return _execute(n); }
         }, node.data);
     }
-    Value::Data Evaluator::_execute(const Program& n)
+    Evaluator::ResType Evaluator::_execute(const Program& n)
     {
         for (size_t i = 0; i < n.nodes.size(); i++)
             this->operator()(*n.nodes[i]);
-        return Nil{};
+        return{ Nil{}};
     }
 }

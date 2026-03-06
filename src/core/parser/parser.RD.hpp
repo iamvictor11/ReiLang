@@ -39,8 +39,10 @@ namespace luna
         ast::NRef _powExpr();
         ast::NRef _unaryExpr();
         ast::NRef _primaryExpr();
+        ast::NRef _varNameExpr();
     private:
         ast::NRef _statement();
+        ast::NRef _varDeclStmt();
         ast::NRef _printStmt();
         ast::NRef _expressionStmt();
         void _synchronize();
@@ -52,7 +54,8 @@ namespace luna
         Token::Unit& _peek();
         Token::Unit& _next();
         bool _check(Token::Type type);
+        bool _check(std::initializer_list<Token::Type> types);
         bool _match(std::initializer_list<Token::Type> types);
-        Token::Type _consume(Token::Type type, const std::string& message);
+        Token::Unit& _consume(Token::Type type, const std::string& message);
     };
 }

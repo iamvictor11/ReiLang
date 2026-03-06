@@ -19,6 +19,7 @@ namespace luna::ast
         struct VarName final
         {
             std::string name;
+            bool is_assigned;
         };
         struct Assign final
         {
@@ -56,6 +57,7 @@ namespace luna::ast
         struct VarDecl final
         {
             std::string name;
+            bool is_const;
             NRef initializer;
         };
         struct Block final

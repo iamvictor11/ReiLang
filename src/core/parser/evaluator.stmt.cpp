@@ -7,11 +7,11 @@ namespace luna::ast
 #pragma region Impl
 #pragma endregion
 #pragma region Visit
-    Value::Data Evaluator::_execute(const Stmt::Expression& n)
+    Evaluator::ResType Evaluator::_execute(const Stmt::Expression& n)
     {
         return operator()(*n.expression);
     }
-    Value::Data Evaluator::_execute(const Stmt::Print& n)
+    Evaluator::ResType Evaluator::_execute(const Stmt::Print& n)
     {
         Value::Data vd = operator()(*n.value);
         if (n.kw == TK_PRINT)
@@ -20,13 +20,17 @@ namespace luna::ast
             std::cout << Value::toString(vd) << std::endl;
         return vd;
     }
-    Value::Data Evaluator::_execute(const Stmt::VarDecl& n)
+    Evaluator::ResType Evaluator::_execute(const Stmt::VarDecl& n)
     {
+        if (n.initializer)
+            _env->def(n.name, {operator()(*n.initializer), n.is_const});
+        else
+            _env->decl(n.name, n.is_const);
         return Nil{};
     }
-    Value::Data Evaluator::_execute(const Stmt::Block& n)
+    Evaluator::ResType Evaluator::_execute(const Stmt::Block& n)
     {
-        return Nil{};
+        // return operator()(*n.);
     }
 #pragma endregion
 }

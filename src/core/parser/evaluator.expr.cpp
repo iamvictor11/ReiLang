@@ -30,22 +30,26 @@ namespace luna::ast
         case TK_DIV:
             if (static_cast<Float>(right) == 0.0)
                 return Nil{};
-            if constexpr ((IsInteger<L> || IsBoolean<L>) && (IsInteger<R> || IsBoolean<R>))
+            if constexpr (IsInteger<L> && IsInteger<R>)
             {
                 if (right == -1 && left == std::numeric_limits<Integer>::min())
                     return Integer(static_cast<Float>(left) / static_cast<Float>(right));
                 return Integer(left / right);
             }
+            else if constexpr ((IsInteger<L> || IsBoolean<L>) && (IsInteger<R> || IsBoolean<R>))
+                return Integer(left / right);
             else
                 return Float(static_cast<Float>(left) / static_cast<Float>(right));
         case TK_MOD:
-            if constexpr ((IsInteger<L> || IsBoolean<L>) && (IsInteger<R> || IsBoolean<R>))
+            if constexpr (IsInteger<L> && IsInteger<R>)
             {
                 if (right == 0) return Nil{};
                 if (right == -1 && left == std::numeric_limits<Integer>::min())
                     return Nil{};
                 return Integer(left % right);
             }
+            else if constexpr ((IsInteger<L> || IsBoolean<L>) && (IsInteger<R> || IsBoolean<R>))
+                return Integer(left % right);
             else
                 return Float(std::fmod(static_cast<Float>(left), static_cast<Float>(right)));
         case TK_POW:
@@ -111,15 +115,21 @@ namespace luna::ast
     }
 #pragma endregion
 #pragma region Visit
-Value::Data Evaluator::_execute(const Expr::VarName& n)
+Evaluator::ResType Evaluator::_execute(const Expr::VarName& n)
 {
-    return Nil{};
+    if (n.is_assigned)
+        return n.name;
+    return _env->get(n.name).value;
 }
-Value::Data Evaluator::_execute(const Expr::Assign& n)
+Evaluator::ResType Evaluator::_execute(const Expr::Assign& n)
 {
+    Value::Data name = operator()(*n.left);
+    if (!IsString<decltype(name)>) return Nil{};
+    Variable& var = _env->get(std::get<String>(name));
+    Value::Data val = operator()(*n.right);
     switch (n.op)
     {
-    case TK_ASSIGN: break;
+    case TK_ASSIGN: var.value = val; break;
     case TK_WALRUS: break;
     case TK_SELF_ADD: break;
     case TK_SELF_SUB: break;
@@ -136,9 +146,9 @@ Value::Data Evaluator::_execute(const Expr::Assign& n)
     case TK_SELF_BIT_SHR: break;
     default: break;
     }
-    return operator()(*n.right);
+    return val;
 }
-Value::Data Evaluator::_execute(const Expr::Unary& n)
+Evaluator::ResType Evaluator::_execute(const Expr::Unary& n)
 {
     Value::Data right = operator()(*n.right);
     switch (n.op)
@@ -150,7 +160,7 @@ Value::Data Evaluator::_execute(const Expr::Unary& n)
     }
     return right;
 }
-Value::Data Evaluator::_execute(const Expr::Binary& n)
+Evaluator::ResType Evaluator::_execute(const Expr::Binary& n)
 {
     if (n.op == TK_AND || n.op == TK_OR)
     {
@@ -164,34 +174,34 @@ Value::Data Evaluator::_execute(const Expr::Binary& n)
     Value::Data right = operator()(*n.right);
     return std::visit(LambdaOverloaded
     {
-        [&](auto&& l, auto&& r) -> Value::Data
+        [&](auto&& l, auto&& r) -> ResType
         requires ((IsNumber<decltype(l)> || IsNil<decltype(l)>) && (IsNumber<decltype(r)> || IsNil<decltype(r)>))
         {
             auto amend = [](auto&& v) -> decltype(auto)
             {
                 if constexpr (IsNil<std::decay_t<decltype(v)>>)
-                    return Integer(0); 
+                    return Integer(0);
                 else
                     return std::forward<decltype(v)>(v);
             };
-            return _numberBinary(amend(std::forward<decltype(l)>(l)), amend(std::forward<decltype(r)>(r)), n.op);
+            return {_numberBinary(amend(std::forward<decltype(l)>(l)), amend(std::forward<decltype(r)>(r)), n.op)};
         },
-        [&](auto&& l, auto&& r) -> Value::Data
+        [&](auto&& l, auto&& r) -> ResType
         requires (IsString<decltype(l)> || IsString<decltype(r)>)
         { return _stringBinary(Value::toString(l), Value::toString(r), n.op); },
-        [&](auto&& l, auto&& r) -> Value::Data
+        [&](auto&& l, auto&& r) -> ResType
         requires (IsReference<decltype(l)> && IsReference<decltype(r)>)
         { return _referenceBinary(l, r, n.op); },
-        [&](auto&& l, auto&& r) -> Value::Data
+        [&](auto&& l, auto&& r) -> ResType
         requires (IsReference<decltype(l)> && IsNumber<decltype(r)>)
         { return _mixedBinary(l, r, n.op); },
-        [&](auto&& l, auto&& r) -> Value::Data
+        [&](auto&& l, auto&& r) -> ResType
         requires (IsNumber<decltype(l)> && IsReference<decltype(r)>)
         { return _mixedBinary(r, l, n.op); },
-        [](auto&&, auto&&) -> Value::Data { return Nil{}; }
+        [](auto&&, auto&&) -> ResType { return Nil{}; }
     }, left, right);
 }
-Value::Data Evaluator::_execute(const Expr::Grouping& n)
+Evaluator::ResType Evaluator::_execute(const Expr::Grouping& n)
 {
     return operator()(*n.expression);
 }

@@ -3,6 +3,7 @@
 #include <memory>
 #include "util/error.hpp"
 #include "parser/node.hpp"
+#include "base/environment.hpp"
 
 namespace luna
 {
@@ -11,6 +12,7 @@ namespace luna
     {
     private:
         ast::NRef _program;
+        Environment _env;
         Error::Reporter _error_reporter;
     public:
         VM() = default;

@@ -179,22 +179,48 @@ namespace luna
         {
             return Node::make_ref(Expr::Literal{_prev().literal});
         }
-        if (_match({Token::TK_LPAREN}))
+        else if (_match({Token::TK_LPAREN}))
         {
             NRef expr = _expression();
             _consume(Token::TK_RPAREN, "括号未闭合");
             return Node::make_ref(Expr::Grouping{std::move(expr)});
         }
-        _error_reporter->report("缺失表达式", _advance().pos);
+        return _varNameExpr();
+    }
+    ast::NRef Parser<PT_RD>::_varNameExpr()
+    {
+        if (_match({Token::TK_IDENT}))
+        {
+            if (_check({
+                Token::TK_ASSIGN, Token::TK_WALRUS,
+                Token::TK_SELF_ADD, Token::TK_SELF_SUB, Token::TK_SELF_MUL, Token::TK_SELF_DIV, Token::TK_SELF_MOD, Token::TK_SELF_POW,
+                Token::TK_SELF_BIT_AND, Token::TK_SELF_BIT_OR, Token::TK_SELF_BIT_XOR, Token::TK_SELF_BIT_XNOR, Token::TK_SELF_BIT_SHL, Token::TK_SELF_BIT_SHR
+            }))
+                return Node::make_ref(Expr::VarName{std::string(_prev().lexeme), true});
+            return Node::make_ref(Expr::VarName{std::string(_prev().lexeme), false});
+        }
+        _error_reporter->report("缺少表达式", _advance().pos);
         return nullptr;
     }
 #pragma endregion
 #pragma region Stmt
 ast::NRef Parser<PT_RD>::_statement()
 {
-    if (_match({Token::TK_PRINT, Token::TK_PRINTLN}))
+    if (_match({Token::TK_VAR, Token::TK_LET}))
+        return _varDeclStmt();
+    else if (_match({Token::TK_PRINT, Token::TK_PRINTLN}))
         return _printStmt();
-    return nullptr;
+    return _expressionStmt();
+}
+ast::NRef Parser<PT_RD>::_varDeclStmt()
+{
+    std::string name = std::string(_consume(Token::TK_IDENT, "缺少变量名").lexeme);
+    bool is_const = (_prev().type == Token::TK_LET);
+    NRef initializer = nullptr;
+    if (_match({Token::TK_ASSIGN}))
+        initializer = _expression();
+    _consume(Token::TK_SEMICOLON, "变量声明语句后要有';'结尾");
+    return Node::make_ref(Stmt::VarDecl{name, is_const, std::move(initializer)});
 }
 ast::NRef Parser<PT_RD>::_printStmt()
 {
@@ -207,9 +233,9 @@ ast::NRef Parser<PT_RD>::_printStmt()
 }
 ast::NRef Parser<PT_RD>::_expressionStmt()
 {
-    // ast::NRef expr = _expression();
-    // _consume(Token::TK_SEMICOLON, "表达式语句后要有';'结尾");
-    // return Node::make_ref(Stmt::Expression{punit.type, std::move(val)});
+    ast::NRef expr = _expression();
+    _consume(Token::TK_SEMICOLON, "表达式语句后要有';'结尾");
+    return Node::make_ref(Stmt::Expression{std::move(expr)});
 }
 void Parser<PT_RD>::_synchronize()
 {
@@ -298,6 +324,13 @@ void Parser<PT_RD>::_synchronize()
         if (_isAtEnd()) return false;
         return _peek().type == type;
     }
+    bool Parser<PT_RD>::_check(std::initializer_list<Token::Type> types)
+    {
+        for (Token::Type type : types)
+            if (_check(type))
+                return true;
+        return false;
+    }
     bool Parser<PT_RD>::_match(std::initializer_list<Token::Type> types)
     {
         for (Token::Type type : types)
@@ -310,12 +343,12 @@ void Parser<PT_RD>::_synchronize()
         }
         return false;
     }
-    Token::Type Parser<PT_RD>::_consume(Token::Type type, const std::string& message)
+    Token::Unit& Parser<PT_RD>::_consume(Token::Type type, const std::string& message)
     {
         if (_check(type))
-            return _advance().type;
+            return _advance();
         _error_reporter->report(message, _peek().pos);
-        return Token::TK_EOF;
+        return _peek();
     }
 #pragma endregion
 }
