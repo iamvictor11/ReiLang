@@ -128,7 +128,7 @@ namespace luna
                 else if constexpr (std::is_same_v<T, Float>)
                     return std::to_string(arg);
                 else if constexpr (std::is_same_v<T, String>)
-                    return "\"" + escape(arg) + "\"";
+                    return escape(arg);
                 else if constexpr (std::is_same_v<T, Ref<Table>>)
                     return "table(" + std::to_string(arg->size()) + ")";
                 else if constexpr (std::is_same_v<T, Ref<Function>>)
