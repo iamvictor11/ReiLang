@@ -78,6 +78,7 @@ namespace luna
     public:
         Variable() = default;
         Variable(Value::Data v) : value(std::move(v)) {}
+        Variable(bool ic) : is_const(ic) {}
         Variable(Value::Data v, bool ic) : value(std::move(v)), is_const(ic) {}
     public:
         template<typename T>
