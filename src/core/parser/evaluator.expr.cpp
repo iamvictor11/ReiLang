@@ -1,11 +1,52 @@
 #include "visitor.hpp"
 #include <cmath>
 #include <limits>
+#include <iostream>
 
 namespace luna::ast
 {
     using namespace Token;
 #pragma region Impl
+    static Value::Data _dispatchBinary(const Value::Data& left, const Value::Data& right, Token::Type op);
+    template<typename L, typename R>
+    static Value::Data _numberBinary(L&& left, R&& right, Token::Type op);
+    template<typename L, typename R>
+    static Value::Data _stringBinary(L&& left, R&& right, Token::Type op);
+    template<typename L, typename R>
+    static Value::Data _referenceBinary(L&& left, R&& right, Token::Type op);
+    template<typename L, typename R>
+    static Value::Data _mixedBinary(L&& obj, R&& num, Token::Type op);
+    static Value::Data _dispatchBinary(const Value::Data& left, const Value::Data& right, Token::Type op)
+    {
+        return std::visit(LambdaOverloaded
+        {
+            [&](auto&& l, auto&& r) -> Value::Data
+            requires ((IsNumber<decltype(l)> || IsNil<decltype(l)>) && (IsNumber<decltype(r)> || IsNil<decltype(r)>))
+            {
+                auto amend = [](auto&& v) -> decltype(auto)
+                {
+                    if constexpr (IsNil<std::decay_t<decltype(v)>>)
+                        return Integer(0);
+                    else
+                        return std::forward<decltype(v)>(v);
+                };
+                return {_numberBinary(amend(std::forward<decltype(l)>(l)), amend(std::forward<decltype(r)>(r)), op)};
+            },
+            [&](auto&& l, auto&& r) -> Value::Data
+            requires (IsString<decltype(l)> || IsString<decltype(r)>)
+            { return _stringBinary(Value::toString(l), Value::toString(r), op); },
+            [&](auto&& l, auto&& r) -> Value::Data
+            requires (IsReference<decltype(l)> && IsReference<decltype(r)>)
+            { return _referenceBinary(l, r, op); },
+            [&](auto&& l, auto&& r) -> Value::Data
+            requires (IsReference<decltype(l)> && IsNumber<decltype(r)>)
+            { return _mixedBinary(l, r, op); },
+            [&](auto&& l, auto&& r) -> Value::Data
+            requires (IsNumber<decltype(l)> && IsReference<decltype(r)>)
+            { return _mixedBinary(r, l, op); },
+            [](auto&&, auto&&) -> Value::Data { return Nil{}; }
+        }, left, right);
+    }
     template<typename L, typename R>
     static Value::Data _numberBinary(L&& left, R&& right, Token::Type op)
     {
@@ -123,30 +164,34 @@ Evaluator::ResType Evaluator::_execute(const Expr::VarName& n)
 }
 Evaluator::ResType Evaluator::_execute(const Expr::Assign& n)
 {
-    Value::Data name = operator()(*n.left);
-    if (!IsString<decltype(name)>) return Nil{};
-    Variable& var = _env->get(std::get<String>(name));
     Value::Data val = operator()(*n.right);
+    if (n.op == TK_WALRUS)
+    {
+        _env->def(std::get<std::string>(operator()(*n.left)), {val});
+        return val;
+    }
+    Variable& var = _env->get(std::get<std::string>(operator()(*n.left)));
+    if (var.is_const)
+        return var.value;
     switch (n.op)
     {
     case TK_ASSIGN: var.value = val; break;
-    case TK_WALRUS: break;
-    case TK_SELF_ADD: break;
-    case TK_SELF_SUB: break;
-    case TK_SELF_MUL: break;
-    case TK_SELF_DIV: break;
-    case TK_SELF_MOD: break;
-    case TK_SELF_POW: break;
-    case TK_SELF_BIT_AND: break;
-    case TK_SELF_BIT_OR: break;
-    case TK_SELF_BIT_XOR: break;
-    case TK_SELF_BIT_XNOR: break;
-    case TK_SELF_BIT_NOT: break;
-    case TK_SELF_BIT_SHL: break;
-    case TK_SELF_BIT_SHR: break;
+    case TK_SELF_ADD: var.value = _dispatchBinary(var.value, val, TK_ADD); break;
+    case TK_SELF_SUB: var.value = _dispatchBinary(var.value, val, TK_SUB); break;
+    case TK_SELF_MUL: var.value = _dispatchBinary(var.value, val, TK_MUL); break;
+    case TK_SELF_DIV: var.value = _dispatchBinary(var.value, val, TK_DIV); break;
+    case TK_SELF_MOD: var.value = _dispatchBinary(var.value, val, TK_MOD); break;
+    case TK_SELF_POW: var.value = _dispatchBinary(var.value, val, TK_POW); break;
+    case TK_SELF_BIT_AND: var.value = _dispatchBinary(var.value, val, TK_BIT_AND); break;
+    case TK_SELF_BIT_OR: var.value = _dispatchBinary(var.value, val, TK_BIT_OR); break;
+    case TK_SELF_BIT_XOR: var.value = _dispatchBinary(var.value, val, TK_BIT_XOR); break;
+    case TK_SELF_BIT_XNOR: var.value = _dispatchBinary(var.value, val, TK_BIT_XNOR); break;
+    case TK_SELF_BIT_NOT: var.value = _dispatchBinary(var.value, val, TK_BIT_NOT); break;
+    case TK_SELF_BIT_SHL: var.value = _dispatchBinary(var.value, val, TK_BIT_SHL); break;
+    case TK_SELF_BIT_SHR: var.value = _dispatchBinary(var.value, val, TK_BIT_SHR); break;
     default: break;
     }
-    return val;
+    return var.value;
 }
 Evaluator::ResType Evaluator::_execute(const Expr::Unary& n)
 {
@@ -172,34 +217,7 @@ Evaluator::ResType Evaluator::_execute(const Expr::Binary& n)
     }
     Value::Data left = operator()(*n.left);
     Value::Data right = operator()(*n.right);
-    return std::visit(LambdaOverloaded
-    {
-        [&](auto&& l, auto&& r) -> ResType
-        requires ((IsNumber<decltype(l)> || IsNil<decltype(l)>) && (IsNumber<decltype(r)> || IsNil<decltype(r)>))
-        {
-            auto amend = [](auto&& v) -> decltype(auto)
-            {
-                if constexpr (IsNil<std::decay_t<decltype(v)>>)
-                    return Integer(0);
-                else
-                    return std::forward<decltype(v)>(v);
-            };
-            return {_numberBinary(amend(std::forward<decltype(l)>(l)), amend(std::forward<decltype(r)>(r)), n.op)};
-        },
-        [&](auto&& l, auto&& r) -> ResType
-        requires (IsString<decltype(l)> || IsString<decltype(r)>)
-        { return _stringBinary(Value::toString(l), Value::toString(r), n.op); },
-        [&](auto&& l, auto&& r) -> ResType
-        requires (IsReference<decltype(l)> && IsReference<decltype(r)>)
-        { return _referenceBinary(l, r, n.op); },
-        [&](auto&& l, auto&& r) -> ResType
-        requires (IsReference<decltype(l)> && IsNumber<decltype(r)>)
-        { return _mixedBinary(l, r, n.op); },
-        [&](auto&& l, auto&& r) -> ResType
-        requires (IsNumber<decltype(l)> && IsReference<decltype(r)>)
-        { return _mixedBinary(r, l, n.op); },
-        [](auto&&, auto&&) -> ResType { return Nil{}; }
-    }, left, right);
+    return _dispatchBinary(left, right, n.op);
 }
 Evaluator::ResType Evaluator::_execute(const Expr::Grouping& n)
 {

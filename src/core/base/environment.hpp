@@ -15,5 +15,6 @@ namespace luna
         void decl(const std::string& name, bool is_const);
         void def(const std::string& name, Variable var);
         Variable& get(const std::string& name);
+        void assign(const std::string& name, const Value::Data& value);
     };
 }

@@ -13,7 +13,14 @@ namespace luna
     Variable& Environment::get(const std::string& name)
     {
         if (auto it = _vars.find(name); it != _vars.end())
-            return _vars.at(name);
+            return it->second;
         return _failVar;
+    }
+    void Environment::assign(const std::string& name, const Value::Data& value)
+    {
+        Variable& var = get(name);
+        if (var.is_const)
+            return;
+        var.value = value;
     }
 }

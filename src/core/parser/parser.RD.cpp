@@ -32,6 +32,11 @@ namespace luna
             Token::TK_SELF_BIT_AND, Token::TK_SELF_BIT_OR, Token::TK_SELF_BIT_XOR, Token::TK_SELF_BIT_XNOR, Token::TK_SELF_BIT_SHL, Token::TK_SELF_BIT_SHR
         }))
         {
+            if (!std::holds_alternative<Expr::VarName>(expr->data))
+            {
+                _error_reporter->report("赋值表达式左边必须为左值", _prev().pos);
+                return nullptr;
+            }
             Token::Type oper = _prev().type;
             NRef value = _assignmentExpr();
             return Node::make_ref(Expr::Assign{std::move(expr), oper, std::move(value)});
