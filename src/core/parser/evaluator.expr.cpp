@@ -1,7 +1,6 @@
 #include "visitor.hpp"
 #include <cmath>
 #include <limits>
-#include <iostream>
 
 namespace luna::ast
 {
