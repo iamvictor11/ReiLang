@@ -218,6 +218,8 @@ ast::NRef Parser<PT_RD>::_statement()
         return _printStmt();
     else if (_match({Token::TK_LBRACE}))
         return _blockStmt();
+    else if (_match({Token::TK_IF}))
+        return _ifelseStmt();
     return _expressionStmt();
 }
 ast::NRef Parser<PT_RD>::_varDeclStmt()
@@ -256,6 +258,16 @@ ast::NRef Parser<PT_RD>::_blockStmt()
     }
     _consume(Token::TK_RBRACE, "语句块未封闭");
     return Node::make_ref(Stmt::Block{std::move(statements)});
+}
+ast::NRef Parser<PT_RD>::_ifelseStmt()
+{
+    NRef condition = _expression();
+    NRef thenBlock = _statement();
+    if (_match({Token::TK_ELSE}))
+        return Node::make_ref(Stmt::Ifelse{std::move(condition), std::move(thenBlock), std::move(_statement())});
+    else if (_match({Token::TK_ELIF}))
+        return Node::make_ref(Stmt::Ifelse{std::move(condition), std::move(thenBlock), std::move(_ifelseStmt())});
+    return Node::make_ref(Stmt::Ifelse{std::move(condition), std::move(thenBlock), nullptr});
 }
 void Parser<PT_RD>::_synchronize()
 {

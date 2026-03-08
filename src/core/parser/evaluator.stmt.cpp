@@ -36,5 +36,13 @@ namespace luna::ast
         _env->uest();
         return Nil{};
     }
+    Evaluator::ResType Evaluator::_execute(const Stmt::Ifelse& n)
+    {
+        if (Value::toBoolean(this->operator()(*n.condition)))
+            return this->operator()(*n.thenBlock);
+        if (n.elseBlock)
+            return this->operator()(*n.elseBlock);
+        return Nil{};
+    }
 #pragma endregion
 }

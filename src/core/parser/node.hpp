@@ -64,6 +64,12 @@ namespace luna::ast
         {
             std::vector<NRef> statements;
         };
+        struct Ifelse final
+        {
+            NRef condition;
+            NRef thenBlock;
+            NRef elseBlock;
+        };
     }
     struct Node final
     {
@@ -71,7 +77,7 @@ namespace luna::ast
         using Data = std::variant<
             Program,
             Expr::Literal, Expr::VarName, Expr::Assign, Expr::Unary, Expr::Binary, Expr::Grouping,
-            Stmt::Expression, Stmt::Print, Stmt::VarDecl, Stmt::Block
+            Stmt::Expression, Stmt::Print, Stmt::VarDecl, Stmt::Block, Stmt::Ifelse
         >;
     public:
         Data data;

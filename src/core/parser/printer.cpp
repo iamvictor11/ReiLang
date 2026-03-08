@@ -112,6 +112,22 @@ namespace luna::ast
                     "\033[1m\033[36m" << "}" <<
                     "\033[0m" << std::endl;
                 _indent_level--;
+            },
+            [&](const Stmt::Ifelse& s)
+            {
+                _printIndent();
+                std::cout << "If:" << std::endl;
+                this->operator()(*s.condition);
+                _printIndent();
+                std::cout << "Then:" << std::endl;
+                _indent_level++;
+                    this->operator()(*s.thenBlock);
+                _indent_level--;
+                if (!s.elseBlock)
+                    return;
+                _printIndent();
+                std::cout << "Else:" << std::endl;
+                this->operator()(*s.elseBlock);
             }
         }, node.data);
         return Nil{};
