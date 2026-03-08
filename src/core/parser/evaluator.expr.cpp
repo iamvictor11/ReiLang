@@ -159,7 +159,10 @@ Evaluator::ResType Evaluator::_execute(const Expr::VarName& n)
 {
     if (n.is_assigned)
         return n.name;
-    return _env->get(n.name).value;
+    Variable* var = nullptr;
+    if (!_env->get(n.name, &var))
+        return Nil{};
+    return var->value;
 }
 Evaluator::ResType Evaluator::_execute(const Expr::Assign& n)
 {
@@ -169,28 +172,28 @@ Evaluator::ResType Evaluator::_execute(const Expr::Assign& n)
         _env->def(std::get<std::string>(operator()(*n.left)), {val});
         return val;
     }
-    Variable& var = _env->get(std::get<std::string>(operator()(*n.left)));
-    if (var.is_const)
-        return var.value;
+    Variable* var = nullptr;
+    if (!_env->get(std::get<std::string>(operator()(*n.left)), &var))
+        return Nil{};
     switch (n.op)
     {
-    case TK_ASSIGN: var.value = val; break;
-    case TK_SELF_ADD: var.value = _dispatchBinary(var.value, val, TK_ADD); break;
-    case TK_SELF_SUB: var.value = _dispatchBinary(var.value, val, TK_SUB); break;
-    case TK_SELF_MUL: var.value = _dispatchBinary(var.value, val, TK_MUL); break;
-    case TK_SELF_DIV: var.value = _dispatchBinary(var.value, val, TK_DIV); break;
-    case TK_SELF_MOD: var.value = _dispatchBinary(var.value, val, TK_MOD); break;
-    case TK_SELF_POW: var.value = _dispatchBinary(var.value, val, TK_POW); break;
-    case TK_SELF_BIT_AND: var.value = _dispatchBinary(var.value, val, TK_BIT_AND); break;
-    case TK_SELF_BIT_OR: var.value = _dispatchBinary(var.value, val, TK_BIT_OR); break;
-    case TK_SELF_BIT_XOR: var.value = _dispatchBinary(var.value, val, TK_BIT_XOR); break;
-    case TK_SELF_BIT_XNOR: var.value = _dispatchBinary(var.value, val, TK_BIT_XNOR); break;
-    case TK_SELF_BIT_NOT: var.value = _dispatchBinary(var.value, val, TK_BIT_NOT); break;
-    case TK_SELF_BIT_SHL: var.value = _dispatchBinary(var.value, val, TK_BIT_SHL); break;
-    case TK_SELF_BIT_SHR: var.value = _dispatchBinary(var.value, val, TK_BIT_SHR); break;
+    case TK_ASSIGN: var->value = val; break;
+    case TK_SELF_ADD: var->value = _dispatchBinary(var->value, val, TK_ADD); break;
+    case TK_SELF_SUB: var->value = _dispatchBinary(var->value, val, TK_SUB); break;
+    case TK_SELF_MUL: var->value = _dispatchBinary(var->value, val, TK_MUL); break;
+    case TK_SELF_DIV: var->value = _dispatchBinary(var->value, val, TK_DIV); break;
+    case TK_SELF_MOD: var->value = _dispatchBinary(var->value, val, TK_MOD); break;
+    case TK_SELF_POW: var->value = _dispatchBinary(var->value, val, TK_POW); break;
+    case TK_SELF_BIT_AND: var->value = _dispatchBinary(var->value, val, TK_BIT_AND); break;
+    case TK_SELF_BIT_OR: var->value = _dispatchBinary(var->value, val, TK_BIT_OR); break;
+    case TK_SELF_BIT_XOR: var->value = _dispatchBinary(var->value, val, TK_BIT_XOR); break;
+    case TK_SELF_BIT_XNOR: var->value = _dispatchBinary(var->value, val, TK_BIT_XNOR); break;
+    case TK_SELF_BIT_NOT: var->value = _dispatchBinary(var->value, val, TK_BIT_NOT); break;
+    case TK_SELF_BIT_SHL: var->value = _dispatchBinary(var->value, val, TK_BIT_SHL); break;
+    case TK_SELF_BIT_SHR: var->value = _dispatchBinary(var->value, val, TK_BIT_SHR); break;
     default: break;
     }
-    return var.value;
+    return var->value;
 }
 Evaluator::ResType Evaluator::_execute(const Expr::Unary& n)
 {

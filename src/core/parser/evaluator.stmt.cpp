@@ -30,7 +30,11 @@ namespace luna::ast
     }
     Evaluator::ResType Evaluator::_execute(const Stmt::Block& n)
     {
-        // return operator()(*n.);
+        _env->nest();
+        for (size_t i = 0; i < n.statements.size(); i++)
+            this->operator()(*n.statements[i]);
+        _env->uest();
+        return Nil{};
     }
 #pragma endregion
 }

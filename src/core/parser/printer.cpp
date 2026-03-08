@@ -67,10 +67,11 @@ namespace luna::ast
                     "\033[0m" << std::endl;
                 _indent_level++;
                 this->operator()(*e.expression);
-                _indent_level--;
+                _printIndent();
                 std::cout <<
                     "\033[1m\033[36m" << ")" <<
                     "\033[0m" << std::endl;
+                _indent_level--;
             },
             [&](const Stmt::Expression& s)
             {
@@ -93,6 +94,9 @@ namespace luna::ast
                 std::cout << "VarDecl: " <<
                     "\033[1m\033[36m" << Value::getDebugString(s.name) <<
                     "\033[0m" << std::endl;
+                _indent_level++;
+                this->operator()(*s.initializer);
+                _indent_level--;
             },
             [&](const Stmt::Block& s)
             {
@@ -103,10 +107,11 @@ namespace luna::ast
                 _indent_level++;
                 for (size_t i = 0; i < s.statements.size(); i++)
                     this->operator()(*s.statements[i]);
-                _indent_level--;
+                _printIndent();
                 std::cout <<
                     "\033[1m\033[36m" << "}" <<
                     "\033[0m" << std::endl;
+                _indent_level--;
             }
         }, node.data);
         return Nil{};

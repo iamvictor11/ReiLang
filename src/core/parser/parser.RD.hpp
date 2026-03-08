@@ -45,6 +45,7 @@ namespace luna
         ast::NRef _varDeclStmt();
         ast::NRef _printStmt();
         ast::NRef _expressionStmt();
+        ast::NRef _blockStmt();
         void _synchronize();
     private:
         bool _isAtEnd() const;

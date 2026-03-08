@@ -14,7 +14,8 @@ namespace luna
         while (!_isAtEnd())
         {
             NRef nr = _statement();
-            if (nr) p.nodes.push_back(std::move(nr));
+            if (nr)
+                p.nodes.push_back(std::move(nr));
         }
         return Node::make_ref(std::move(p));
     }
@@ -215,6 +216,8 @@ ast::NRef Parser<PT_RD>::_statement()
         return _varDeclStmt();
     else if (_match({Token::TK_PRINT, Token::TK_PRINTLN}))
         return _printStmt();
+    else if (_match({Token::TK_LBRACE}))
+        return _blockStmt();
     return _expressionStmt();
 }
 ast::NRef Parser<PT_RD>::_varDeclStmt()
@@ -241,6 +244,18 @@ ast::NRef Parser<PT_RD>::_expressionStmt()
     ast::NRef expr = _expression();
     _consume(Token::TK_SEMICOLON, "表达式语句后要有';'结尾");
     return Node::make_ref(Stmt::Expression{std::move(expr)});
+}
+ast::NRef Parser<PT_RD>::_blockStmt()
+{
+    std::vector<NRef> statements {};
+    while (!_isAtEnd() && !_check(Token::TK_RBRACE))
+    {
+        NRef nr = _statement();
+        if (nr)
+            statements.push_back(std::move(nr));
+    }
+    _consume(Token::TK_RBRACE, "语句块未封闭");
+    return Node::make_ref(Stmt::Block{std::move(statements)});
 }
 void Parser<PT_RD>::_synchronize()
 {

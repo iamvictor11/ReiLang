@@ -24,6 +24,6 @@ namespace luna::ast
     {
         for (size_t i = 0; i < n.nodes.size(); i++)
             this->operator()(*n.nodes[i]);
-        return{ Nil{}};
+        return Nil{};
     }
 }

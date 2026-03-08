@@ -33,6 +33,7 @@ namespace luna
 
     void VM::run()
     {
+        if (!_error_reporter.empty()) return;
         luna::ast::Evaluator evaluator{&_env};
         evaluator(_program->tempRef());
     }

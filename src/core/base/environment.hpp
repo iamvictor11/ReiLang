@@ -7,14 +7,18 @@ namespace luna
     {
     private:
         std::unordered_map<std::string, Variable> _vars;
-        Variable _failVar = Variable{Nil{}, true};
+    private:
+        std::unique_ptr<Environment> _inner = nullptr;
     public:
         Environment() = default;
         ~Environment() = default;
     public:
         void decl(const std::string& name, bool is_const);
-        void def(const std::string& name, Variable var);
-        Variable& get(const std::string& name);
-        void assign(const std::string& name, const Value::Data& value);
+        void def(const std::string& name, const Variable& var);
+        bool get(const std::string& name, Variable** outPtr);
+        bool assign(const std::string& name, const Value::Data& value);
+    public:
+        void nest();
+        void uest();
     };
 }
