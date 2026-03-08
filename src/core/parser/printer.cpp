@@ -128,6 +128,19 @@ namespace luna::ast
                 _printIndent();
                 std::cout << "Else:" << std::endl;
                 this->operator()(*s.elseBlock);
+            },
+            [&](const Stmt::Loop& s)
+            {
+                _printIndent();
+                std::cout << "Loop:" << std::endl;
+                this->operator()(*s.condition);
+                _printIndent();
+                if (!s.doBlock)
+                    return;
+                std::cout << "Do:" << std::endl;
+                _indent_level++;
+                    this->operator()(*s.doBlock);
+                _indent_level--;
             }
         }, node.data);
         return Nil{};

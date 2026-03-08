@@ -70,6 +70,11 @@ namespace luna::ast
             NRef thenBlock;
             NRef elseBlock;
         };
+        struct Loop final
+        {
+            NRef condition;
+            NRef doBlock;
+        };
     }
     struct Node final
     {
@@ -77,7 +82,7 @@ namespace luna::ast
         using Data = std::variant<
             Program,
             Expr::Literal, Expr::VarName, Expr::Assign, Expr::Unary, Expr::Binary, Expr::Grouping,
-            Stmt::Expression, Stmt::Print, Stmt::VarDecl, Stmt::Block, Stmt::Ifelse
+            Stmt::Expression, Stmt::Print, Stmt::VarDecl, Stmt::Block, Stmt::Ifelse, Stmt::Loop
         >;
     public:
         Data data;

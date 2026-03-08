@@ -44,5 +44,14 @@ namespace luna::ast
             return this->operator()(*n.elseBlock);
         return Nil{};
     }
+    Evaluator::ResType Evaluator::_execute(const Stmt::Loop& n)
+    {
+        if (n.doBlock)
+            while (Value::toBoolean(this->operator()(*n.condition)))
+                this->operator()(*n.doBlock);
+        else
+            while (Value::toBoolean(this->operator()(*n.condition)));
+        return Nil{};
+    }
 #pragma endregion
 }

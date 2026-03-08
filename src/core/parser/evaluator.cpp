@@ -18,7 +18,8 @@ namespace luna::ast
             [&](const Stmt::Print& n) { return _execute(n); },
             [&](const Stmt::VarDecl& n) { return _execute(n); },
             [&](const Stmt::Block& n) { return _execute(n); },
-            [&](const Stmt::Ifelse& n) { return _execute(n); }
+            [&](const Stmt::Ifelse& n) { return _execute(n); },
+            [&](const Stmt::Loop& n) { return _execute(n); }
         }, node.data);
     }
     Evaluator::ResType Evaluator::_execute(const Program& n)

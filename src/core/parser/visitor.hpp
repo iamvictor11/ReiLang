@@ -34,6 +34,7 @@ namespace luna::ast
         ResType _execute(const Stmt::VarDecl& n);
         ResType _execute(const Stmt::Block& n);
         ResType _execute(const Stmt::Ifelse& n);
+        ResType _execute(const Stmt::Loop& n);
     };
     struct Printer final
     {

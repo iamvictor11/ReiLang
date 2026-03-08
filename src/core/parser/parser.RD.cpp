@@ -220,6 +220,10 @@ ast::NRef Parser<PT_RD>::_statement()
         return _blockStmt();
     else if (_match({Token::TK_IF}))
         return _ifelseStmt();
+    else if (_match({Token::TK_LOOP}))
+        return _loopStmt();
+    else if (_match({Token::TK_SEMICOLON}))
+        return nullptr;
     return _expressionStmt();
 }
 ast::NRef Parser<PT_RD>::_varDeclStmt()
@@ -263,11 +267,22 @@ ast::NRef Parser<PT_RD>::_ifelseStmt()
 {
     NRef condition = _expression();
     NRef thenBlock = _statement();
+    if (!thenBlock)
+    {
+        _error_reporter->report("则语句块不能为空", _prev().pos);
+        return nullptr;
+    }
     if (_match({Token::TK_ELSE}))
         return Node::make_ref(Stmt::Ifelse{std::move(condition), std::move(thenBlock), std::move(_statement())});
     else if (_match({Token::TK_ELIF}))
         return Node::make_ref(Stmt::Ifelse{std::move(condition), std::move(thenBlock), std::move(_ifelseStmt())});
     return Node::make_ref(Stmt::Ifelse{std::move(condition), std::move(thenBlock), nullptr});
+}
+ast::NRef Parser<PT_RD>::_loopStmt()
+{
+    NRef condition = _expression();
+    NRef doBlock = _statement();
+    return Node::make_ref(Stmt::Loop{std::move(condition), std::move(doBlock)});
 }
 void Parser<PT_RD>::_synchronize()
 {
