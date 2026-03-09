@@ -38,11 +38,13 @@ namespace luna
         ast::NRef _factorExpr();
         ast::NRef _powExpr();
         ast::NRef _unaryExpr();
+        ast::NRef _callExpr();
         ast::NRef _primaryExpr();
         ast::NRef _varNameExpr();
     private:
         ast::NRef _statement();
         ast::NRef _varDeclStmt();
+        ast::NRef _funcDeclStmt();
         ast::NRef _printStmt();
         ast::NRef _expressionStmt();
         ast::NRef _blockStmt();

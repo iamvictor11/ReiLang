@@ -225,5 +225,9 @@ Evaluator::ResType Evaluator::_execute(const Expr::Grouping& n)
 {
     return operator()(*n.expression);
 }
+Evaluator::ResType Evaluator::_execute(const Expr::Call& n)
+{
+    
+}
 #pragma endregion
 }

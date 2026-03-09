@@ -12,6 +12,16 @@ namespace luna::ast
     template <class... Ts>
     LambdaOverloaded(Ts...) -> LambdaOverloaded<Ts...>;
 
+    struct ControlFlow final
+    {
+        enum Type : uint8_t
+        {
+            NORMAL,
+            BREAK,
+            CONTINUE,
+            RETURN
+        } type = NORMAL;
+    };
     struct Evaluator final
     {
     private:
@@ -29,6 +39,7 @@ namespace luna::ast
         ResType _execute(const Expr::Unary& n);
         ResType _execute(const Expr::Binary& n);
         ResType _execute(const Expr::Grouping& n);
+        ResType _execute(const Expr::Call& n);
         ResType _execute(const Stmt::Expression& n);
         ResType _execute(const Stmt::Print& n);
         ResType _execute(const Stmt::VarDecl& n);

@@ -73,6 +73,21 @@ namespace luna::ast
                     "\033[0m" << std::endl;
                 _indent_level--;
             },
+            [&](const Expr::Call& e)
+            {
+                _printIndent();
+                std::cout << "Call: " <<
+                    "\033[1m\033[36m" << "(" <<
+                    "\033[0m" << std::endl;
+                _indent_level++;
+                for (size_t i = 0; i < e.arguments.size(); i++)
+                    this->operator()(*e.arguments[i]);
+                _printIndent();
+                std::cout <<
+                    "\033[1m\033[36m" << ")" <<
+                    "\033[0m" << std::endl;
+                _indent_level--;
+            },
             [&](const Stmt::Expression& s)
             {
                 _printIndent();

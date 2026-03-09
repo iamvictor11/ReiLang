@@ -18,6 +18,8 @@ namespace luna
         }
     };
 
+    class VM;
+
     struct Table;
     struct Function;
 
@@ -130,6 +132,7 @@ namespace luna
             SCRIPT
         };
     public:
-        Kind kind = Kind::NATIVE;
+        Kind kind = Kind::SCRIPT;
+        Value::Data call(VM* vm, std::vector<Value::Data>& args);
     };
 }

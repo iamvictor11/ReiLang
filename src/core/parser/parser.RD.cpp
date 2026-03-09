@@ -173,7 +173,30 @@ namespace luna
             NRef right = _unaryExpr();
             return Node::make_ref(Expr::Unary(oper, std::move(right)));
         }
-        return _primaryExpr();
+        return _callExpr();
+    }
+    NRef Parser<PT_RD>::_callExpr()
+    {
+        NRef callee = _primaryExpr();
+        if (_match({Token::TK_LPAREN}))
+        {
+            if (_match({Token::TK_RPAREN}))
+                return Node::make_ref(Expr::Call{std::move(callee), {}});
+            std::vector<NRef> args {};
+            do
+            {
+                if (args.size() >= 255)
+                {
+                    _error_reporter->report("传入参数不能超过 255 个", _prev().pos);
+                    break;
+                }
+                args.push_back(std::move(_expression()));
+            }
+            while (_match({Token::TK_COMMA}));
+            _consume(Token::TK_RPAREN, "函数调用括号未闭合");
+            return Node::make_ref(Expr::Call{std::move(callee), std::move(args)});
+        }
+        return callee;
     }
     NRef Parser<PT_RD>::_primaryExpr()
     {   
@@ -214,6 +237,8 @@ ast::NRef Parser<PT_RD>::_statement()
 {
     if (_match({Token::TK_VAR, Token::TK_LET}))
         return _varDeclStmt();
+    else if (_match({Token::TK_FUNC}))
+        return _funcDeclStmt();
     else if (_match({Token::TK_PRINT, Token::TK_PRINTLN}))
         return _printStmt();
     else if (_match({Token::TK_LBRACE}))
@@ -235,6 +260,13 @@ ast::NRef Parser<PT_RD>::_varDeclStmt()
         initializer = _expression();
     _consume(Token::TK_SEMICOLON, "变量声明语句后要有';'结尾");
     return Node::make_ref(Stmt::VarDecl{name, is_const, std::move(initializer)});
+}
+ast::NRef Parser<PT_RD>::_funcDeclStmt()
+{
+    std::string name = std::string(_consume(Token::TK_IDENT, "缺少变量名").lexeme);
+    _consume(Token::TK_LPAREN, "函数声明语句缺少'('");
+    
+    _consume(Token::TK_RPAREN, "函数声明语句缺少')'");
 }
 ast::NRef Parser<PT_RD>::_printStmt()
 {

@@ -257,5 +257,8 @@ namespace luna
     }
 #pragma endregion
 #pragma region Function
+Value::Data Function::call(VM* vm, std::vector<Value::Data>& args)
+{
+}
 #pragma endregion
 }

@@ -42,6 +42,11 @@ namespace luna::ast
         {
             NRef expression;
         };
+        struct Call final
+        {
+            NRef callee;
+            std::vector<NRef> arguments;
+        };
     }
     namespace Stmt
     {
@@ -59,6 +64,10 @@ namespace luna::ast
             std::string name;
             bool is_const;
             NRef initializer;
+        };
+        struct FuncDecl final
+        {
+            // std::
         };
         struct Block final
         {
@@ -81,7 +90,7 @@ namespace luna::ast
     public:
         using Data = std::variant<
             Program,
-            Expr::Literal, Expr::VarName, Expr::Assign, Expr::Unary, Expr::Binary, Expr::Grouping,
+            Expr::Literal, Expr::VarName, Expr::Assign, Expr::Unary, Expr::Binary, Expr::Grouping, Expr::Call,
             Stmt::Expression, Stmt::Print, Stmt::VarDecl, Stmt::Block, Stmt::Ifelse, Stmt::Loop
         >;
     public:

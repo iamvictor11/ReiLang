@@ -14,6 +14,7 @@ namespace luna::ast
             [&](const Expr::Unary& n) { return _execute(n); },
             [&](const Expr::Binary& n) { return _execute(n); },
             [&](const Expr::Grouping& n) { return _execute(n); },
+            [&](const Expr::Call& n) { return _execute(n); },
             [&](const Stmt::Expression& n) { return _execute(n); },
             [&](const Stmt::Print& n) { return _execute(n); },
             [&](const Stmt::VarDecl& n) { return _execute(n); },
