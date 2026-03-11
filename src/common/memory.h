@@ -1,6 +1,7 @@
 #ifndef LUNA_COMMON_MEMORY_H
 #define LUNA_COMMON_MEMORY_H
 #include <stdint.h>
+#include <stdlib.h>
 
 #define LUNA_GROW_CAPACITY(capacity) \
     ((capacity) < 8 ? 8 : (capacity) * 2)

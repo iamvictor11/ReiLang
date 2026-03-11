@@ -1,6 +1,6 @@
 #ifndef LUNA_VM_VM_H
 #define LUNA_VM_VM_H
-#include "chunk.h"
+#include "common/chunk.h"
 #include "config.h"
 
 typedef enum luna_Result

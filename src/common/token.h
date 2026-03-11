@@ -12,9 +12,9 @@ typedef enum luna_TokenType
     /* 标识符 */
     LUNA_TK_IDENT, // <ident>
     /* 字面量 */
-    LUNA_TK_LIT_INT,    // <int>
-    LUNA_TK_LIT_FLOAT,  // <float>
-    LUNA_TK_LIT_STRING, // <string>
+    LUNA_TK_LIT_INTEGER, // <integer>
+    LUNA_TK_LIT_NUMBER,  // <number>
+    LUNA_TK_LIT_STRING,  // <string>
     /* 数学运算 */
     LUNA_TK_ADD,      // +
     LUNA_TK_SUB,      // -
@@ -126,9 +126,9 @@ typedef struct luna_Token
 
 typedef struct luna_TokenArray
 {
-  luna_Token* data;
-  size_t size;
-  size_t capacity;
+    luna_Token *data;
+    size_t size;
+    size_t capacity;
 } luna_TokenArray;
 void lunaTokenArray_init(luna_TokenArray *self);
 void lunaTokenArray_free(luna_TokenArray *self);

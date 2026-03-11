@@ -8,6 +8,11 @@
 // Aid
 static bool _isBdigit(char c);
 static bool _isOdigit(char c);
+// Scan
+static void _scan(luna_Lexer *self);
+static void _lunaLexer_moveCursor(luna_Lexer *self);
+static void _lunaLexer_moveCursorln(luna_Lexer *self);
+static void _lunaLexer_smartMoveCursor(luna_Lexer *self, char c);
 // Kan/Move
 static bool _lunaLexer_isAtEnd(luna_Lexer *self);
 static bool _lunaLexer_isAtEndOffset(luna_Lexer *self, size_t offset);
@@ -51,7 +56,7 @@ void lunaLexer_start(luna_Lexer *self, const char *source)
     eof_token.lexeme.len = 0;
     eof_token.literal = (luna_Value){0};
     eof_token.pos = self->cursor.pos;
-    _tokenList_add(&self->tokens, eof_token);
+    lunaTokenArray_write(&self->tokens, eof_token);
 }
 #pragma region Aid
 static bool _isBdigit(char c)
@@ -146,38 +151,32 @@ static void _scan(luna_Lexer *self)
     default: _lunaLexer_lexOther(self, c); break;
     }
 }
-
 static void _lunaLexer_moveCursor(luna_Lexer *self)
 {
     self->cursor.curr++;
     self->cursor.pos.column++;
 }
-
 static void _lunaLexer_moveCursorln(luna_Lexer *self)
 {
     self->cursor.curr++;
     self->cursor.pos.line++;
     self->cursor.pos.column = 1;
 }
-
 static void _lunaLexer_smartMoveCursor(luna_Lexer *self, char c)
 {
     if (c == '\n') _lunaLexer_moveCursorln(self);
     else _lunaLexer_moveCursor(self);
 }
 #pragma endregion
-
 #pragma region Kan/Move
 static bool _lunaLexer_isAtEnd(luna_Lexer *self)
 {
     return (size_t)(self->cursor.curr - self->source) >= self->source_len;
 }
-
 static bool _lunaLexer_isAtEndOffset(luna_Lexer *self, size_t offset)
 {
     return (size_t)(self->cursor.curr - self->source) + offset >= self->source_len;
 }
-
 static char _lunaLexer_advance(luna_Lexer *self)
 {
     if (_lunaLexer_isAtEnd(self)) return '\0';
@@ -185,13 +184,11 @@ static char _lunaLexer_advance(luna_Lexer *self)
     _lunaLexer_smartMoveCursor(self, c);
     return c;
 }
-
 static void _lunaLexer_pass(luna_Lexer *self)
 {
     if (_lunaLexer_isAtEnd(self)) return;
     _lunaLexer_smartMoveCursor(self, *self->cursor.curr);
 }
-
 static void _lunaLexer_passStep(luna_Lexer *self, size_t step)
 {
     while (step > 0)
@@ -201,7 +198,6 @@ static void _lunaLexer_passStep(luna_Lexer *self, size_t step)
         step--;
     }
 }
-
 static bool _lunaLexer_matchChar(luna_Lexer *self, char c)
 {
     if (_lunaLexer_isAtEnd(self) || *self->cursor.curr != c)
@@ -209,7 +205,6 @@ static bool _lunaLexer_matchChar(luna_Lexer *self, char c)
     _lunaLexer_smartMoveCursor(self, c);
     return true;
 }
-
 static bool _lunaLexer_matchString(luna_Lexer *self, const char *s, size_t omit)
 {
     size_t i = 0;
@@ -225,27 +220,23 @@ static bool _lunaLexer_matchString(luna_Lexer *self, const char *s, size_t omit)
     _lunaLexer_passStep(self, i);
     return true;
 }
-
 static char _lunaLexer_peek(luna_Lexer *self)
 {
     if (_lunaLexer_isAtEnd(self)) return '\0';
     return *self->cursor.curr;
 }
-
 static char _lunaLexer_peekOffset(luna_Lexer *self, size_t offset)
 {
     if (_lunaLexer_isAtEndOffset(self, offset)) return '\0';
     return *(self->cursor.curr + offset);
 }
 #pragma endregion
-
 #pragma region Skip
 static void _lunaLexer_skipNote(luna_Lexer *self)
 {
     while (_lunaLexer_peek(self) != '\n' && !_lunaLexer_isAtEnd(self))
         _lunaLexer_moveCursor(self);
 }
-
 static void _lunaLexer_skipWhite(luna_Lexer *self)
 {
     while (!_lunaLexer_isAtEnd(self))
@@ -267,7 +258,6 @@ static void _lunaLexer_skipWhite(luna_Lexer *self)
     }
 }
 #pragma endregion
-
 #pragma region Lex
 static void _lunaLexer_lexOther(luna_Lexer *self, char c)
 {
@@ -282,9 +272,8 @@ static void _lunaLexer_lexOther(luna_Lexer *self, char c)
         return;
     }
     // TODO: Error
-    fprintf(stderr, "未知的字符 '%c' (HEX: 0x%02x) [%04d:%04d]\n", c, (unsigned char)c, self->cursor.pos.line, self->cursor.pos.column);
+    fprintf(stderr, "未知的字符 '%c' (HEX: 0x%02x) [%04zu:%04zu]\n", c, (unsigned char)c, self->cursor.pos.line, self->cursor.pos.column);
 }
-
 static void _lunaLexer_lexNumber(luna_Lexer *self)
 {
     bool is_float = false;
@@ -307,7 +296,7 @@ static void _lunaLexer_lexNumber(luna_Lexer *self)
             luna_Value literal;
             literal.type = LUNA_VT_INTEGER;
             literal.data.i = value;
-            _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INT, start, lexeme_len, literal);
+            _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INTEGER, start, lexeme_len, literal);
             return;
         }
         // 八进制
@@ -322,7 +311,7 @@ static void _lunaLexer_lexNumber(luna_Lexer *self)
             luna_Value literal;
             literal.type = LUNA_VT_INTEGER;
             literal.data.i = value;
-            _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INT, start, lexeme_len, literal);
+            _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INTEGER, start, lexeme_len, literal);
             return;
         }
         // 十六进制
@@ -343,7 +332,7 @@ static void _lunaLexer_lexNumber(luna_Lexer *self)
             luna_Value literal;
             literal.type = LUNA_VT_INTEGER;
             literal.data.i = value;
-            _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INT, start, lexeme_len, literal);
+            _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INTEGER, start, lexeme_len, literal);
             return;
         }
     }
@@ -374,7 +363,7 @@ static void _lunaLexer_lexNumber(luna_Lexer *self)
             else
             {
                 // TODO: Error
-                fprintf(stderr, "科学计数法格式错误 [%04d:%04d]\n", self->cursor.pos.line, self->cursor.pos.column);
+                fprintf(stderr, "科学计数法格式错误 [%04zu:%04zu]\n", self->cursor.pos.line, self->cursor.pos.column);
                 return;
             }
         }
@@ -389,7 +378,7 @@ static void _lunaLexer_lexNumber(luna_Lexer *self)
         luna_Value literal;
         literal.type = LUNA_VT_NUMBER;
         literal.data.n = value;
-        _lunaLexer_addTokenFull(self, LUNA_TK_LIT_FLOAT, start, lexeme_len, literal);
+        _lunaLexer_addTokenFull(self, LUNA_TK_LIT_NUMBER, start, lexeme_len, literal);
     }
     else
     {
@@ -397,10 +386,9 @@ static void _lunaLexer_lexNumber(luna_Lexer *self)
         luna_Value literal;
         literal.type = LUNA_VT_INTEGER;
         literal.data.i = value;
-        _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INT, start, lexeme_len, literal);
+        _lunaLexer_addTokenFull(self, LUNA_TK_LIT_INTEGER, start, lexeme_len, literal);
     }
 }
-
 static void _lunaLexer_lexString(luna_Lexer *self, char beg)
 {
     char buffer[1024];
@@ -435,7 +423,7 @@ static void _lunaLexer_lexString(luna_Lexer *self, char beg)
     if (_lunaLexer_isAtEnd(self))
     {
         // TODO: Error
-        fprintf(stderr, "字符串未闭合 [%04d:%04d]\n", self->cursor.pos.line, self->cursor.pos.column);
+        fprintf(stderr, "字符串未闭合 [%04zu:%04zu]\n", self->cursor.pos.line, self->cursor.pos.column);
         return;
     }
     _lunaLexer_pass(self);
@@ -446,7 +434,6 @@ static void _lunaLexer_lexString(luna_Lexer *self, char beg)
     // literal.string = strdup(buffer);
     _lunaLexer_addTokenLiteral(self, LUNA_TK_LIT_STRING, literal);
 }
-
 static void _lunaLexer_lexRawString(luna_Lexer *self, char beg)
 {
     char buffer[1024];
@@ -479,7 +466,7 @@ static void _lunaLexer_lexRawString(luna_Lexer *self, char beg)
     if (_lunaLexer_isAtEnd(self))
     {
         // TODO: Error
-        fprintf(stderr, "字符串未闭合 [%04d:%04d]\n", self->cursor.pos.line, self->cursor.pos.column);
+        fprintf(stderr, "字符串未闭合 [%04zu:%04zu]\n", self->cursor.pos.line, self->cursor.pos.column);
         return;
     }
     _lunaLexer_pass(self);
@@ -489,7 +476,6 @@ static void _lunaLexer_lexRawString(luna_Lexer *self, char beg)
     // literal.string = strdup(buffer);
     _lunaLexer_addTokenLiteral(self, LUNA_TK_LIT_STRING, literal);
 }
-
 static void _lunaLexer_lexIdentifier(luna_Lexer *self)
 {
     while (isalnum(_lunaLexer_peek(self)) || _lunaLexer_peek(self) == '_') _lunaLexer_pass(self);
@@ -512,10 +498,8 @@ static void _lunaLexer_addToken(luna_Lexer *self, luna_TokenType type)
     token.lexeme.len = lexeme_len;
     token.literal = (luna_Value){0};
     token.pos = self->cursor.pos;
-    
-    _tokenList_add(&self->tokens, token);
+    lunaTokenArray_write(&self->tokens, token);
 }
-
 static void _lunaLexer_addTokenLiteral(luna_Lexer *self, luna_TokenType type, luna_Value literal)
 {
     size_t lexeme_len = self->cursor.curr - self->cursor.start;
@@ -527,10 +511,8 @@ static void _lunaLexer_addTokenLiteral(luna_Lexer *self, luna_TokenType type, lu
     token.lexeme.len = lexeme_len;
     token.literal = literal;
     token.pos = self->cursor.pos;
-    
-    _tokenList_add(&self->tokens, token);
+    lunaTokenArray_write(&self->tokens, token);
 }
-
 static void _lunaLexer_addTokenFull(luna_Lexer *self, luna_TokenType type, const char *lexeme, size_t lexeme_len, luna_Value literal)
 {
     luna_Token token;
@@ -539,7 +521,6 @@ static void _lunaLexer_addTokenFull(luna_Lexer *self, luna_TokenType type, const
     token.lexeme.len = lexeme_len;
     token.literal = literal;
     token.pos = self->cursor.pos;
-    
-    _tokenList_add(&self->tokens, token);
+    lunaTokenArray_write(&self->tokens, token);
 }
 #pragma endregion

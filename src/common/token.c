@@ -1,5 +1,6 @@
 #include "token.h"
 #include "common/memory.h"
+#include "string.h"
 
 void lunaTokenArray_init(luna_TokenArray *self)
 {
