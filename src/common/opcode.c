@@ -1,5 +1,5 @@
 #include "opcode.h"
-#include "common/memory.h"
+#include "memory.h"
 
 void lunaOpcodeArray_init(luna_OpcodeArray *self)
 {

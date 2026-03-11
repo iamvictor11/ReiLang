@@ -1,6 +1,6 @@
 #ifndef LUNA_COMMON_CHUNK_H
 #define LUNA_COMMON_CHUNK_H
-#include "common/value.h"
+#include "value.h"
 
 void lunaChunk_init(luna_Chunk *self);
 void lunaChunk_free(luna_Chunk *self);

@@ -1,7 +1,7 @@
 #ifndef LUNA_LEXER_LEXER_H
 #define LUNA_LEXER_LEXER_H
 #include "common/common.h"
-#include "token.h"
+#include "common/token.h"
 
 typedef struct luna_Lexer
 {

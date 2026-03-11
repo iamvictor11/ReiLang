@@ -28,15 +28,15 @@ PRIVATE
 )
 target_sources(luna
 PRIVATE
+    "src/common/chunk.c"
     "src/common/memory.c"
     "src/common/object.c"
+    "src/common/opcode.c"
+    "src/common/token.c"
     "src/common/value.c"
     "src/debug/error.c"
     "src/debug/log.c"
-    "src/lexer/lexer.c"
-    "src/parser/parser.c"
-    "src/lexer/token.c"
-    "src/vm/chunk.c"
-    "src/vm/opcode.c"
+    "src/vm/lexer.c"
+    "src/vm/parser.c"
     "src/vm/vm.c"
 )

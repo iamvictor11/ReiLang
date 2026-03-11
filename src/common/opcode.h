@@ -1,7 +1,7 @@
 #ifndef LUNA_COMMON_OPCODE_H
 #define LUNA_COMMON_OPCODE_H
 #include <stdint.h>
-#include "common/common.h"
+#include "common.h"
 
 typedef enum luna_Opcode
 {

@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "common.h"
-#include "vm/opcode.h"
+#include "opcode.h"
 
 typedef int64_t luna_Integer;
 typedef double luna_Number;

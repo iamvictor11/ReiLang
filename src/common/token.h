@@ -1,6 +1,6 @@
-#ifndef LUNA_LEXER_TOKEN_H
-#define LUNA_LEXER_TOKEN_H
-#include "common/value.h"
+#ifndef LUNA_COMMON_TOKEN_H
+#define LUNA_COMMON_TOKEN_H
+#include "value.h"
 
 typedef enum luna_TokenType
 {

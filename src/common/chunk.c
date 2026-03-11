@@ -1,5 +1,5 @@
 #include "chunk.h"
-#include "common/memory.h"
+#include "memory.h"
 
 void lunaChunk_init(luna_Chunk *self)
 {
