@@ -2,22 +2,25 @@
 #include "common/precedence.h"
 #include <stdio.h>
 
+static void _lunaParser_precedence(luna_Parser *self);
 // Expr
-static void expression(luna_Parser *self);
-static void grouping(luna_Parser *self);
-static void _lunaParser_precedence(luna_Parser *self, luna_Precedence precedence);
-static void unary(luna_Parser *self);
-static void binary(luna_Parser *self);
-static void number(luna_Parser *self);
+static void _lunaParse_expression(luna_Parser *self);
+static void _lunaParse_grouping(luna_Parser *self);
+static void _lunaParser_unary(luna_Parser *self);
+static void _lunaParser_binary(luna_Parser *self);
+static void _lunaParser_number(luna_Parser *self);
+static void _lunaParser_string(luna_Parser *self);
+static void _lunaParser_literal(luna_Parser *self);
+static void _lunaParser_variable(luna_Parser *self);
 // Stmt
 // Kan/Move
-static bool isAtEnd(luna_Parser *self);
-static luna_Token *advance(luna_Parser *self);
-static void pass(luna_Parser *self);
-static void passMult(luna_Parser *self, size_t count);
-static void consume(luna_Parser *self, luna_TokenType type, const char *message);
+static bool _lunaParser_isAtEnd(luna_Parser *self);
+static luna_Token *_lunaParser_advance(luna_Parser *self);
+static void _lunaParser_pass(luna_Parser *self);
+static void _lunaParser_passMult(luna_Parser *self, size_t count);
+static void _lunaParser_consume(luna_Parser *self, luna_TokenType type, const char *message);
 // Emit
-static void emitByte(luna_Parser *self, luna_Byte byte);
+static void _lunaParser_emitByte(luna_Parser *self, luna_Byte byte);
 #pragma region Prec
 typedef void (*luna_ParseFnuc)(luna_Parser *self);
 typedef struct luna_ParseRule
@@ -41,12 +44,12 @@ static luna_ParseRule rules[] =
     [LUNA_TK_LIT_NUMBER]    = {NULL, NULL, NULL, LUNA_PREC_NONE},
     [LUNA_TK_LIT_STRING]    = {NULL, NULL, NULL, LUNA_PREC_NONE},
     /* 数学运算 */
-    [LUNA_TK_ADD]   = {NULL, binary, NULL, LUNA_PREC_TERM},
-    [LUNA_TK_SUB]   = {unary, binary, NULL, LUNA_PREC_TERM},
-    [LUNA_TK_MUL]   = {NULL, binary, NULL, LUNA_PREC_FACTOR},
-    [LUNA_TK_DIV]   = {NULL, binary, NULL, LUNA_PREC_FACTOR},
-    [LUNA_TK_MOD]   = {NULL, binary, NULL, LUNA_PREC_FACTOR},
-    [LUNA_TK_POW]   = {NULL, binary, NULL, LUNA_PREC_POW},
+    [LUNA_TK_ADD]   = {NULL, _lunaParser_binary, NULL, LUNA_PREC_TERM},
+    [LUNA_TK_SUB]   = {_lunaParser_unary, _lunaParser_binary, NULL, LUNA_PREC_TERM},
+    [LUNA_TK_MUL]   = {NULL, _lunaParser_binary, NULL, LUNA_PREC_FACTOR},
+    [LUNA_TK_DIV]   = {NULL, _lunaParser_binary, NULL, LUNA_PREC_FACTOR},
+    [LUNA_TK_MOD]   = {NULL, _lunaParser_binary, NULL, LUNA_PREC_FACTOR},
+    [LUNA_TK_POW]   = {NULL, _lunaParser_binary, NULL, LUNA_PREC_POW},
     [LUNA_TK_SELF_ADD]  = {NULL, NULL, NULL, LUNA_PREC_ASSIGN},
     [LUNA_TK_SELF_SUB]  = {NULL, NULL, NULL, LUNA_PREC_ASSIGN},
     [LUNA_TK_SELF_MUL]  = {NULL, NULL, NULL, LUNA_PREC_ASSIGN},
@@ -123,7 +126,7 @@ static luna_ParseRule rules[] =
     [LUNA_TK_PRINT]     = {NULL, NULL, NULL, LUNA_PREC_NONE},
     [LUNA_TK_PRINTLN]   = {NULL, NULL, NULL, LUNA_PREC_NONE},
     /* 区域 */
-    [LUNA_TK_LPAREN]    = {grouping, NULL, NULL, LUNA_PREC_NONE},
+    [LUNA_TK_LPAREN]    = {_lunaParse_grouping, NULL, NULL, LUNA_PREC_NONE},
     [LUNA_TK_RPAREN]    = {NULL, NULL, NULL, LUNA_PREC_NONE},
     [LUNA_TK_LBRACKET]  = {NULL, NULL, NULL, LUNA_PREC_NONE},
     [LUNA_TK_RBRACKET]  = {NULL, NULL, NULL, LUNA_PREC_NONE},
@@ -140,6 +143,10 @@ static luna_ParseRule rules[] =
     /* 结束 */
     [LUNA_TK_EOF]   = {NULL, NULL, NULL, LUNA_PREC_NONE}
 };
+static luna_ParseRule *lunaTokenType_getRule(luna_TokenType type)
+{
+    return rules + type;
+}
 #pragma endregion
 void lunaParser_start(luna_Parser *self, luna_TokenArray tokens)
 {
@@ -149,99 +156,103 @@ void lunaParser_start(luna_Parser *self, luna_TokenArray tokens)
     self->cursor.next = tokens.data + 1;
     lunaChunk_init(&self->chunk);
 }
+static void _lunaParser_precedence(luna_Parser *self)
+{
+    _lunaParser_advance(self);
+    luna_ParseRule *prule = lunaTokenType_getRule(self->cursor.prev->type);
+    luna_ParseFnuc prefixRule = prule->prefix;
+}
 #pragma region Expr
-static void expression(luna_Parser *self)
+static void _lunaParse_expression(luna_Parser *self)
 {
-    _lunaParser_precedence(self, LUNA_PREC_ASSIGN);
+    _lunaParser_precedence(self);
 }
-static void grouping(luna_Parser *self)
+static void _lunaParse_grouping(luna_Parser *self)
 {
-    expression(self);
-    consume(self, LUNA_TK_RPAREN, "表达式括号未闭合");
+    _lunaParse_expression(self);
+    _lunaParser_consume(self, LUNA_TK_RPAREN, "表达式括号未闭合");
 }
-static void _lunaParser_precedence(luna_Parser *self, luna_Precedence precedence)
-{
-}
-static void unary(luna_Parser *self)
+static void _lunaParser_unary(luna_Parser *self)
 {
     luna_TokenType op = self->cursor.prev->type;
-    expression(self);
+    _lunaParse_expression(self);
     switch (op)
     {
-    case LUNA_TK_SUB: emitByte(self, LUNA_OP_NEG); break;
-    case LUNA_TK_BIT_NOT: emitByte(self, LUNA_OP_BIT_NOT); break;
-    case LUNA_TK_NOT: emitByte(self, LUNA_OP_NOT); break;
+    case LUNA_TK_SUB: _lunaParser_emitByte(self, LUNA_OP_NEG); break;
+    case LUNA_TK_BIT_NOT: _lunaParser_emitByte(self, LUNA_OP_BIT_NOT); break;
+    case LUNA_TK_NOT: _lunaParser_emitByte(self, LUNA_OP_NOT); break;
     default: break;
     }
 }
-static void binary(luna_Parser *self)
+static void _lunaParser_binary(luna_Parser *self)
 {
     luna_TokenType op = self->cursor.prev->type;
+    _lunaParser_precedence(self);
     switch (op)
     {
-    case LUNA_TK_ADD: emitByte(self, LUNA_OP_ADD); break;
-    case LUNA_TK_SUB: emitByte(self, LUNA_OP_SUB); break;
-    case LUNA_TK_MUL: emitByte(self, LUNA_OP_MUL); break;
-    case LUNA_TK_DIV: emitByte(self, LUNA_OP_DIV); break;
-    case LUNA_TK_MOD: emitByte(self, LUNA_OP_MOD); break;
-    case LUNA_TK_POW: emitByte(self, LUNA_OP_POW); break;
-    case LUNA_TK_BIT_AND: emitByte(self, LUNA_OP_BIT_AND); break;
-    case LUNA_TK_BIT_OR: emitByte(self, LUNA_OP_BIT_OR); break;
-    case LUNA_TK_BIT_XOR: emitByte(self, LUNA_OP_BIT_XOR); break;
-    case LUNA_TK_BIT_XNOR: emitByte(self, LUNA_OP_BIT_XNOR); break;
-    case LUNA_TK_BIT_SHL: emitByte(self, LUNA_OP_BIT_SHL); break;
-    case LUNA_TK_BIT_SHR: emitByte(self, LUNA_OP_BIT_SHR); break;
-    case LUNA_TK_EQ: emitByte(self, LUNA_OP_EQ); break;
-    case LUNA_TK_NE: emitByte(self, LUNA_OP_NE); break;
-    case LUNA_TK_LT: emitByte(self, LUNA_OP_LT); break;
-    case LUNA_TK_LE: emitByte(self, LUNA_OP_LE); break;
-    case LUNA_TK_GT: emitByte(self, LUNA_OP_GT); break;
-    case LUNA_TK_GE: emitByte(self, LUNA_OP_GE); break;
-    case LUNA_TK_AND: emitByte(self, LUNA_OP_AND); break;
-    case LUNA_TK_OR: emitByte(self, LUNA_OP_OR); break;
+    case LUNA_TK_ADD: _lunaParser_emitByte(self, LUNA_OP_ADD); break;
+    case LUNA_TK_SUB: _lunaParser_emitByte(self, LUNA_OP_SUB); break;
+    case LUNA_TK_MUL: _lunaParser_emitByte(self, LUNA_OP_MUL); break;
+    case LUNA_TK_DIV: _lunaParser_emitByte(self, LUNA_OP_DIV); break;
+    case LUNA_TK_MOD: _lunaParser_emitByte(self, LUNA_OP_MOD); break;
+    case LUNA_TK_POW: _lunaParser_emitByte(self, LUNA_OP_POW); break;
+    case LUNA_TK_BIT_AND: _lunaParser_emitByte(self, LUNA_OP_BIT_AND); break;
+    case LUNA_TK_BIT_OR: _lunaParser_emitByte(self, LUNA_OP_BIT_OR); break;
+    case LUNA_TK_BIT_XOR: _lunaParser_emitByte(self, LUNA_OP_BIT_XOR); break;
+    case LUNA_TK_BIT_XNOR: _lunaParser_emitByte(self, LUNA_OP_BIT_XNOR); break;
+    case LUNA_TK_BIT_SHL: _lunaParser_emitByte(self, LUNA_OP_BIT_SHL); break;
+    case LUNA_TK_BIT_SHR: _lunaParser_emitByte(self, LUNA_OP_BIT_SHR); break;
+    case LUNA_TK_EQ: _lunaParser_emitByte(self, LUNA_OP_EQ); break;
+    case LUNA_TK_NE: _lunaParser_emitByte(self, LUNA_OP_NE); break;
+    case LUNA_TK_LT: _lunaParser_emitByte(self, LUNA_OP_LT); break;
+    case LUNA_TK_LE: _lunaParser_emitByte(self, LUNA_OP_LE); break;
+    case LUNA_TK_GT: _lunaParser_emitByte(self, LUNA_OP_GT); break;
+    case LUNA_TK_GE: _lunaParser_emitByte(self, LUNA_OP_GE); break;
+    case LUNA_TK_AND: _lunaParser_emitByte(self, LUNA_OP_AND); break;
+    case LUNA_TK_OR: _lunaParser_emitByte(self, LUNA_OP_OR); break;
     default: break;
     }
 }
-static void number(luna_Parser *self)
+static void _lunaParser_number(luna_Parser *self)
 {
     luna_Value value = self->cursor.prev->literal;
-    emitByte(self, LUNA_OP_CONSTANT);
+    _lunaParser_emitByte(self, LUNA_OP_CONSTANT);
     size_t i = lunaChunk_writeConstant(&self->chunk, value);
-    emitByte(self, i);
+    _lunaParser_emitByte(self, i);
 }
 #pragma endregion
 #pragma region Kan/Move
-static bool isAtEnd(luna_Parser *self)
+static bool _lunaParser_isAtEnd(luna_Parser *self)
 {
     return self->cursor.curr->type == LUNA_TK_EOF;
 }
-static luna_Token *advance(luna_Parser *self)
+static luna_Token *_lunaParser_advance(luna_Parser *self)
 {
     self->cursor.prev = self->cursor.curr;
-    if (isAtEnd(self))
+    if (_lunaParser_isAtEnd(self))
         return self->cursor.curr;
     self->cursor.curr++;
     self->cursor.next++;
     return self->cursor.prev;
 }
-static void pass(luna_Parser *self)
+static void _lunaParser_pass(luna_Parser *self)
 {
     self->cursor.prev = self->cursor.curr;
-    if (isAtEnd(self))
+    if (_lunaParser_isAtEnd(self))
         return;
     self->cursor.curr++;
     self->cursor.next++;
 }
-static void passMult(luna_Parser *self, size_t count)
+static void _lunaParser_passMult(luna_Parser *self, size_t count)
 {
     for (size_t i = 0; i < count; i++)
-        pass(self);
+        _lunaParser_pass(self);
 }
-static void consume(luna_Parser *self, luna_TokenType type, const char *message)
+static void _lunaParser_consume(luna_Parser *self, luna_TokenType type, const char *message)
 {
     if (self->cursor.curr->type == type)
     {
-        pass(self);
+        _lunaParser_pass(self);
         return;
     }
     // TODO: 错误处理
@@ -249,7 +260,7 @@ static void consume(luna_Parser *self, luna_TokenType type, const char *message)
 }
 #pragma endregion
 #pragma region Emit
-static void emitByte(luna_Parser *self, luna_Byte byte)
+static void _lunaParser_emitByte(luna_Parser *self, luna_Byte byte)
 {
     if (self->cursor.prev)
         lunaChunk_writeBytecode(&self->chunk, byte, self->cursor.prev->pos);
