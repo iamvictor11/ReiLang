@@ -6,10 +6,10 @@ namespace luna
     enum class Opcode : uint8_t
     {
         OP_CONSTANT = 0,
-        OP_RETURN, // return
-        OP_NIL,    //  nil
-        OP_TRUE,   // true
-        OP_FALSE,  // false
+        /* 字面量 */
+        OP_NIL,   //  nil
+        OP_TRUE,  // true
+        OP_FALSE, // false
         /* 数学运算 */
         OP_NEG, // -
         OP_ADD, // +
@@ -18,7 +18,6 @@ namespace luna
         OP_DIV, // /
         OP_MOD, // %
         OP_POW, // **
-        OP_FAC, // !
         /* 位运算 */
         OP_BIT_AND,  // &
         OP_BIT_OR,   // |
@@ -39,8 +38,9 @@ namespace luna
         OP_OR,  // ||
         OP_NOT, // !
         /* 保留词 */
-        OP_PRINT, // print
+        OP_PRINT,   // print
         OP_PRINTLN, // println
+        OP_RETURN,  // return
         OP_JUMP,
         OP_JUMP_IF_FALSE,
         OP_LOOP,

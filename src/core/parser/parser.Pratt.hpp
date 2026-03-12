@@ -10,13 +10,14 @@ namespace luna
     class Parser<PT_Pratt>
     {
     private:
-        using _Fnuc = void(*)();
+        using _Fnuc = void(Parser<PT_Pratt>::*)();
         struct _Rule final
         {
             _Fnuc prefix;
             _Fnuc infix;
             _Fnuc suffix;
-            Precedence::Level precdence;
+            Precedence::Level precedence;
+            uint8_t is_left_assoc;
         };
     private:
         static _Rule _rules_s[];
@@ -27,7 +28,6 @@ namespace luna
         {
             Token::Unit* prev = nullptr;
             Token::Unit* curr = nullptr;
-            Token::Unit* next = nullptr;
         } _cursor;
         Error::Reporter* _error_reporter;
     public:
@@ -40,10 +40,10 @@ namespace luna
     private:
         void _expression();
         void _assign();
+        void _grouping();
         void _unary();
         void _binary();
         void _primary();
-        void _grouping();
     private:
         void _statement();
     private:
@@ -54,10 +54,12 @@ namespace luna
         void _pass();
         Token::Unit& _prev();
         Token::Unit& _peek();
-        Token::Unit& _next();
         bool _check(Token::Type type);
         bool _check(std::initializer_list<Token::Type> types);
         bool _match(std::initializer_list<Token::Type> types);
         Token::Unit& _consume(Token::Type type, const std::string& message);
+    private:
+        void _emit(Opcode op);
+        size_t _emit(Value::Data value);
     };
 }
