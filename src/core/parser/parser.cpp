@@ -1,67 +1,66 @@
-#include "parser.Pratt.hpp"
+#include "parser.hpp"
 #include <format>
 #include <iostream>
 
 namespace luna
 {
     using namespace Token;
-    using namespace Precedence;
-    Parser<PT_Pratt>::_Rule Parser<PT_Pratt>::_rules_s[] =
+    Parser::_Rule Parser::_rules_s[] =
     {
         /* 注释 */
         [TK_NOTE]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 基础 */
-        [TK_ASSIGN]    = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_NONE, 0},
-        [TK_WALRUS]    = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_NONE, 0},
+        [TK_ASSIGN]    = {nullptr, &Parser::_assign, nullptr, PREC_NONE, 0},
+        [TK_WALRUS]    = {nullptr, &Parser::_assign, nullptr, PREC_NONE, 0},
         /* 标识符 */
         [TK_IDENT] = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 字面量 */
-        [TK_LIT_INT]    = {&Parser<PT_Pratt>::_primary, nullptr, nullptr, PREC_NONE, 0},
-        [TK_LIT_FLOAT]  = {&Parser<PT_Pratt>::_primary, nullptr, nullptr, PREC_NONE, 0},
-        [TK_LIT_STRING] = {&Parser<PT_Pratt>::_primary, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LIT_INT]    = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LIT_FLOAT]  = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LIT_STRING] = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 0},
         /* 数学运算 */
-        [TK_ADD]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_TERM, 1},
-        [TK_SUB]   = {&Parser<PT_Pratt>::_unary, &Parser<PT_Pratt>::_binary, nullptr, PREC_TERM, 1},
-        [TK_MUL]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_FACTOR, 1},
-        [TK_DIV]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_FACTOR, 1},
-        [TK_MOD]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_FACTOR, 1},
-        [TK_POW]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_POW, 1},
-        [TK_SELF_ADD]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_SUB]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_MUL]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_DIV]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_MOD]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_POW]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_ADD]   = {nullptr, &Parser::_binary, nullptr, PREC_TERM, 1},
+        [TK_SUB]   = {&Parser::_unary, &Parser::_binary, nullptr, PREC_TERM, 1},
+        [TK_MUL]   = {nullptr, &Parser::_binary, nullptr, PREC_FACTOR, 1},
+        [TK_DIV]   = {nullptr, &Parser::_binary, nullptr, PREC_FACTOR, 1},
+        [TK_MOD]   = {nullptr, &Parser::_binary, nullptr, PREC_FACTOR, 1},
+        [TK_POW]   = {nullptr, &Parser::_binary, nullptr, PREC_POW, 1},
+        [TK_SELF_ADD]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_SUB]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_MUL]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_DIV]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_MOD]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_POW]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
         /* 位运算 */
-        [TK_BIT_AND]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_BAND, 1},
-        [TK_BIT_OR]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_BOR, 1},
-        [TK_BIT_XOR]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_BXOR, 1},
-        [TK_BIT_XNOR]  = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_BXOR, 1},
-        [TK_BIT_NOT]   = {&Parser<PT_Pratt>::_unary, nullptr, nullptr, PREC_UNARY, 1},
-        [TK_BIT_SHL]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_SHIFT, 1},
-        [TK_BIT_SHR]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_SHIFT, 1},
-        [TK_SELF_BIT_AND]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_OR]   = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_XOR]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_XNOR] = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_NOT]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_SHL]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_SHR]  = {nullptr, &Parser<PT_Pratt>::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_BIT_AND]   = {nullptr, &Parser::_binary, nullptr, PREC_BAND, 1},
+        [TK_BIT_OR]    = {nullptr, &Parser::_binary, nullptr, PREC_BOR, 1},
+        [TK_BIT_XOR]   = {nullptr, &Parser::_binary, nullptr, PREC_BXOR, 1},
+        [TK_BIT_XNOR]  = {nullptr, &Parser::_binary, nullptr, PREC_BXOR, 1},
+        [TK_BIT_NOT]   = {&Parser::_unary, nullptr, nullptr, PREC_UNARY, 1},
+        [TK_BIT_SHL]   = {nullptr, &Parser::_binary, nullptr, PREC_SHIFT, 1},
+        [TK_BIT_SHR]   = {nullptr, &Parser::_binary, nullptr, PREC_SHIFT, 1},
+        [TK_SELF_BIT_AND]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_OR]   = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_XOR]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_XNOR] = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_NOT]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_SHL]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_SHR]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
         /* 比较运算 */
-        [TK_EQ]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_EQUAL, 1},
-        [TK_NE]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_EQUAL, 1},
-        [TK_LT]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_COMPAR, 1},
-        [TK_LE]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_COMPAR, 1},
-        [TK_GT]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_COMPAR, 1},
-        [TK_GE]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_COMPAR, 1},
+        [TK_EQ]    = {nullptr, &Parser::_binary, nullptr, PREC_EQUAL, 1},
+        [TK_NE]    = {nullptr, &Parser::_binary, nullptr, PREC_EQUAL, 1},
+        [TK_LT]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
+        [TK_LE]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
+        [TK_GT]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
+        [TK_GE]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
         /* 逻辑运算 */
-        [TK_AND]   = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_LAND, 1},
-        [TK_OR]    = {nullptr, &Parser<PT_Pratt>::_binary, nullptr, PREC_LOR, 1},
-        [TK_NOT]   = {&Parser<PT_Pratt>::_unary, nullptr, nullptr, PREC_UNARY, 1},
+        [TK_AND]   = {nullptr, &Parser::_binary, nullptr, PREC_LAND, 1},
+        [TK_OR]    = {nullptr, &Parser::_binary, nullptr, PREC_LOR, 1},
+        [TK_NOT]   = {&Parser::_unary, nullptr, nullptr, PREC_UNARY, 1},
         /* 保留词 */
-        [TK_NIL]   = {&Parser<PT_Pratt>::_primary, nullptr, nullptr, PREC_NONE, 1},
-        [TK_TRUE]  = {&Parser<PT_Pratt>::_primary, nullptr, nullptr, PREC_NONE, 1},
-        [TK_FALSE] = {&Parser<PT_Pratt>::_primary, nullptr, nullptr, PREC_NONE, 1},
+        [TK_NIL]   = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 1},
+        [TK_TRUE]  = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 1},
+        [TK_FALSE] = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 1},
         [TK_DEF]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_VAR]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LET]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -102,7 +101,7 @@ namespace luna
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 区域 */
-        [TK_LPAREN]    = {&Parser<PT_Pratt>::_grouping, nullptr, nullptr, PREC_NONE, 1},
+        [TK_LPAREN]    = {&Parser::_grouping, nullptr, nullptr, PREC_NONE, 1},
         [TK_RPAREN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_RBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -117,20 +116,20 @@ namespace luna
         [TK_RARROW]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LARROW]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 结束 */
-        [TK_EOF]   = {nullptr, nullptr, nullptr, PREC_NONE}
+        [TK_EOF]   = {nullptr, nullptr, nullptr, PREC_NONE, 0}
     };
     
-    void Parser<PT_Pratt>::start()
+    void Parser::start()
     {
         _advance();
         _program();
     }
-    void Parser<PT_Pratt>::_program()
+    void Parser::_program()
     {
         while (!_isAtEnd())
             _statement();
     }
-    void Parser<PT_Pratt>::_statement()
+    void Parser::_statement()
     {
         if (_match({TK_VAR, TK_LET}))
         {
@@ -153,11 +152,11 @@ namespace luna
             _expression();
         }
     }
-    void Parser<PT_Pratt>::_expression()
+    void Parser::_expression()
     {
         _parsePrecedence(PREC_ASSIGN);
     }
-    void Parser<PT_Pratt>::_parsePrecedence(Precedence::Level precedence)
+    void Parser::_parsePrecedence(Precedence precedence)
     {
         _advance();
         _Fnuc prefixRule = _rules_s[_prev().type].prefix;
@@ -167,7 +166,7 @@ namespace luna
             return;
         }
         (this->*prefixRule)();
-        while (precedence <= _rules_s[_peek().type].precedence)
+        while (_rules_s[_peek().type].precedence >= precedence)
         {
             _advance();
             _Fnuc infixRule = _rules_s[_prev().type].infix;
@@ -176,15 +175,14 @@ namespace luna
         }
     }
 #pragma region Expr
-    void Parser<PT_Pratt>::_assign()
+    void Parser::_assign()
     {
         Token::Type operatorType = _prev().type;
+        _parsePrecedence(static_cast<Precedence>(PREC_ASSIGN - 1));
         switch (operatorType)
         {
             case TK_ASSIGN:
             {
-                _parsePrecedence(PREC_ASSIGN);
-                _chunk->codes.push_back(Opcode::OP_SET_GLOBAL);
                 break;
             }
             case TK_WALRUS:
@@ -213,67 +211,66 @@ namespace luna
                 _error_reporter->report("未知的赋值运算符", _prev().pos);
         }
     }
-    void Parser<PT_Pratt>::_grouping()
+    void Parser::_grouping()
     {
         _expression();
         _consume(TK_RPAREN, "期望')'结束分组表达式");
     }
-    void Parser<PT_Pratt>::_unary()
+    void Parser::_unary()
     {
         Token::Type op = _prev().type;
         _parsePrecedence(PREC_UNARY);
-        _expression();
         switch (op)
         {
-            case TK_SUB:        _emit(Opcode::OP_NEG); break;
-            case TK_BIT_NOT:    _emit(Opcode::OP_BIT_NOT); break;
-            case TK_NOT:        _emit(Opcode::OP_NOT); break;
+            case TK_SUB:        _emitB(Opcode::OP_NEG); break;
+            case TK_BIT_NOT:    _emitB(Opcode::OP_BIT_NOT); break;
+            case TK_NOT:        _emitB(Opcode::OP_NOT); break;
             default: _error_reporter->report("未知的一元运算符", _prev().pos);
         }
     }
-    void Parser<PT_Pratt>::_binary()
+    void Parser::_binary()
     {
         Token::Type op = _prev().type;
         _Rule& rule = _rules_s[op];
-        _parsePrecedence(static_cast<Level>(rule.precedence + rule.is_left_assoc));
+        _parsePrecedence(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
         switch (op)
         {
-            case TK_ADD:    _emit(Opcode::OP_ADD); break;
-            case TK_SUB:    _emit(Opcode::OP_SUB); break;
-            case TK_MUL:    _emit(Opcode::OP_MUL); break;
-            case TK_DIV:    _emit(Opcode::OP_DIV); break;
-            case TK_MOD:    _emit(Opcode::OP_MOD); break;
-            case TK_POW:    _emit(Opcode::OP_POW); break;
-            case TK_BIT_AND:    _emit(Opcode::OP_BIT_AND); break;
-            case TK_BIT_OR:     _emit(Opcode::OP_BIT_OR); break;
-            case TK_BIT_XOR:    _emit(Opcode::OP_BIT_XOR); break;
-            case TK_BIT_XNOR:   _emit(Opcode::OP_BIT_XNOR); break;
-            case TK_BIT_SHL:    _emit(Opcode::OP_BIT_SHL); break;
-            case TK_BIT_SHR:    _emit(Opcode::OP_BIT_SHR); break;
-            case TK_EQ:     _emit(Opcode::OP_EQ); break;
-            case TK_NE:     _emit(Opcode::OP_NE); break;
-            case TK_LT:     _emit(Opcode::OP_LT); break;
-            case TK_LE:     _emit(Opcode::OP_LE); break;
-            case TK_GT:     _emit(Opcode::OP_GT); break;
-            case TK_GE:     _emit(Opcode::OP_GE); break;
-            case TK_AND:    _emit(Opcode::OP_AND); break;
-            case TK_OR:     _emit(Opcode::OP_OR); break;
+            case TK_ADD:    _emitB(Opcode::OP_ADD); break;
+            case TK_SUB:    _emitB(Opcode::OP_SUB); break;
+            case TK_MUL:    _emitB(Opcode::OP_MUL); break;
+            case TK_DIV:    _emitB(Opcode::OP_DIV); break;
+            case TK_MOD:    _emitB(Opcode::OP_MOD); break;
+            case TK_POW:    _emitB(Opcode::OP_POW); break;
+            case TK_BIT_AND:    _emitB(Opcode::OP_BIT_AND); break;
+            case TK_BIT_OR:     _emitB(Opcode::OP_BIT_OR); break;
+            case TK_BIT_XOR:    _emitB(Opcode::OP_BIT_XOR); break;
+            case TK_BIT_XNOR:   _emitB(Opcode::OP_BIT_XNOR); break;
+            case TK_BIT_SHL:    _emitB(Opcode::OP_BIT_SHL); break;
+            case TK_BIT_SHR:    _emitB(Opcode::OP_BIT_SHR); break;
+            case TK_EQ:     _emitB(Opcode::OP_EQ); break;
+            case TK_NE:     _emitB(Opcode::OP_NE); break;
+            case TK_LT:     _emitB(Opcode::OP_LT); break;
+            case TK_LE:     _emitB(Opcode::OP_LE); break;
+            case TK_GT:     _emitB(Opcode::OP_GT); break;
+            case TK_GE:     _emitB(Opcode::OP_GE); break;
+            case TK_AND:    _emitB(Opcode::OP_AND); break;
+            case TK_OR:     _emitB(Opcode::OP_OR); break;
             default: _error_reporter->report("未知的二元运算符", _prev().pos);
         }
     }
-    void Parser<PT_Pratt>::_primary()
+    void Parser::_primary()
     {
         switch (_prev().type)
         {
             case TK_LIT_INT:
             case TK_LIT_FLOAT:
             case TK_LIT_STRING:
-                _emit(Opcode::OP_CONSTANT);
-                _emit(static_cast<Opcode>(_emit(_prev().literal)));
+                _emitB(Opcode::OP_CONSTANT);
+                _emitB(_emitC(_prev().literal));
                 break;
-            case TK_NIL:    _emit(Opcode::OP_NIL); break;
-            case TK_TRUE:   _emit(Opcode::OP_TRUE); break;
-            case TK_FALSE:  _emit(Opcode::OP_FALSE); break;
+            case TK_NIL:    _emitB(Opcode::OP_NIL); break;
+            case TK_TRUE:   _emitB(Opcode::OP_TRUE); break;
+            case TK_FALSE:  _emitB(Opcode::OP_FALSE); break;
             case TK_IDENT:
                 _error_reporter->report("变量取值暂未实现", _prev().pos);
                 break;
@@ -283,11 +280,11 @@ namespace luna
     }
 #pragma endregion
 #pragma region Kan/Move
-    bool Parser<PT_Pratt>::_isAtEnd() const
+    bool Parser::_isAtEnd() const
     {
         return _cursor.curr == nullptr || _cursor.curr->type == TK_EOF;
     }
-    Token::Unit& Parser<PT_Pratt>::_advance()
+    Token::Unit& Parser::_advance()
     {
         if (_cursor.curr == nullptr)
         {
@@ -301,25 +298,25 @@ namespace luna
         }
         return *_cursor.prev;
     }
-    void Parser<PT_Pratt>::_pass()
+    void Parser::_pass()
     {
         if (!_isAtEnd())
             _advance();
     }
-    Token::Unit& Parser<PT_Pratt>::_prev()
+    Token::Unit& Parser::_prev()
     {
         return *_cursor.prev;
     }
-    Token::Unit& Parser<PT_Pratt>::_peek()
+    Token::Unit& Parser::_peek()
     {
         return *_cursor.curr;
     }
-    bool Parser<PT_Pratt>::_check(Token::Type type)
+    bool Parser::_check(Token::Type type)
     {
         if (_isAtEnd()) return false;
         return _cursor.curr->type == type;
     }
-    bool Parser<PT_Pratt>::_check(std::initializer_list<Token::Type> types)
+    bool Parser::_check(std::initializer_list<Token::Type> types)
     {
         if (_isAtEnd()) return false;
         for (auto type : types)
@@ -328,13 +325,13 @@ namespace luna
         }
         return false;
     }
-    bool Parser<PT_Pratt>::_match(std::initializer_list<Token::Type> types)
+    bool Parser::_match(std::initializer_list<Token::Type> types)
     {
         if (!_check(types)) return false;
         _advance();
         return true;
     }
-    Token::Unit& Parser<PT_Pratt>::_consume(Token::Type type, const std::string& message)
+    Token::Unit& Parser::_consume(Token::Type type, const std::string& message)
     {
         if (_check(type)) return _advance();
         _error_reporter->report(message, _cursor.curr->pos);
@@ -342,14 +339,19 @@ namespace luna
     }
 #pragma endregion
 #pragma region Emit
-    void Parser<PT_Pratt>::_emit(Opcode op)
+    void Parser::_emitB(Bytecode op)
     {
         _chunk->codes.push_back(op);
     }
-    size_t Parser<PT_Pratt>::_emit(Value::Data value)
+    Bytecode Parser::_emitC(Value::Data value)
     {
+        if (_chunk->constants.size() >= 256)
+        {
+            _error_reporter->report("常数块溢出", _cursor.curr->pos);
+            return 0;
+        }
         _chunk->constants.push_back(value);
-        return _chunk->constants.size() - 1;
+        return static_cast<Bytecode>(_chunk->constants.size() - 1);
     }
 #pragma endregion
 }

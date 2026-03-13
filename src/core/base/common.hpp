@@ -4,7 +4,7 @@
 #include <memory>
 #include <unordered_map>
 #include <vector>
-#include "opcode.hpp"
+#include "bytecode.hpp"
 
 namespace luna
 {
@@ -127,7 +127,7 @@ namespace luna
     struct Chunk final
     {
         std::vector<Value::Data> constants {};
-        std::vector<Opcode> codes {};
+        std::vector<Bytecode> codes {};
     };
     struct Function final : public std::enable_shared_from_this<Function>
     {

@@ -1,9 +1,9 @@
 #pragma once
 #include <cstdint>
 
-namespace luna::Precedence
+namespace luna
 {
-    enum Level : uint8_t
+    enum Precedence : uint8_t
     {
         PREC_NONE,
         PREC_ASSIGN, // = x= :=

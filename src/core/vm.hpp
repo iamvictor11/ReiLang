@@ -2,7 +2,6 @@
 #include <string>
 #include <memory>
 #include "util/error.hpp"
-#include "parser/node.hpp"
 #include "base/environment.hpp"
 
 namespace luna
@@ -12,6 +11,8 @@ namespace luna
     {
     private:
         Chunk _chunk;
+        Bytecode* _ip;
+        std::vector<Value::Data> _stack;
         Environment _env;
         Error::Reporter _error_reporter;
     public:
@@ -22,6 +23,13 @@ namespace luna
         void loadFile(const std::string& path);
     public:
         void run();
+    private:
+        Bytecode _readByte();
+        Value::Data _readConstant();
+        void _push(Value::Data value);
+        Value::Data _pop();
+        Value::Data _peek();
+        Value::Data _peek(int distance);
     public:
         bool hasError();
         Error::Msg popError();

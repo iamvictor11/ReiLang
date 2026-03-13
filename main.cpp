@@ -31,7 +31,7 @@ int main(int argc, char *argv[])
     else
     {
         vm.loadFile("test.luna");
-        // vm.run();
+        vm.run();
     }
     std::cout << "按 Enter 键退出...";
     std::cin.get();
