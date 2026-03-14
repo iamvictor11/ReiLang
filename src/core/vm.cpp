@@ -37,10 +37,13 @@ namespace luna
 #pragma region Run
     void VM::run()
     {
+    #ifdef LUNA_DEBUG_ENABLE
+        std::cout << "运行结果：" << std::endl; 
+    #endif
         if (!_error_reporter.empty()) return;
         _ip = _chunk.codes.data();
         Bytecode* endt = &_chunk.codes.back();
-        while (_ip < endt)
+        while (_ip <= endt)
         {
             auto instruction = static_cast<Opcode>(_readByte());
             switch (instruction)
@@ -51,6 +54,8 @@ namespace luna
                 case OP_TRUE:   _push(Boolean(true)); break;
                 case OP_FALSE:  _push(Boolean(false)); break;
                 case OP_NEG:
+                case OP_BIT_NOT:
+                case OP_NOT:
                 {
                     Value::Data v = _pop();
                     _push(_dispatchUnary(v, instruction));
@@ -84,22 +89,30 @@ namespace luna
                 case OP_OR:
                     break;
                 case OP_PRINT:
+                    std::cout << Value::toString(_pop());
                     break;
                 case OP_PRINTLN:
+                    std::cout << Value::toString(_pop()) << std::endl;
                     break;
                 case OP_RETURN: break;
                 case OP_JUMP: break;
                 case OP_JUMP_IF_FALSE: break;
                 case OP_LOOP: break;
-                case OP_DEFINE_GLOBAL: break;
+                case OP_DEF_GLOBAL:
+                {
+                    _env.defGlobal(Value::toString(_readConstant()), _pop());
+                    break;
+                }
                 case OP_GET_GLOBAL: break;
                 case OP_SET_GLOBAL: break;
+                case OP_DEF_LOCAL: break;
                 case OP_GET_LOCAL: break;
                 case OP_SET_LOCAL: break;
                 case OP_CALL: break;
                 default: break;
             }
         }
+        std::cout << std::endl;
     }
     Bytecode VM::_readByte()
     {

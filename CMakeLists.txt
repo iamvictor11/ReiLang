@@ -29,7 +29,7 @@ PRIVATE
 target_sources(luna
 PRIVATE
     "src/core/base/common.cpp"
-    "src/core/base/environment.cpp"
+    "src/core/base/env.cpp"
     "src/core/base/string.cpp"
     "src/core/lexer/lexer.cpp"
     "src/core/lexer/token.cpp"

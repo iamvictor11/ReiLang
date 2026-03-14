@@ -1,8 +1,9 @@
 #pragma once
+#include "luna/config.hpp"
 
 namespace luna
 {
-    using Bytecode = uint8_t;
+    using Bytecode = LUNA_BYTECODE_TYPE;
     enum Opcode : Bytecode
     {
         OP_CONSTANT = 0,
@@ -36,16 +37,17 @@ namespace luna
         OP_GE, // >=
         OP_AND, // &&
         OP_OR,  // ||
-        /* 保留词 */
+        /* 操作 */
         OP_PRINT,   // print
         OP_PRINTLN, // println
         OP_RETURN,  // return
         OP_JUMP,
         OP_JUMP_IF_FALSE,
         OP_LOOP,
-        OP_DEFINE_GLOBAL,
+        OP_DEF_GLOBAL,
         OP_GET_GLOBAL,
         OP_SET_GLOBAL,
+        OP_DEF_LOCAL,
         OP_GET_LOCAL,
         OP_SET_LOCAL,
         OP_CALL

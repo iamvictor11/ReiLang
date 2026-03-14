@@ -2,7 +2,7 @@
 #include <string>
 #include <memory>
 #include "util/error.hpp"
-#include "base/environment.hpp"
+#include "base/env.hpp"
 
 namespace luna
 {
@@ -13,7 +13,7 @@ namespace luna
         Chunk _chunk;
         Bytecode* _ip;
         std::vector<Value::Data> _stack;
-        Environment _env;
+        Env _env;
         Error::Reporter _error_reporter;
     public:
         VM() = default;

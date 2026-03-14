@@ -1,5 +1,6 @@
 #pragma once
 #include "core/lexer/token.hpp"
+#include "core/base/env.hpp"
 #include "util/error.hpp"
 #include "precedence.hpp"
 
@@ -35,17 +36,27 @@ namespace luna
         void start();
     private:
         void _program();
+        void _parsePrecedence(Precedence precedence);
     private:
         void _expression();
-        void _assign();
-        void _grouping();
-        void _unary();
-        void _binary();
-        void _primary();
+        void _assignExpr();
+        void _groupingExpr();
+        void _unaryExpr();
+        void _binaryExpr();
+        void _primaryExpr();
     private:
         void _statement();
+        void _exprStmt();
+        void _blockStmt();
+        void _ifStmt();
+        void _loopStmt();
+        void _printStmt();
     private:
-        void _parsePrecedence(Precedence precedence);
+        void _declaration();
+        void _varDecl();
+        void _funcDecl();
+        void _structDecl();
+        void _classDecl();
     private:
         bool _isAtEnd() const;
         Token::Unit& _advance();

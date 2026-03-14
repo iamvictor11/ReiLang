@@ -10,57 +10,57 @@ namespace luna
         /* 注释 */
         [TK_NOTE]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 基础 */
-        [TK_ASSIGN]    = {nullptr, &Parser::_assign, nullptr, PREC_NONE, 0},
-        [TK_WALRUS]    = {nullptr, &Parser::_assign, nullptr, PREC_NONE, 0},
+        [TK_ASSIGN]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_NONE, 0},
+        [TK_WALRUS]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_NONE, 0},
         /* 标识符 */
         [TK_IDENT] = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 字面量 */
-        [TK_LIT_INT]    = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 0},
-        [TK_LIT_FLOAT]  = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 0},
-        [TK_LIT_STRING] = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LIT_INT]    = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LIT_FLOAT]  = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LIT_STRING] = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
         /* 数学运算 */
-        [TK_ADD]   = {nullptr, &Parser::_binary, nullptr, PREC_TERM, 1},
-        [TK_SUB]   = {&Parser::_unary, &Parser::_binary, nullptr, PREC_TERM, 1},
-        [TK_MUL]   = {nullptr, &Parser::_binary, nullptr, PREC_FACTOR, 1},
-        [TK_DIV]   = {nullptr, &Parser::_binary, nullptr, PREC_FACTOR, 1},
-        [TK_MOD]   = {nullptr, &Parser::_binary, nullptr, PREC_FACTOR, 1},
-        [TK_POW]   = {nullptr, &Parser::_binary, nullptr, PREC_POW, 1},
-        [TK_SELF_ADD]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_SUB]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_MUL]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_DIV]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_MOD]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_POW]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_ADD]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_TERM, 1},
+        [TK_SUB]   = {&Parser::_unaryExpr, &Parser::_binaryExpr, nullptr, PREC_TERM, 1},
+        [TK_MUL]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_FACTOR, 1},
+        [TK_DIV]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_FACTOR, 1},
+        [TK_MOD]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_FACTOR, 1},
+        [TK_POW]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_POW, 1},
+        [TK_SELF_ADD]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_SUB]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_MUL]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_DIV]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_MOD]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_POW]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
         /* 位运算 */
-        [TK_BIT_AND]   = {nullptr, &Parser::_binary, nullptr, PREC_BAND, 1},
-        [TK_BIT_OR]    = {nullptr, &Parser::_binary, nullptr, PREC_BOR, 1},
-        [TK_BIT_XOR]   = {nullptr, &Parser::_binary, nullptr, PREC_BXOR, 1},
-        [TK_BIT_XNOR]  = {nullptr, &Parser::_binary, nullptr, PREC_BXOR, 1},
-        [TK_BIT_NOT]   = {&Parser::_unary, nullptr, nullptr, PREC_UNARY, 1},
-        [TK_BIT_SHL]   = {nullptr, &Parser::_binary, nullptr, PREC_SHIFT, 1},
-        [TK_BIT_SHR]   = {nullptr, &Parser::_binary, nullptr, PREC_SHIFT, 1},
-        [TK_SELF_BIT_AND]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_OR]   = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_XOR]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_XNOR] = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_NOT]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_SHL]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_SHR]  = {nullptr, &Parser::_assign, nullptr, PREC_ASSIGN, 0},
+        [TK_BIT_AND]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BAND, 1},
+        [TK_BIT_OR]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BOR, 1},
+        [TK_BIT_XOR]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BXOR, 1},
+        [TK_BIT_XNOR]  = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BXOR, 1},
+        [TK_BIT_NOT]   = {&Parser::_unaryExpr, nullptr, nullptr, PREC_UNARY, 1},
+        [TK_BIT_SHL]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_SHIFT, 1},
+        [TK_BIT_SHR]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_SHIFT, 1},
+        [TK_SELF_BIT_AND]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_OR]   = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_XOR]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_XNOR] = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_NOT]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_SHL]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_SHR]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
         /* 比较运算 */
-        [TK_EQ]    = {nullptr, &Parser::_binary, nullptr, PREC_EQUAL, 1},
-        [TK_NE]    = {nullptr, &Parser::_binary, nullptr, PREC_EQUAL, 1},
-        [TK_LT]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
-        [TK_LE]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
-        [TK_GT]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
-        [TK_GE]    = {nullptr, &Parser::_binary, nullptr, PREC_COMPAR, 1},
+        [TK_EQ]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_EQUAL, 1},
+        [TK_NE]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_EQUAL, 1},
+        [TK_LT]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
+        [TK_LE]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
+        [TK_GT]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
+        [TK_GE]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
         /* 逻辑运算 */
-        [TK_AND]   = {nullptr, &Parser::_binary, nullptr, PREC_LAND, 1},
-        [TK_OR]    = {nullptr, &Parser::_binary, nullptr, PREC_LOR, 1},
-        [TK_NOT]   = {&Parser::_unary, nullptr, nullptr, PREC_UNARY, 1},
+        [TK_AND]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_LAND, 1},
+        [TK_OR]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_LOR, 1},
+        [TK_NOT]   = {&Parser::_unaryExpr, nullptr, nullptr, PREC_UNARY, 1},
         /* 保留词 */
-        [TK_NIL]   = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 1},
-        [TK_TRUE]  = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 1},
-        [TK_FALSE] = {&Parser::_primary, nullptr, nullptr, PREC_NONE, 1},
+        [TK_NIL]   = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 1},
+        [TK_TRUE]  = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 1},
+        [TK_FALSE] = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 1},
         [TK_DEF]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_VAR]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LET]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -101,7 +101,7 @@ namespace luna
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 区域 */
-        [TK_LPAREN]    = {&Parser::_grouping, nullptr, nullptr, PREC_NONE, 1},
+        [TK_LPAREN]    = {&Parser::_groupingExpr, nullptr, nullptr, PREC_NONE, 1},
         [TK_RPAREN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_RBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -127,42 +127,16 @@ namespace luna
     void Parser::_program()
     {
         while (!_isAtEnd())
-            _statement();
-    }
-    void Parser::_statement()
-    {
-        if (_match({TK_VAR, TK_LET}))
-        {
-        }
-        else if (_match({TK_IF}))
-        {
-        }
-        else if (_match({TK_LOOP}))
-        {
-        }
-        else if (_match({TK_RETURN}))
-        {
-            if (!_match({TK_SEMICOLON}))
-            {
-                _expression();
-            }
-        }
-        else
-        {
-            _expression();
-        }
-    }
-    void Parser::_expression()
-    {
-        _parsePrecedence(PREC_ASSIGN);
+            _declaration();
     }
     void Parser::_parsePrecedence(Precedence precedence)
     {
         _advance();
+
         _Fnuc prefixRule = _rules_s[_prev().type].prefix;
         if (prefixRule == nullptr)
         {
-            _error_reporter->report("期望前缀表达式", _prev().pos);
+            _error_reporter->report(std::format("{} 期望前缀表达式", Token::toString(_prev().type)), _prev().pos);
             return;
         }
         (this->*prefixRule)();
@@ -175,7 +149,11 @@ namespace luna
         }
     }
 #pragma region Expr
-    void Parser::_assign()
+    void Parser::_expression()
+    {
+        _parsePrecedence(PREC_ASSIGN);
+    }
+    void Parser::_assignExpr()
     {
         Token::Type operatorType = _prev().type;
         _parsePrecedence(static_cast<Precedence>(PREC_ASSIGN - 1));
@@ -211,12 +189,12 @@ namespace luna
                 _error_reporter->report("未知的赋值运算符", _prev().pos);
         }
     }
-    void Parser::_grouping()
+    void Parser::_groupingExpr()
     {
         _expression();
         _consume(TK_RPAREN, "期望')'结束分组表达式");
     }
-    void Parser::_unary()
+    void Parser::_unaryExpr()
     {
         Token::Type op = _prev().type;
         _parsePrecedence(PREC_UNARY);
@@ -228,7 +206,7 @@ namespace luna
             default: _error_reporter->report("未知的一元运算符", _prev().pos);
         }
     }
-    void Parser::_binary()
+    void Parser::_binaryExpr()
     {
         Token::Type op = _prev().type;
         _Rule& rule = _rules_s[op];
@@ -258,7 +236,7 @@ namespace luna
             default: _error_reporter->report("未知的二元运算符", _prev().pos);
         }
     }
-    void Parser::_primary()
+    void Parser::_primaryExpr()
     {
         switch (_prev().type)
         {
@@ -277,6 +255,96 @@ namespace luna
             default:
                 _error_reporter->report("非法的初级表达式", _prev().pos);
         }
+    }
+#pragma endregion
+#pragma region Stmt
+    void Parser::_statement()
+    {
+        if (_match({TK_VAR, TK_LET}))
+        {
+        }
+        else if (_match({TK_IF}))
+        {
+        }
+        else if (_match({TK_LOOP}))
+        {
+        }
+        else if (_match({TK_RETURN}))
+        {
+            if (!_match({TK_SEMICOLON}))
+            {
+                _exprStmt();
+            }
+        }
+        else if (_match({TK_PRINT, TK_PRINTLN}))
+        {
+            _printStmt();
+        }
+        else if (_match({TK_SEMICOLON}))
+        {
+        }
+        else
+        {
+            _exprStmt();
+        }
+    }
+    void Parser::_exprStmt()
+    {
+        _expression();
+        _consume(TK_SEMICOLON, "表达式语句期望以';'结束");
+        _emitB(OP_POP);
+    }
+    void Parser::_blockStmt()
+    {
+    }
+    void Parser::_ifStmt()
+    {
+    }
+    void Parser::_loopStmt()
+    {
+    }
+    void Parser::_printStmt()
+    {
+        Opcode type = _prev().type == TK_PRINT ? OP_PRINT : OP_PRINTLN;
+        _expression();
+        _consume(TK_SEMICOLON, "打印语句期望以';'结束");
+        _emitB(type);
+    }
+#pragma endregion
+#pragma region Decl
+    void Parser::_declaration()
+    {
+        if (_match({TK_VAR}))
+            _varDecl();
+        else if (_match({TK_FUNC}))
+            _funcDecl();
+        else if (_match({TK_STRUCT}))
+            _structDecl();
+        else if (_match({TK_CLASS}))
+            _classDecl();
+        else
+            _statement();
+    }
+    void Parser::_varDecl()
+    {
+        _consume(TK_IDENT, "变量期望用标识符标记");
+        Bytecode global = _emitC(std::string{_prev().lexeme});
+        if (_match({TK_ASSIGN}))
+            _expression();
+        else
+            _emitB(OP_NIL);
+        _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
+        _emitB(OP_DEF_GLOBAL);
+        _emitB(global);
+    }
+    void Parser::_funcDecl()
+    {
+    }
+    void Parser::_structDecl()
+    {
+    }
+    void Parser::_classDecl()
+    {
     }
 #pragma endregion
 #pragma region Kan/Move
@@ -345,7 +413,7 @@ namespace luna
     }
     Bytecode Parser::_emitC(Value::Data value)
     {
-        if (_chunk->constants.size() >= 256)
+        if (_chunk->constants.size() >= LUNA_BYTECODE_MAX)
         {
             _error_reporter->report("常数块溢出", _cursor.curr->pos);
             return 0;
