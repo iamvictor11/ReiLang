@@ -93,6 +93,12 @@ namespace luna
                 case OP_OR:
                     printf("%-16s\n", "OR");
                     break;
+                case OP_BEG:
+                    printf("%-16s\n", "BEG");
+                    break;
+                case OP_END:
+                    printf("%-16s\n", "END");
+                    break;
                 case OP_PRINT:
                     printf("%-16s\n", "PRINT");
                     break;

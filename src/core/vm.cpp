@@ -15,7 +15,7 @@ namespace luna
     void VM::loadFile(const std::string& path)
     {
     #ifdef LUNA_DEBUG_ENABLE
-        std::cout << "词法分析：" << std::endl;
+        std::cout << "\033[1m\033[38;2;255;105;180m词法分析：\033[0m" << std::endl;
     #endif
         Lexer lexer {util::fileToString(path), &_error_reporter};
         auto& tokens = lexer.start();
@@ -25,7 +25,7 @@ namespace luna
             std::cout << token.toString() << std::endl;
     #endif
     #ifdef LUNA_DEBUG_ENABLE
-        std::cout << "语法分析：" << std::endl; 
+        std::cout << "\033[1m\033[38;2;255;105;180m语法分析：\033[0m" << std::endl;
     #endif
         Parser parser {std::move(tokens), &_chunk, &_env, &_error_reporter};
         parser.start();
@@ -43,7 +43,7 @@ namespace luna
     void VM::run()
     {
     #ifdef LUNA_DEBUG_ENABLE
-        std::cout << "运行结果：" << std::endl; 
+        std::cout << "\033[1m\033[38;2;255;105;180m运行结果：\033[0m" << std::endl; 
     #endif
         if (!_error_reporter.empty()) return;
         _ip = _chunk.codes.data();
@@ -93,6 +93,12 @@ namespace luna
                 case OP_AND:
                 case OP_OR:
                     break;
+                case OP_BEG:
+                    _env.enter();
+                    break;
+                case OP_END:
+                    _env.exit();
+                    break;
                 case OP_PRINT:
                     std::cout << Value::toString(_pop());
                     break;
@@ -105,7 +111,7 @@ namespace luna
                 case OP_LOOP: break;
                 case OP_DEF_VAR:
                 {
-                    _env.def(_readByte(), _pop());
+                    _env.def(_readByte(), _peek());
                     break;
                 }
                 case OP_GET_VAR:
@@ -122,9 +128,12 @@ namespace luna
                 default: break;
             }
         }
-        std::cout << std::endl;
     #ifdef LUNA_DEBUG_ENABLE
+        std::cout << std::endl;
+        std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << _stack.size() << std::endl;
+        for (size_t i = 0; i < _stack.size(); i++)
+            std::cout << Value::getDebugString(_stack[i]) << std::endl;
     #endif
     }
     Bytecode VM::_readByte()

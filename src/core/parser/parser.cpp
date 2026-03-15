@@ -254,8 +254,6 @@ namespace luna
             Bytecode vi = _env->toIndex(std::string{vn.lexeme});
             _emitB(OP_SET_VAR);
             _emitB(vi);
-            _emitB(OP_GET_VAR);
-            _emitB(vi);
         }
         else if (_match({TK_WALRUS}))
         {
@@ -263,21 +261,17 @@ namespace luna
             _expression();
             _emitB(OP_DEF_VAR);
             _emitB(vi);
-            _emitB(OP_GET_VAR);
-            _emitB(vi);
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
             TK_SELF_BIT_AND, TK_SELF_BIT_OR, TK_SELF_BIT_XOR, TK_SELF_BIT_XNOR, TK_SELF_BIT_NOT, TK_SELF_BIT_SHL, TK_SELF_BIT_SHR
         }))
         {
-            _emitB(OP_GET_VAR);
             Bytecode vi = _env->toIndex(std::string{vn.lexeme});
+            _emitB(OP_GET_VAR);
             _emitB(vi);
             _assignExpr();
             _emitB(OP_SET_VAR);
-            _emitB(vi);
-            _emitB(OP_GET_VAR);
             _emitB(vi);
         }
         else
@@ -316,10 +310,12 @@ namespace luna
     void Parser::_blockStmt()
     {
         _env->enter();
+        _emitB(OP_BEG);
         while (!_check(TK_RBRACE) && !_isAtEnd())
             _declaration();
         _consume(TK_RBRACE, "语句块期望以'}'结束");
         _env->exit();
+        _emitB(OP_END);
     }
     void Parser::_ifStmt()
     {
@@ -360,6 +356,7 @@ namespace luna
             _emitB(OP_NIL);
         _emitB(OP_DEF_VAR);
         _emitB(vi);
+        _emitB(OP_POP);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
     void Parser::_funcDecl()

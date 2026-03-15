@@ -55,7 +55,12 @@ namespace luna::Token
                 {"new", TK_NEW},
                 {"del", TK_DEL},
                 {"print", TK_PRINT},
-                {"println", TK_PRINTLN}
+                {"println", TK_PRINTLN},
+
+                {"do", TK_LBRACE},
+                {"then", TK_LBRACE},
+                {"beg", TK_LBRACE},
+                {"end", TK_RBRACE}
             });
             std::ranges::sort(arr, std::less<>{}, &std::pair<std::string_view, Type>::first);
             return arr;
