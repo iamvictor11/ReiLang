@@ -27,7 +27,7 @@ namespace luna
     #ifdef LUNA_DEBUG_ENABLE
         std::cout << "语法分析：" << std::endl; 
     #endif
-        Parser parser {std::move(tokens), &_chunk, &_error_reporter};
+        Parser parser {std::move(tokens), &_chunk, &_env, &_error_reporter};
         parser.start();
         if (!_error_reporter.empty()) return;
     #ifdef LUNA_DEBUG_ENABLE
@@ -98,22 +98,16 @@ namespace luna
                 case OP_JUMP: break;
                 case OP_JUMP_IF_FALSE: break;
                 case OP_LOOP: break;
-                case OP_DEF_GLOBAL:
-                {
-                    _env.defGlobal(Value::toString(_readConstant()), _pop());
-                    break;
-                }
                 case OP_GET_GLOBAL:
                 {
-                    _push(_env.getGlobal(Value::toString(_readConstant())));
+                    _push(_env.getGlobal(_readByte()));
                     break;
                 }
                 case OP_SET_GLOBAL:
                 {
-                    _env.setGlobal(Value::toString(_readConstant()), _pop());
+                    _env.setGlobal(_readByte(), _pop());
                     break;
                 }
-                case OP_DEF_LOCAL: break;
                 case OP_GET_LOCAL: break;
                 case OP_SET_LOCAL: break;
                 case OP_CALL: break;

@@ -23,6 +23,7 @@ namespace luna
     private:
         Token::List _tokens;
         Chunk* _chunk;
+        Env* _env;
         struct
         {
             Token::Unit* prev = nullptr;
@@ -30,7 +31,7 @@ namespace luna
         } _cursor;
         Error::Reporter* _error_reporter;
     public:
-        Parser(Token::List&& ts, Chunk* ck, Error::Reporter* er) : _tokens(std::move(ts)), _chunk(ck), _error_reporter(er) {};
+        Parser(Token::List&& ts, Chunk* ck, Env* ev, Error::Reporter* er) : _tokens(std::move(ts)), _chunk(ck), _env(ev), _error_reporter(er) {};
         ~Parser() = default;
     public:
         void start();

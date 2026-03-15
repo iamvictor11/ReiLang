@@ -2,55 +2,48 @@
 
 namespace luna
 {
-    void Env::defGlobal(const std::string& name, Value::Data value)
+    Bytecode Env::defGlobal(const std::string& name)
     {
-        _globals[name] = value;
+        if (auto it = _map.find(name); it != _map.end())
+            return it->second;
+        Bytecode index = static_cast<Bytecode>(_vals.size());
+        _map[name] = index;
+        _vals.push_back(Nil{});
+        return index;
     }
     Value::Data Env::getGlobal(const std::string& name)
     {
-        if (auto it = _globals.find(name); it != _globals.end())
-            return it->second;
-        return Nil{};
+        auto it = _map.find(name);
+        if (it == _map.end())
+            return Nil{};
+        Bytecode index = it->second;
+        return _vals[index];
+    }
+    Value::Data Env::getGlobal(Bytecode index)
+    {
+        if (index >= _vals.size())
+            return Nil{};
+        return _vals[index];
     }
     void Env::setGlobal(const std::string& name, Value::Data value)
     {
-        if (auto it = _globals.find(name); it != _globals.end())
-            it->second = value;
+        auto it = _map.find(name);
+        if (it == _map.end())
+            return;
+        Bytecode index = it->second;
+        if (index < _vals.size())
+            _vals[index] = value;
     }
-    void Env::pushFrame()
+    void Env::setGlobal(Bytecode index, Value::Data value)
     {
-        _frames.emplace_back();
+        if (index < _vals.size())
+            _vals[index] = value;
     }
-    void Env::popFrame()
+    Bytecode Env::toIndex(const std::string& name) const
     {
-        if (!_frames.empty())
-            _frames.pop_back();
-    }
-    size_t Env::addLocal(Value::Data value)
-    {
-        if (_frames.empty()) pushFrame();
-        _frames.back().locals.push_back(value);
-        return _frames.back().locals.size() - 1;
-    }
-    Value::Data Env::getLocal(size_t index)
-    {
-        if (_frames.empty()) return Nil{};
-        if (index >= _frames.back().locals.size()) return Nil{};
-        return _frames.back().locals[index];
-    }
-    void Env::setLocal(size_t index, Value::Data value)
-    {
-        if (_frames.empty()) return;
-        if (index < _frames.back().locals.size())
-            _frames.back().locals[index] = value;
-    }
-    Value::Data Env::getLocalInEnclosing(size_t depth, size_t index)
-    {
-        Env* env = this;
-        for (size_t i = 0; i < depth && env; i++)
-            env = env->_frames.empty() ? nullptr : env->_frames.back().enclosing;
-        if (env && !env->_frames.empty() && index < env->_frames.back().locals.size())
-            return env->_frames.back().locals[index];
-        return Nil{};
+        auto it = _map.find(name);
+        if (it == _map.end())
+            return LUNA_BYTECODE_MAX;
+        return it->second;
     }
 }

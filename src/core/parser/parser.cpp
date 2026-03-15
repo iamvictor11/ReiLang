@@ -251,19 +251,20 @@ namespace luna
         if (_match({TK_ASSIGN}))
         {
             _assignExpr();
+            Bytecode global = _env->toIndex(std::string{vn.lexeme});
             _emitB(OP_SET_GLOBAL);
-            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(global);
             _emitB(OP_GET_GLOBAL);
-            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(global);
         }
         else if (_match({TK_WALRUS}))
         {
-            Bytecode global = _emitC(std::string{vn.lexeme});
+            Bytecode global = _env->defGlobal(std::string{vn.lexeme});
             _expression();
-            _emitB(OP_DEF_GLOBAL);
+            _emitB(OP_SET_GLOBAL);
             _emitB(global);
             _emitB(OP_GET_GLOBAL);
-            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(global);
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
@@ -271,17 +272,19 @@ namespace luna
         }))
         {
             _emitB(OP_GET_GLOBAL);
-            _emitB(_emitC(std::string(vn.lexeme)));
+            Bytecode global = _env->toIndex(std::string{vn.lexeme});
+            _emitB(global);
             _assignExpr();
             _emitB(OP_SET_GLOBAL);
-            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(global);
             _emitB(OP_GET_GLOBAL);
-            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(global);
         }
         else
         {
+            Bytecode global = _env->toIndex(std::string{vn.lexeme});
             _emitB(OP_GET_GLOBAL);
-            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(global);
         }
     }
 #pragma endregion
@@ -356,13 +359,13 @@ namespace luna
     void Parser::_varDecl()
     {
         _consume(TK_IDENT, "变量期望用标识符标记");
-        Bytecode global = _emitC(std::string{_prev().lexeme});
+        Bytecode global = _env->defGlobal(std::string{_prev().lexeme});
         if (_match({TK_ASSIGN}))
             _expression();
         else
             _emitB(OP_NIL);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
-        _emitB(OP_DEF_GLOBAL);
+        _emitB(OP_SET_GLOBAL);
         _emitB(global);
     }
     void Parser::_funcDecl()
@@ -416,9 +419,8 @@ namespace luna
     {
         if (_isAtEnd()) return false;
         for (auto type : types)
-        {
-            if (_cursor.curr->type == type) return true;
-        }
+            if (_cursor.curr->type == type)
+                return true;
         return false;
     }
     bool Parser::_match(std::initializer_list<Token::Type> types)
