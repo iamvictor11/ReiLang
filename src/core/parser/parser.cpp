@@ -10,10 +10,10 @@ namespace luna
         /* 注释 */
         [TK_NOTE]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 基础 */
-        [TK_ASSIGN]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_NONE, 0},
-        [TK_WALRUS]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_NONE, 0},
+        [TK_ASSIGN]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_WALRUS]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
         /* 标识符 */
-        [TK_IDENT] = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_IDENT] = {&Parser::_varExpr, nullptr, nullptr, PREC_NONE, 0},
         /* 字面量 */
         [TK_LIT_INT]    = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LIT_FLOAT]  = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
@@ -132,11 +132,10 @@ namespace luna
     void Parser::_parsePrecedence(Precedence precedence)
     {
         _advance();
-
         _Fnuc prefixRule = _rules_s[_prev().type].prefix;
         if (prefixRule == nullptr)
         {
-            _error_reporter->report(std::format("{} 期望前缀表达式", Token::toString(_prev().type)), _prev().pos);
+            _reporterError(std::format("{} 期望前缀表达式", Token::toString(_prev().type)));
             return;
         }
         (this->*prefixRule)();
@@ -156,16 +155,13 @@ namespace luna
     void Parser::_assignExpr()
     {
         Token::Type operatorType = _prev().type;
-        _parsePrecedence(static_cast<Precedence>(PREC_ASSIGN - 1));
+        _parsePrecedence(PREC_ASSIGN);
         switch (operatorType)
         {
-            case TK_ASSIGN:
-            {
-                break;
-            }
+            case TK_ASSIGN: break;
             case TK_WALRUS:
             {
-                _error_reporter->report("定义赋值暂未实现", _prev().pos);
+                _reporterError("定义赋值暂未实现");
                 break;
             }
             case TK_SELF_ADD:
@@ -182,17 +178,17 @@ namespace luna
             case TK_SELF_BIT_SHL:
             case TK_SELF_BIT_SHR:
             {
-                _error_reporter->report("复合赋值暂未实现", _prev().pos);
+                _reporterError("复合赋值暂未实现");
                 break;
             }
             default:
-                _error_reporter->report("未知的赋值运算符", _prev().pos);
+                _reporterError("未知的赋值运算符");
         }
     }
     void Parser::_groupingExpr()
     {
         _expression();
-        _consume(TK_RPAREN, "期望')'结束分组表达式");
+        _consume(TK_RPAREN, "分组表达式期望以')'结束");
     }
     void Parser::_unaryExpr()
     {
@@ -203,7 +199,7 @@ namespace luna
             case TK_SUB:        _emitB(Opcode::OP_NEG); break;
             case TK_BIT_NOT:    _emitB(Opcode::OP_BIT_NOT); break;
             case TK_NOT:        _emitB(Opcode::OP_NOT); break;
-            default: _error_reporter->report("未知的一元运算符", _prev().pos);
+            default: _reporterError("未知的一元运算符");
         }
     }
     void Parser::_binaryExpr()
@@ -233,7 +229,7 @@ namespace luna
             case TK_GE:     _emitB(Opcode::OP_GE); break;
             case TK_AND:    _emitB(Opcode::OP_AND); break;
             case TK_OR:     _emitB(Opcode::OP_OR); break;
-            default: _error_reporter->report("未知的二元运算符", _prev().pos);
+            default: _reporterError("未知的二元运算符");
         }
     }
     void Parser::_primaryExpr()
@@ -249,11 +245,25 @@ namespace luna
             case TK_NIL:    _emitB(Opcode::OP_NIL); break;
             case TK_TRUE:   _emitB(Opcode::OP_TRUE); break;
             case TK_FALSE:  _emitB(Opcode::OP_FALSE); break;
-            case TK_IDENT:
-                _error_reporter->report("变量取值暂未实现", _prev().pos);
-                break;
             default:
-                _error_reporter->report("非法的初级表达式", _prev().pos);
+                _reporterError("非法的初级表达式");
+        }
+    }
+    void Parser::_varExpr()
+    {
+        auto& vn = _prev();
+        if (_match({TK_ASSIGN}))
+        {
+            _assignExpr();
+            _emitB(OP_SET_GLOBAL);
+            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(OP_GET_GLOBAL);
+            _emitB(_emitC(std::string(vn.lexeme)));
+        }
+        else
+        {
+            _emitB(OP_GET_GLOBAL);
+            _emitB(_emitC(std::string(vn.lexeme)));
         }
     }
 #pragma endregion
@@ -402,7 +412,7 @@ namespace luna
     Token::Unit& Parser::_consume(Token::Type type, const std::string& message)
     {
         if (_check(type)) return _advance();
-        _error_reporter->report(message, _cursor.curr->pos);
+        _reporterError(message);
         return *_cursor.curr;
     }
 #pragma endregion
@@ -415,11 +425,15 @@ namespace luna
     {
         if (_chunk->constants.size() >= LUNA_BYTECODE_MAX)
         {
-            _error_reporter->report("常数块溢出", _cursor.curr->pos);
+            _reporterError("常数块溢出");
             return 0;
         }
         _chunk->constants.push_back(value);
         return static_cast<Bytecode>(_chunk->constants.size() - 1);
     }
 #pragma endregion
+    void Parser::_reporterError(const std::string& msg)
+    {
+        _error_reporter->report(std::format("{}: {}", Token::toString(_prev().type), msg), _prev().pos);
+    }
 }

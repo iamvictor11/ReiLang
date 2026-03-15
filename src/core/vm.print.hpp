@@ -43,9 +43,10 @@ namespace luna
                 case OP_JUMP: printf("JUMP\n"); break;
                 case OP_JUMP_IF_FALSE: printf("JUMP IF FALSE\n"); break;
                 case OP_LOOP: printf("LOOP\n"); break;
-                case OP_DEFINE_GLOBAL: printf("DEFINE GLOBAL\n"); break;
-                case OP_GET_GLOBAL: printf("GET GLOBAL\n"); break;
+                case OP_DEF_GLOBAL: i++; printf("DEF GLOBAL %s\n", Value::getDebugString(chunk->constants[chunk->codes[i]]).c_str()); break;
+                case OP_GET_GLOBAL: i++; printf("GET GLOBAL %s\n", Value::getDebugString(chunk->constants[chunk->codes[i]]).c_str()); break;
                 case OP_SET_GLOBAL: printf("SET GLOBAL\n"); break;
+                case OP_DEF_LOCAL: printf("DEFINE LOCAL\n"); break;
                 case OP_GET_LOCAL: printf("GET LOCAL\n"); break;
                 case OP_SET_LOCAL: printf("SET LOCAL\n"); break;
                 case OP_CALL: printf("CALL\n"); break;

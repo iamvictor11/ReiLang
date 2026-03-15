@@ -8,15 +8,13 @@ namespace luna
     }
     Value::Data Env::getGlobal(const std::string& name)
     {
-        auto it = _globals.find(name);
-        if (it != _globals.end())
+        if (auto it = _globals.find(name); it != _globals.end())
             return it->second;
         return Nil{};
     }
     void Env::setGlobal(const std::string& name, Value::Data value)
     {
-        auto it = _globals.find(name);
-        if (it != _globals.end())
+        if (auto it = _globals.find(name); it != _globals.end())
             it->second = value;
     }
     void Env::pushFrame()

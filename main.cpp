@@ -14,7 +14,6 @@ void repl(luna::VM& vm)
         std::cout << "> ";
         if (!std::getline(std::cin, line) || line == "exit") break;
         if (line.empty()) continue;
-
         vm.loadFile(line);
     }
 }

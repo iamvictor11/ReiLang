@@ -103,8 +103,16 @@ namespace luna
                     _env.defGlobal(Value::toString(_readConstant()), _pop());
                     break;
                 }
-                case OP_GET_GLOBAL: break;
-                case OP_SET_GLOBAL: break;
+                case OP_GET_GLOBAL:
+                {
+                    _push(_env.getGlobal(Value::toString(_readConstant())));
+                    break;
+                }
+                case OP_SET_GLOBAL:
+                {
+                    _env.setGlobal(Value::toString(_readConstant()), _pop());
+                    break;
+                }
                 case OP_DEF_LOCAL: break;
                 case OP_GET_LOCAL: break;
                 case OP_SET_LOCAL: break;

@@ -44,6 +44,7 @@ namespace luna
         void _unaryExpr();
         void _binaryExpr();
         void _primaryExpr();
+        void _varExpr();
     private:
         void _statement();
         void _exprStmt();
@@ -70,5 +71,7 @@ namespace luna
     private:
         void _emitB(Bytecode op);
         Bytecode _emitC(Value::Data value);
+    private:
+        void _reporterError(const std::string& msg);
     };
 }
