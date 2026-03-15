@@ -164,23 +164,19 @@ namespace luna
                 _reporterError("定义赋值暂未实现");
                 break;
             }
-            case TK_SELF_ADD:
-            case TK_SELF_SUB:
-            case TK_SELF_MUL:
-            case TK_SELF_DIV:
-            case TK_SELF_MOD:
-            case TK_SELF_POW:
-            case TK_SELF_BIT_AND:
-            case TK_SELF_BIT_OR:
-            case TK_SELF_BIT_XOR:
-            case TK_SELF_BIT_XNOR:
-            case TK_SELF_BIT_NOT:
-            case TK_SELF_BIT_SHL:
-            case TK_SELF_BIT_SHR:
-            {
-                _reporterError("复合赋值暂未实现");
-                break;
-            }
+            case TK_SELF_ADD:   _emitB(Opcode::OP_ADD); break;
+            case TK_SELF_SUB:   _emitB(Opcode::OP_SUB); break;
+            case TK_SELF_MUL:   _emitB(Opcode::OP_MUL); break;
+            case TK_SELF_DIV:   _emitB(Opcode::OP_DIV); break;
+            case TK_SELF_MOD:   _emitB(Opcode::OP_MOD); break;
+            case TK_SELF_POW:   _emitB(Opcode::OP_POW); break;
+            case TK_SELF_BIT_AND:   _emitB(Opcode::OP_BIT_AND); break;
+            case TK_SELF_BIT_OR:    _emitB(Opcode::OP_BIT_OR); break;
+            case TK_SELF_BIT_XOR:   _emitB(Opcode::OP_BIT_XOR); break;
+            case TK_SELF_BIT_XNOR:  _emitB(Opcode::OP_BIT_XNOR); break;
+            case TK_SELF_BIT_NOT:   _emitB(Opcode::OP_BIT_NOT); break;
+            case TK_SELF_BIT_SHL:   _emitB(Opcode::OP_BIT_SHL); break;
+            case TK_SELF_BIT_SHR:   _emitB(Opcode::OP_BIT_SHR); break;
             default:
                 _reporterError("未知的赋值运算符");
         }
@@ -254,6 +250,28 @@ namespace luna
         auto& vn = _prev();
         if (_match({TK_ASSIGN}))
         {
+            _assignExpr();
+            _emitB(OP_SET_GLOBAL);
+            _emitB(_emitC(std::string(vn.lexeme)));
+            _emitB(OP_GET_GLOBAL);
+            _emitB(_emitC(std::string(vn.lexeme)));
+        }
+        else if (_match({TK_WALRUS}))
+        {
+            Bytecode global = _emitC(std::string{vn.lexeme});
+            _expression();
+            _emitB(OP_DEF_GLOBAL);
+            _emitB(global);
+            _emitB(OP_GET_GLOBAL);
+            _emitB(_emitC(std::string(vn.lexeme)));
+        }
+        else if (_match({
+            TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
+            TK_SELF_BIT_AND, TK_SELF_BIT_OR, TK_SELF_BIT_XOR, TK_SELF_BIT_XNOR, TK_SELF_BIT_NOT, TK_SELF_BIT_SHL, TK_SELF_BIT_SHR
+        }))
+        {
+            _emitB(OP_GET_GLOBAL);
+            _emitB(_emitC(std::string(vn.lexeme)));
             _assignExpr();
             _emitB(OP_SET_GLOBAL);
             _emitB(_emitC(std::string(vn.lexeme)));

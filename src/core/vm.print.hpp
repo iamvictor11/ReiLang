@@ -4,7 +4,7 @@
 
 namespace luna
 {
-    static void _printChunk(Chunk* chunk)
+    static void _Chunk_debugPrint(Chunk* chunk)
     {
         for (size_t i = 0; i < chunk->codes.size(); i++)
         {

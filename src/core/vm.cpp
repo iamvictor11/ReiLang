@@ -31,7 +31,7 @@ namespace luna
         parser.start();
         if (!_error_reporter.empty()) return;
     #ifdef LUNA_DEBUG_ENABLE
-        _printChunk(&_chunk);
+        _Chunk_debugPrint(&_chunk);
     #endif
     }
 #pragma region Run
@@ -121,6 +121,9 @@ namespace luna
             }
         }
         std::cout << std::endl;
+    #ifdef LUNA_DEBUG_ENABLE
+        std::cout << "stack: size " << _stack.size() << std::endl;
+    #endif
     }
     Bytecode VM::_readByte()
     {
