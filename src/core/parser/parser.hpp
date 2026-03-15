@@ -38,6 +38,8 @@ namespace luna
     private:
         void _program();
         void _parsePrecedence(Precedence precedence);
+        /// @param opt 0 def, 1 get, 2 set;
+        void _parseVariable(const std::string& name, Bytecode depth, uint8_t opt);
     private:
         void _expression();
         void _assignExpr();

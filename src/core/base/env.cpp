@@ -2,47 +2,147 @@
 
 namespace luna
 {
-    Bytecode Env::defGlobal(const std::string& name)
+    Env::Env()
     {
-        if (auto it = _map.find(name); it != _map.end())
+        enter();
+    }
+    Env::~Env()
+    {
+        exit();
+    }
+    void Env::enter()
+    {
+        _scopes.emplace_back();
+    }
+    void Env::exit()
+    {
+        _scopes.pop_back();
+    }
+    Bytecode Env::curr()
+    {
+        return _scopes.size() - 1;
+    }
+    void Env::clear()
+    {
+        _scopes.clear();
+        enter();
+    }
+    Bytecode Env::def(const std::string& name)
+    {
+        return def(name, Nil{}, curr());
+    }
+    Bytecode Env::def(const std::string& name, Value::Data value)
+    {
+        return def(name, value, curr());
+    }
+    Bytecode Env::def(const std::string& name, Value::Data value, Bytecode depth)
+    {
+        _Scope& curr = _scopes.at(depth);
+        if (auto it = curr.map.find(name); it != curr.map.end())
             return it->second;
-        Bytecode index = static_cast<Bytecode>(_vals.size());
-        _map[name] = index;
-        _vals.push_back(Nil{});
+        Bytecode index = static_cast<Bytecode>(curr.values.size());
+        curr.map[name] = index;
+        curr.values.push_back(value);
         return index;
     }
-    Value::Data Env::getGlobal(const std::string& name)
+    void Env::def(Bytecode index)
     {
-        auto it = _map.find(name);
-        if (it == _map.end())
-            return Nil{};
-        Bytecode index = it->second;
-        return _vals[index];
+        def(index, Nil{}, curr());
     }
-    Value::Data Env::getGlobal(Bytecode index)
+    void Env::def(Bytecode index, Value::Data value)
     {
-        if (index >= _vals.size())
-            return Nil{};
-        return _vals[index];
+        def(index, value, curr());
     }
-    void Env::setGlobal(const std::string& name, Value::Data value)
+    void Env::def(Bytecode index, Value::Data value, Bytecode depth)
     {
-        auto it = _map.find(name);
-        if (it == _map.end())
-            return;
-        Bytecode index = it->second;
-        if (index < _vals.size())
-            _vals[index] = value;
+        _Scope& scope = _scopes.at(depth);
+        if (index < scope.values.size())
+            scope.values.at(index) = value;
+        else
+            scope.values.push_back(value);
     }
-    void Env::setGlobal(Bytecode index, Value::Data value)
+    Value::Data Env::get(const std::string& name)
     {
-        if (index < _vals.size())
-            _vals[index] = value;
+        return get(name, curr());
     }
-    Bytecode Env::toIndex(const std::string& name) const
+    Value::Data Env::get(const std::string& name, Bytecode depth)
     {
-        auto it = _map.find(name);
-        if (it == _map.end())
+        for (;;)
+        {
+            _Scope& scope = _scopes.at(depth);
+            if (auto it = scope.map.find(name); it != scope.map.end())
+                return scope.values.at(it->second);
+            if (depth == 0)
+                break;
+            depth--;
+        }
+        return Nil{};
+    }
+    Value::Data Env::get(Bytecode index)
+    {
+        return get(index, curr());
+    }
+    Value::Data Env::get(Bytecode index, Bytecode depth)
+    {
+        for (;;)
+        {
+            _Scope& scope = _scopes.at(depth);
+            if (index < scope.values.size())
+                return scope.values.at(index);
+            if (depth == 0)
+                break;
+            depth--;
+        }
+        return Nil{};
+    }
+    void Env::set(const std::string& name, Value::Data value)
+    {
+        set(name, value, curr());
+    }
+    void Env::set(const std::string& name, Value::Data value, Bytecode depth)
+    {
+        for (;;)
+        {
+            _Scope& scope = _scopes.at(depth);
+            if (auto it = scope.map.find(name); it != scope.map.end())
+            {
+                Bytecode index = it->second;
+                scope.values.at(index) = value;
+                return;
+            }
+            if (depth == 0)
+                break;
+            depth--;
+        }
+    }
+    void Env::set(Bytecode index, Value::Data value)
+    {
+        set(index, value, curr());
+    }
+    void Env::set(Bytecode index, Value::Data value, Bytecode depth)
+    {
+        for (;;)
+        {
+            _Scope& scope = _scopes.at(depth);
+            if (index < scope.values.size())
+            {
+                scope.values.at(index) = value;
+                return;
+            }
+            if (depth == 0)
+                break;
+            depth--;
+        }
+    }
+    Bytecode Env::toIndex(const std::string& name)
+    {
+        return toIndex(name, curr());
+    }
+    Bytecode Env::toIndex(const std::string& name, Bytecode depth)
+    {
+        _Scope& curr = _scopes.at(depth);
+        auto it = curr.map.find(name);
+        if (it == curr.map.end())
             return LUNA_BYTECODE_MAX;
         return it->second;
     }

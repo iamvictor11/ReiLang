@@ -29,7 +29,12 @@ namespace luna
     #endif
         Parser parser {std::move(tokens), &_chunk, &_env, &_error_reporter};
         parser.start();
-        if (!_error_reporter.empty()) return;
+        if (!_error_reporter.empty())
+        {
+            _chunk.clear();
+            _env.clear();
+            return;
+        }
     #ifdef LUNA_DEBUG_ENABLE
         _Chunk_debugPrint(&_chunk);
     #endif
@@ -98,18 +103,21 @@ namespace luna
                 case OP_JUMP: break;
                 case OP_JUMP_IF_FALSE: break;
                 case OP_LOOP: break;
-                case OP_GET_GLOBAL:
+                case OP_DEF_VAR:
                 {
-                    _push(_env.getGlobal(_readByte()));
+                    _env.def(_readByte(), _pop());
                     break;
                 }
-                case OP_SET_GLOBAL:
+                case OP_GET_VAR:
                 {
-                    _env.setGlobal(_readByte(), _pop());
+                    _push(_env.get(_readByte()));
                     break;
                 }
-                case OP_GET_LOCAL: break;
-                case OP_SET_LOCAL: break;
+                case OP_SET_VAR:
+                {
+                    _env.set(_readByte(), _peek());
+                    break;
+                }
                 case OP_CALL: break;
                 default: break;
             }

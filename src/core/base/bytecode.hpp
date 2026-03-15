@@ -44,10 +44,9 @@ namespace luna
         OP_JUMP,
         OP_JUMP_IF_FALSE,
         OP_LOOP,
-        OP_GET_GLOBAL,
-        OP_SET_GLOBAL,
-        OP_GET_LOCAL,
-        OP_SET_LOCAL,
+        OP_DEF_VAR,
+        OP_GET_VAR,
+        OP_SET_VAR,
         OP_CALL
     };
 }

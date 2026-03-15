@@ -256,9 +256,21 @@ namespace luna
         return npos;
     }
 #pragma endregion
+#pragma region Chunk
+void Chunk::clear()
+{
+    constants.clear();
+    codes.clear();
+}
+#pragma endregion
 #pragma region Function
 Value::Data Function::call(VM* vm, std::vector<Value::Data>& args)
 {
+    if (vm)
+    {
+        return Integer(args.size());
+    }
+    return Nil{};
 }
 #pragma endregion
 }

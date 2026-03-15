@@ -6,49 +6,128 @@ namespace luna
 {
     static void _Chunk_debugPrint(Chunk* chunk)
     {
-        for (size_t i = 0; i < chunk->codes.size(); i++)
+        for (size_t i = 0;i < chunk->codes.size();i++)
         {
             auto instruction = static_cast<Opcode>(chunk->codes[i]);
             switch (instruction)
             {
-                case OP_CONSTANT: i++; printf("CONSTANT %s\n", Value::getDebugString(chunk->constants[chunk->codes[i]]).c_str()); break;
-                case OP_POP: printf("POP\n"); break;
-                case OP_NIL: printf("NIL\n"); break;
-                case OP_TRUE: printf("TRUE\n"); break;
-                case OP_FALSE: printf("FALSE\n"); break;
-                case OP_NEG: printf("NEG\n"); break;
-                case OP_ADD: printf("ADD\n"); break;
-                case OP_SUB: printf("SUB\n"); break;
-                case OP_MUL: printf("MUL\n"); break;
-                case OP_DIV: printf("DIV\n"); break;
-                case OP_MOD: printf("MOD\n"); break;
-                case OP_POW: printf("POW\n"); break;
-                case OP_BIT_AND: printf("BIT AND\n"); break;
-                case OP_BIT_OR: printf("BIT OR\n"); break;
-                case OP_BIT_XOR: printf("BIT XOR\n"); break;
-                case OP_BIT_XNOR: printf("BIT XNOR\n"); break;
-                case OP_BIT_SHL: printf("BIT SHL\n"); break;
-                case OP_BIT_SHR: printf("BIT SHR\n"); break;
-                case OP_EQ: printf("EQ\n"); break;
-                case OP_NE: printf("NE\n"); break;
-                case OP_LT: printf("LT\n"); break;
-                case OP_LE: printf("LE\n"); break;
-                case OP_GT: printf("GT\n"); break;
-                case OP_GE: printf("GE\n"); break;
-                case OP_AND: printf("AND\n"); break;
-                case OP_OR: printf("OR\n"); break;
-                case OP_PRINT: printf("PRINT\n"); break;
-                case OP_PRINTLN: printf("PRINTLN\n"); break;
-                case OP_RETURN: printf("RETURN\n"); break;
-                case OP_JUMP: printf("JUMP\n"); break;
-                case OP_JUMP_IF_FALSE: printf("JUMP IF FALSE\n"); break;
-                case OP_LOOP: printf("LOOP\n"); break;
-                case OP_GET_GLOBAL: i++; printf("GET GLOBAL %s\n", Value::getDebugString(chunk->constants[chunk->codes[i]]).c_str()); break;
-                case OP_SET_GLOBAL: i++; printf("SET GLOBAL %s\n", Value::getDebugString(chunk->constants[chunk->codes[i]]).c_str()); break;
-                case OP_GET_LOCAL: printf("GET LOCAL\n"); break;
-                case OP_SET_LOCAL: printf("SET LOCAL\n"); break;
-                case OP_CALL: printf("CALL\n"); break;
-                default: break;
+                case OP_CONSTANT:
+                {
+                    i++;
+                    Bytecode ci = chunk->codes[i];
+                    printf("%-16s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::getDebugString(chunk->constants[ci]).c_str());
+                    break;
+                }
+                case OP_POP:
+                    printf("%-16s\n", "POP");
+                    break;
+                case OP_NIL:
+                    printf("%-16s\n", "NIL");
+                    break;
+                case OP_TRUE:
+                    printf("%-16s\n", "TRUE");
+                    break;
+                case OP_FALSE:
+                    printf("%-16s\n", "FALSE");
+                    break;
+                case OP_NEG:
+                    printf("%-16s\n", "NEG");
+                    break;
+                case OP_ADD:
+                    printf("%-16s\n", "ADD");
+                    break;
+                case OP_SUB:
+                    printf("%-16s\n", "SUB");
+                    break;
+                case OP_MUL:
+                    printf("%-16s\n", "MUL");
+                    break;
+                case OP_DIV:
+                    printf("%-16s\n", "DIV");
+                    break;
+                case OP_MOD:
+                    printf("%-16s\n", "MOD");
+                    break;
+                case OP_POW:
+                    printf("%-16s\n", "POW");
+                    break;
+                case OP_BIT_AND:
+                    printf("%-16s\n", "BIT AND");
+                    break;
+                case OP_BIT_OR:
+                    printf("%-16s\n", "BIT OR");
+                    break;
+                case OP_BIT_XOR:
+                    printf("%-16s\n", "BIT XOR");
+                    break;
+                case OP_BIT_XNOR:
+                    printf("%-16s\n", "BIT XNOR");
+                    break;
+                case OP_BIT_SHL:
+                    printf("%-16s\n", "BIT SHL");
+                    break;
+                case OP_BIT_SHR:
+                    printf("%-16s\n", "BIT SHR");
+                    break;
+                case OP_EQ:
+                    printf("%-16s\n", "EQ");
+                    break;
+                case OP_NE:
+                    printf("%-16s\n", "NE");
+                    break;
+                case OP_LT:
+                    printf("%-16s\n", "LT");
+                    break;
+                case OP_LE:
+                    printf("%-16s\n", "LE");
+                    break;
+                case OP_GT:
+                    printf("%-16s\n", "GT");
+                    break;
+                case OP_GE:
+                    printf("%-16s\n", "GE");
+                    break;
+                case OP_AND:
+                    printf("%-16s\n", "AND");
+                    break;
+                case OP_OR:
+                    printf("%-16s\n", "OR");
+                    break;
+                case OP_PRINT:
+                    printf("%-16s\n", "PRINT");
+                    break;
+                case OP_PRINTLN:
+                    printf("%-16s\n", "PRINTLN");
+                    break;
+                case OP_RETURN:
+                    printf("%-16s\n", "RETURN");
+                    break;
+                case OP_JUMP:
+                    printf("%-16s\n", "JUMP");
+                    break;
+                case OP_JUMP_IF_FALSE:
+                    printf("%-16s\n", "JUMP IF FALSE");
+                    break;
+                case OP_LOOP:
+                    printf("%-16s\n", "LOOP");
+                    break;
+                case OP_DEF_VAR:
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "DEF VAR", chunk->codes[i]);
+                    break;
+                case OP_GET_VAR:
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "GET VAR", chunk->codes[i]);
+                    break;
+                case OP_SET_VAR:
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "SET VAR", chunk->codes[i]);
+                    break;
+                case OP_CALL:
+                    printf("%-16s\n", "CALL");
+                    break;
+                default:
+                    break;
             }
         }
     }

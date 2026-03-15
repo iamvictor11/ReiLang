@@ -11,9 +11,9 @@ namespace luna
     {
     private:
         Chunk _chunk;
+        Env _env;
         Bytecode* _ip;
         std::vector<Value::Data> _stack;
-        Env _env;
         Error::Reporter _error_reporter;
     public:
         VM() = default;

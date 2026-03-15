@@ -251,66 +251,54 @@ namespace luna
         if (_match({TK_ASSIGN}))
         {
             _assignExpr();
-            Bytecode global = _env->toIndex(std::string{vn.lexeme});
-            _emitB(OP_SET_GLOBAL);
-            _emitB(global);
-            _emitB(OP_GET_GLOBAL);
-            _emitB(global);
+            Bytecode vi = _env->toIndex(std::string{vn.lexeme});
+            _emitB(OP_SET_VAR);
+            _emitB(vi);
+            _emitB(OP_GET_VAR);
+            _emitB(vi);
         }
         else if (_match({TK_WALRUS}))
         {
-            Bytecode global = _env->defGlobal(std::string{vn.lexeme});
+            Bytecode vi = _env->def(std::string{vn.lexeme});
             _expression();
-            _emitB(OP_SET_GLOBAL);
-            _emitB(global);
-            _emitB(OP_GET_GLOBAL);
-            _emitB(global);
+            _emitB(OP_DEF_VAR);
+            _emitB(vi);
+            _emitB(OP_GET_VAR);
+            _emitB(vi);
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
             TK_SELF_BIT_AND, TK_SELF_BIT_OR, TK_SELF_BIT_XOR, TK_SELF_BIT_XNOR, TK_SELF_BIT_NOT, TK_SELF_BIT_SHL, TK_SELF_BIT_SHR
         }))
         {
-            _emitB(OP_GET_GLOBAL);
-            Bytecode global = _env->toIndex(std::string{vn.lexeme});
-            _emitB(global);
+            _emitB(OP_GET_VAR);
+            Bytecode vi = _env->toIndex(std::string{vn.lexeme});
+            _emitB(vi);
             _assignExpr();
-            _emitB(OP_SET_GLOBAL);
-            _emitB(global);
-            _emitB(OP_GET_GLOBAL);
-            _emitB(global);
+            _emitB(OP_SET_VAR);
+            _emitB(vi);
+            _emitB(OP_GET_VAR);
+            _emitB(vi);
         }
         else
         {
-            Bytecode global = _env->toIndex(std::string{vn.lexeme});
-            _emitB(OP_GET_GLOBAL);
-            _emitB(global);
+            Bytecode vi = _env->toIndex(std::string{vn.lexeme});
+            _emitB(OP_GET_VAR);
+            _emitB(vi);
         }
     }
 #pragma endregion
 #pragma region Stmt
     void Parser::_statement()
     {
-        if (_match({TK_VAR, TK_LET}))
-        {
-        }
+        if (_match({TK_LBRACE}))
+            _blockStmt();
         else if (_match({TK_IF}))
-        {
-        }
+            _ifStmt();
         else if (_match({TK_LOOP}))
-        {
-        }
-        else if (_match({TK_RETURN}))
-        {
-            if (!_match({TK_SEMICOLON}))
-            {
-                _exprStmt();
-            }
-        }
+            _loopStmt();
         else if (_match({TK_PRINT, TK_PRINTLN}))
-        {
             _printStmt();
-        }
         else if (_match({TK_SEMICOLON}))
         {
         }
@@ -327,6 +315,11 @@ namespace luna
     }
     void Parser::_blockStmt()
     {
+        _env->enter();
+        while (!_check(TK_RBRACE) && !_isAtEnd())
+            _declaration();
+        _consume(TK_RBRACE, "语句块期望以'}'结束");
+        _env->exit();
     }
     void Parser::_ifStmt()
     {
@@ -343,9 +336,10 @@ namespace luna
     }
 #pragma endregion
 #pragma region Decl
+
     void Parser::_declaration()
     {
-        if (_match({TK_VAR}))
+        if (_match({TK_VAR, TK_LET}))
             _varDecl();
         else if (_match({TK_FUNC}))
             _funcDecl();
@@ -359,14 +353,14 @@ namespace luna
     void Parser::_varDecl()
     {
         _consume(TK_IDENT, "变量期望用标识符标记");
-        Bytecode global = _env->defGlobal(std::string{_prev().lexeme});
+        Bytecode vi = _env->def(std::string{_prev().lexeme});
         if (_match({TK_ASSIGN}))
             _expression();
         else
             _emitB(OP_NIL);
+        _emitB(OP_DEF_VAR);
+        _emitB(vi);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
-        _emitB(OP_SET_GLOBAL);
-        _emitB(global);
     }
     void Parser::_funcDecl()
     {

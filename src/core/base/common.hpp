@@ -126,8 +126,11 @@ namespace luna
     };
     struct Chunk final
     {
+    public:
         std::vector<Value::Data> constants {};
         std::vector<Bytecode> codes {};
+    public:
+        void clear();
     };
     struct Function final : public std::enable_shared_from_this<Function>
     {
