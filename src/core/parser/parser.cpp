@@ -132,7 +132,7 @@ namespace rei
     void Parser::_parsePrecedence(Precedence precedence)
     {
         _advance();
-        _Fnuc prefixRule = _rules_s[_prev().type].prefix;
+        _MyFnuc prefixRule = _rules_s[_prev().type].prefix;
         if (prefixRule == nullptr)
         {
             _reporterError(std::format("{} 期望前缀表达式", Token::toString(_prev().type)));
@@ -142,7 +142,7 @@ namespace rei
         while (_rules_s[_peek().type].precedence >= precedence)
         {
             _advance();
-            _Fnuc infixRule = _rules_s[_prev().type].infix;
+            _MyFnuc infixRule = _rules_s[_prev().type].infix;
             if (infixRule == nullptr) break;
             (this->*infixRule)();
         }
@@ -204,7 +204,7 @@ namespace rei
         _Rule& rule = _rules_s[op];
         if (op == TK_AND || op == TK_OR)
         {
-            size_t jump_pos = _chunk->codes.size();
+            Bytecode jump_pos = _chunk->codes.size();
             _emitB(op == TK_AND ? OP_AND : OP_OR);
             _emitB(0);
             _parsePrecedence(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
@@ -302,6 +302,10 @@ namespace rei
             _ifStmt();
         else if (_match({TK_LOOP}))
             _loopStmt();
+        else if (_match({TK_BREAK}))
+            _breakStmt();
+        else if (_match({TK_CONTINUE}))
+            _continueStmt();
         else if (_match({TK_PRINT, TK_PRINTLN}))
             _printStmt();
         else if (_match({TK_SEMICOLON}))
@@ -331,13 +335,13 @@ namespace rei
     void Parser::_ifStmt()
     {
         _expression();
-        size_t if_jump_pos = _chunk->codes.size();
+        Bytecode if_jump_pos = _chunk->codes.size();
         _emitB(OP_JMPF);
         _emitB(0);
         _statement();
         if (_match({TK_ELSE}))
         {
-            size_t else_jump_pos = _chunk->codes.size();
+            Bytecode else_jump_pos = _chunk->codes.size();
             _emitB(OP_JUMP);
             _emitB(0);
             _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
@@ -346,20 +350,69 @@ namespace rei
         }
         else if (_match({TK_ELIF}))
         {
-            size_t else_jump_pos = _chunk->codes.size();
+            Bytecode else_jump_pos = _chunk->codes.size();
             _emitB(OP_JUMP);
             _emitB(0);
-            _patchB(if_jump_pos + 1, _chunk->codes.size() - if_jump_pos - 2);
+            _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
             _ifStmt();
-            _patchB(else_jump_pos + 1, _chunk->codes.size() - else_jump_pos - 2);
+            _patchB(else_jump_pos + 1, _chunk->codes.size() - (else_jump_pos + 2));
         }
         else
         {
-            _patchB(if_jump_pos + 1, _chunk->codes.size() - if_jump_pos - 2);
+            _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
         }
     }
     void Parser::_loopStmt()
     {
+        Bytecode start_pos = _chunk->codes.size();
+        auto& loop = _loops.emplace_back();
+        loop.start = start_pos;
+        _expression();
+        Bytecode loop_jump_pos = _chunk->codes.size();
+        _emitB(OP_JMPF);
+        _emitB(0);
+        loop.depth = _env->curr();
+        _statement();
+        _emitB(OP_JUMP);
+        _emitB(start_pos - (_chunk->codes.size() + 1));
+        Bytecode end_pos = _chunk->codes.size();
+        _patchB(loop_jump_pos + 1, end_pos - (loop_jump_pos + 2));
+        for (Bytecode bpos : _loops.back().breaks)
+            _patchB(bpos + 1, end_pos - (bpos + 2));
+        _loops.pop_back();
+    }
+    void Parser::_breakStmt()
+    {
+        if (_loops.empty())
+        {
+            _reporterError("中断语句不在循环中");
+            return;
+        }
+        auto& loop = _loops.back();
+        Bytecode diff = _env->curr() - loop.depth;
+        for (Bytecode i = 0; i < diff; i++)
+            _emitB(OP_END);
+        Bytecode pos = _chunk->codes.size();
+        _emitB(OP_JUMP);
+        _emitB(0);
+        loop.breaks.push_back(pos);
+        _consume(TK_SEMICOLON, "中断语句期望以';'结束");
+    }
+    void Parser::_continueStmt()
+    {
+        if (_loops.empty())
+        {
+            _reporterError("继续语句不在循环中");
+            return;
+        }
+        auto& loop = _loops.back();
+        Bytecode diff = _env->curr() - loop.depth;
+        for (Bytecode i = 0; i < diff; i++)
+            _emitB(OP_END);
+        Bytecode start = loop.start;
+        _emitB(OP_JUMP);
+        _emitB(start - _chunk->codes.size());
+        _consume(TK_SEMICOLON, "继续语句期望以';'结束");
     }
     void Parser::_printStmt()
     {
@@ -481,7 +534,7 @@ namespace rei
         _chunk->constants.push_back(value);
         return static_cast<Bytecode>(_chunk->constants.size() - 1);
     }
-    void Parser::_patchB(size_t pos, Bytecode op)
+    void Parser::_patchB(Bytecode pos, Bytecode op)
     {
         if (pos >= _chunk->codes.size())
         {

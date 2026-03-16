@@ -9,17 +9,25 @@ namespace rei
     class Parser
     {
     private:
-        using _Fnuc = void(Parser::*)();
+        using _MyFnuc = void(Parser::*)();
         struct _Rule final
         {
-            _Fnuc prefix;
-            _Fnuc infix;
-            _Fnuc suffix;
+            _MyFnuc prefix;
+            _MyFnuc infix;
+            _MyFnuc suffix;
             Precedence precedence;
             uint8_t is_left_assoc;
         };
     private:
+        struct _LoopCtx final
+        {
+            Bytecode start;
+            Bytecode depth;
+            std::vector<Bytecode> breaks;
+        };
+    private:
         static _Rule _rules_s[];
+        std::vector<_LoopCtx> _loops {};
     private:
         Token::List _tokens;
         Chunk* _chunk;
@@ -54,6 +62,8 @@ namespace rei
         void _blockStmt();
         void _ifStmt();
         void _loopStmt();
+        void _breakStmt();
+        void _continueStmt();
         void _printStmt();
     private:
         void _declaration();
@@ -74,7 +84,7 @@ namespace rei
     private:
         void _emitB(Bytecode op);
         Bytecode _emitC(Value::Data value);
-        void _patchB(size_t pos, Bytecode op);
+        void _patchB(Bytecode pos, Bytecode op);
     private:
         void _reporterError(const std::string& msg);
     };

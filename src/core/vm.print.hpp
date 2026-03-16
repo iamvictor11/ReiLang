@@ -112,15 +112,15 @@ namespace rei
                     break;
                 case OP_JUMP:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "JUMP", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JUMP", chunk->codes[i]);
                     break;
                 case OP_JMPT:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "JMPT", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JMPT", chunk->codes[i]);
                     break;
                 case OP_JMPF:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "JMPF", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JMPF", chunk->codes[i]);
                     break;
                 case OP_LOOP:
                     printf("%-16s\n", "LOOP");

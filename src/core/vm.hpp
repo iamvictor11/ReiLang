@@ -26,7 +26,7 @@ namespace rei
     private:
         Bytecode _readByte();
         Value::Data _readConstant();
-        void _jump(size_t offset);
+        void _jump(Bytecode offset);
     private:
         void _push(Value::Data value);
         Value::Data _pop();

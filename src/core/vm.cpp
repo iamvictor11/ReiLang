@@ -188,9 +188,9 @@ namespace rei
         size_t index = _readByte();
         return _chunk.constants[index];
     }
-    void VM::_jump(size_t offset)
+    void VM::_jump(Bytecode offset)
     {
-        _ip += offset;
+        _ip += static_cast<REI_BYTECODE_INT>(offset);
     }
 #pragma endregion
 #pragma region Stack
