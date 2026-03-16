@@ -17,7 +17,6 @@ namespace rei
             Bytecode depth = REI_BYTECODE_MAX;
             Bytecode index = REI_BYTECODE_MAX;
         };
-        
     private:
         std::vector<_Scope> _scopes {};
     public:
