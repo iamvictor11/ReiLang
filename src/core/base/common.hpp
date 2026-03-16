@@ -40,7 +40,11 @@ namespace rei
         Float toFloat(const Value::Data& data);
         std::string toString(Value::Data data);
         template<typename T>
-        uintptr_t toAddress(const Ref<T>& ref);
+        uintptr_t toAddress(const Ref<T>& ref)
+        {
+            if (!ref) return 0;
+            return reinterpret_cast<uintptr_t>(&(*ref));
+        }
         std::string getDebugString(Value::Data data);
     }
 

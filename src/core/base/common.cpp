@@ -108,12 +108,6 @@ namespace rei
                     return "unknown";
             }, data);
         }
-        template<typename T>
-        uintptr_t toAddress(const Ref<T>& ref)
-        {
-            if (!ref) return 0;
-            return reinterpret_cast<uintptr_t>(&(*ref));
-        }
         std::string getDebugString(Value::Data data)
         {
             return std::visit([](auto&& arg) -> std::string
