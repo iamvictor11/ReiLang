@@ -390,6 +390,15 @@ namespace rei
             _reporterError("中断语句不在循环中");
             return;
         }
+        // Integer level = 1;
+        // if (_match({TK_LIT_INT}))
+        //     level = Value::toInteger(_prev().literal);
+        // if (level <= 0 || level > _loops.size())
+        // {
+        //     _reporterError("循环层级超出范围");
+        //     return;
+        // }
+        // auto& loop = _loops.at(_loops.size() - level);
         auto& loop = _loops.back();
         Bytecode diff = _env->curr() - loop.depth;
         for (Bytecode i = 0; i < diff; i++)
@@ -407,6 +416,15 @@ namespace rei
             _reporterError("继续语句不在循环中");
             return;
         }
+        // Integer level = 1;
+        // if (_match({TK_LIT_INT}))
+        //     level = Value::toInteger(_prev().literal);
+        // if (level <= 0 || level > _loops.size())
+        // {
+        //     _reporterError("循环层级超出范围");
+        //     return;
+        // }
+        // auto& loop = _loops.at(_loops.size() - level);
         auto& loop = _loops.back();
         Bytecode diff = _env->curr() - loop.depth;
         for (Bytecode i = 0; i < diff; i++)
