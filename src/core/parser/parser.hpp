@@ -80,7 +80,7 @@ namespace rei
         bool _check(Token::Type type);
         bool _check(std::initializer_list<Token::Type> types);
         bool _match(std::initializer_list<Token::Type> types);
-        Token::Unit& _consume(Token::Type type, const std::string& message);
+        void _consume(Token::Type type, const std::string& message);
     private:
         void _emitB(Bytecode op);
         Bytecode _emitC(Value::Data value);

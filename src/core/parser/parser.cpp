@@ -514,11 +514,16 @@ namespace rei
         _advance();
         return true;
     }
-    Token::Unit& Parser::_consume(Token::Type type, const std::string& message)
+    void Parser::_consume(Token::Type type, const std::string& message)
     {
-        if (_check(type)) return _advance();
+        if (_check(type))
+        {
+            _pass();
+            return;
+        }
+        // if (type == TK_SEMICOLON)
+        //     return;
         _reporterError(message);
-        return *_cursor.curr;
     }
 #pragma endregion
 #pragma region Emit
