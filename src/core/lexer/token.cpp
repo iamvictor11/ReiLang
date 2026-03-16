@@ -30,6 +30,7 @@ namespace rei::Token
                 {"elif", TK_ELIF},
                 {"else", TK_ELSE},
                 {"loop", TK_LOOP},
+                {"until", TK_UNTIL},
                 {"continue", TK_CONTINUE},
                 {"break", TK_BREAK},
                 {"func", TK_FUNC},
@@ -57,12 +58,13 @@ namespace rei::Token
                 {"print", TK_PRINT},
                 {"println", TK_PRINTLN},
 
+                {"when", TK_IF},
                 {"while", TK_LOOP},
                 {"echo", TK_PRINTLN},
 
-                {"do", TK_LBRACE},
-                {"then", TK_LBRACE},
                 {"beg", TK_LBRACE},
+                {"then", TK_LBRACE},
+                {"do", TK_LBRACE},
                 {"end", TK_RBRACE},
                 {"done", TK_RBRACE}
             });

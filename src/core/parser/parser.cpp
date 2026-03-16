@@ -74,6 +74,7 @@ namespace rei
         [TK_ELIF]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_ELSE]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LOOP]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_UNTIL]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_CONTINUE]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_BREAK]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_FUNC]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -300,7 +301,7 @@ namespace rei
             _blockStmt();
         else if (_match({TK_IF}))
             _ifStmt();
-        else if (_match({TK_LOOP}))
+        else if (_match({TK_LOOP, TK_UNTIL}))
             _loopStmt();
         else if (_match({TK_BREAK}))
             _breakStmt();
@@ -364,12 +365,13 @@ namespace rei
     }
     void Parser::_loopStmt()
     {
+        Token::Type loop_tk = _prev().type;
         Bytecode start_pos = _chunk->codes.size();
         auto& loop = _loops.emplace_back();
         loop.start = start_pos;
         _expression();
         Bytecode loop_jump_pos = _chunk->codes.size();
-        _emitB(OP_JMPF);
+        _emitB(loop_tk == TK_LOOP ? OP_JMPF : OP_JMPT);
         _emitB(0);
         loop.depth = _env->curr();
         _statement();
