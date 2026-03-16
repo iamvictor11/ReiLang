@@ -39,9 +39,9 @@ namespace vic
         if (!_error_reporter.empty())
         {
             _chunk.clear();
-            _env.clear();
             return;
         }
+        _env.clear();
     #ifdef VIC_DEBUG_ENABLE
         _Chunk_debugPrint(&_chunk);
     #endif
@@ -98,8 +98,25 @@ namespace vic
                     break;
                 }
                 case OP_AND:
-                case OP_OR:
+                {
+                    Bytecode offset = _readByte();
+                    if (!Value::toBoolean(_pop()))
+                    {
+                        _jump(offset);
+                        _push(false);
+                    }
                     break;
+                }
+                case OP_OR:
+                {
+                    Bytecode offset = _readByte();
+                    if (Value::toBoolean(_pop()))
+                    {
+                        _jump(offset);
+                        _push(true);
+                    }
+                    break;
+                }
                 case OP_BEG:
                     _env.enter();
                     break;
@@ -113,22 +130,39 @@ namespace vic
                     std::cout << Value::toString(_pop()) << std::endl;
                     break;
                 case OP_RETURN: break;
-                case OP_JUMP: break;
-                case OP_JUMP_IF_FALSE: break;
+                case OP_JUMP:
+                {
+                    _jump(_readByte());
+                    break;
+                }
+                case OP_JMPT:
+                {
+                    Bytecode offset = _readByte();
+                    if (Value::toBoolean(_pop()))
+                        _jump(offset);
+                    break;
+                }
+                case OP_JMPF:
+                {
+                    Bytecode offset = _readByte();
+                    if (!Value::toBoolean(_pop()))
+                        _jump(offset);
+                    break;
+                }
                 case OP_LOOP: break;
                 case OP_DEF_VAR:
                 {
-                    _env.def(_readByte(), _peek());
+                    _env.def(Value::toString(_readConstant()), _peek());
                     break;
                 }
                 case OP_GET_VAR:
                 {
-                    _push(_env.get(_readByte()));
+                    _push(_env.get(Env::Coord{_readByte(), _readByte()}));
                     break;
                 }
                 case OP_SET_VAR:
                 {
-                    _env.set(_readByte(), _peek());
+                    _env.set(Env::Coord{_readByte(), _readByte()}, _peek());
                     break;
                 }
                 case OP_CALL: break;
@@ -143,6 +177,8 @@ namespace vic
             std::cout << Value::getDebugString(_stack[i]) << std::endl;
     #endif
     }
+#pragma endregion
+#pragma region Chunk
     Bytecode VM::_readByte()
     {
         return *_ip++;
@@ -152,6 +188,12 @@ namespace vic
         size_t index = _readByte();
         return _chunk.constants[index];
     }
+    void VM::_jump(size_t offset)
+    {
+        _ip += offset;
+    }
+#pragma endregion
+#pragma region Stack
     void VM::_push(Value::Data value)
     {
         _stack.push_back(value);

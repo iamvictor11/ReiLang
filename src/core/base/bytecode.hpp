@@ -44,7 +44,8 @@ namespace vic
         OP_PRINTLN, // println
         OP_RETURN,  // return
         OP_JUMP,
-        OP_JUMP_IF_FALSE,
+        OP_JMPT,
+        OP_JMPF,
         OP_LOOP,
         OP_DEF_VAR,
         OP_GET_VAR,

@@ -11,6 +11,13 @@ namespace vic
             std::unordered_map<std::string, Bytecode> map {};
             std::vector<Value::Data> values {};
         };
+    public:
+        struct Coord final
+        {
+            Bytecode depth = VIC_BYTECODE_MAX;
+            Bytecode index = VIC_BYTECODE_MAX;
+        };
+        
     private:
         std::vector<_Scope> _scopes {};
     public:
@@ -23,24 +30,19 @@ namespace vic
     public:
         void clear();
     public:
-        Bytecode def(const std::string& name);
-        Bytecode def(const std::string& name, Value::Data value);
-        Bytecode def(const std::string& name, Value::Data value, Bytecode depth);
-        void def(Bytecode index);
-        void def(Bytecode index, Value::Data value);
-        void def(Bytecode index, Value::Data value, Bytecode depth);
+        Coord def(const std::string& name);
+        Coord def(const std::string& name, Value::Data value);
+        Coord def(const std::string& name, Value::Data value, Bytecode depth);
     public:
         Value::Data get(const std::string& name);
         Value::Data get(const std::string& name, Bytecode depth);
-        Value::Data get(Bytecode index);
-        Value::Data get(Bytecode index, Bytecode depth);
+        Value::Data get(Coord c);
     public:
         void set(const std::string& name, Value::Data value);
         void set(const std::string& name, Value::Data value, Bytecode depth);
-        void set(Bytecode index, Value::Data value);
-        void set(Bytecode index, Value::Data value, Bytecode depth);
+        void set(Coord c, Value::Data value);
     public:
-        Bytecode toIndex(const std::string& name);
-        Bytecode toIndex(const std::string& name, Bytecode depth);
+        Coord toCoord(const std::string& name);
+        Coord toCoord(const std::string& name, Bytecode depth);
     };
 }

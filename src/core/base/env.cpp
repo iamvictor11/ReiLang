@@ -1,4 +1,5 @@
 #include "env.hpp"
+#include <iostream>
 
 namespace vic
 {
@@ -27,39 +28,23 @@ namespace vic
         _scopes.clear();
         enter();
     }
-    Bytecode Env::def(const std::string& name)
+    Env::Coord Env::def(const std::string& name)
     {
         return def(name, Nil{}, curr());
     }
-    Bytecode Env::def(const std::string& name, Value::Data value)
+    Env::Coord Env::def(const std::string& name, Value::Data value)
     {
         return def(name, value, curr());
     }
-    Bytecode Env::def(const std::string& name, Value::Data value, Bytecode depth)
-    {
-        _Scope& curr = _scopes.at(depth);
-        if (auto it = curr.map.find(name); it != curr.map.end())
-            return it->second;
-        Bytecode index = static_cast<Bytecode>(curr.values.size());
-        curr.map[name] = index;
-        curr.values.push_back(value);
-        return index;
-    }
-    void Env::def(Bytecode index)
-    {
-        def(index, Nil{}, curr());
-    }
-    void Env::def(Bytecode index, Value::Data value)
-    {
-        def(index, value, curr());
-    }
-    void Env::def(Bytecode index, Value::Data value, Bytecode depth)
+    Env::Coord Env::def(const std::string& name, Value::Data value, Bytecode depth)
     {
         _Scope& scope = _scopes.at(depth);
-        if (index < scope.values.size())
-            scope.values.at(index) = value;
-        else
-            scope.values.push_back(value);
+        if (auto it = scope.map.find(name); it != scope.map.end())
+            return {depth, it->second};
+        Bytecode index = static_cast<Bytecode>(scope.values.size());
+        scope.map[name] = index;
+        scope.values.push_back(value);
+        return {depth, index};
     }
     Value::Data Env::get(const std::string& name)
     {
@@ -78,12 +63,12 @@ namespace vic
         }
         return Nil{};
     }
-    Value::Data Env::get(Bytecode index)
+    Value::Data Env::get(Coord c)
     {
-        return get(index, curr());
-    }
-    Value::Data Env::get(Bytecode index, Bytecode depth)
-    {
+        if (c.depth == VIC_BYTECODE_MAX) return Nil{};
+        if (c.index == VIC_BYTECODE_MAX) return Nil{};
+        Bytecode depth = c.depth;
+        Bytecode index = c.index;
         for (;;)
         {
             _Scope& scope = _scopes.at(depth);
@@ -115,12 +100,12 @@ namespace vic
             depth--;
         }
     }
-    void Env::set(Bytecode index, Value::Data value)
+    void Env::set(Coord c, Value::Data value)
     {
-        set(index, value, curr());
-    }
-    void Env::set(Bytecode index, Value::Data value, Bytecode depth)
-    {
+        if (c.depth == VIC_BYTECODE_MAX) return;
+        if (c.index == VIC_BYTECODE_MAX) return;
+        Bytecode depth = c.depth;
+        Bytecode index = c.index;
         for (;;)
         {
             _Scope& scope = _scopes.at(depth);
@@ -134,16 +119,21 @@ namespace vic
             depth--;
         }
     }
-    Bytecode Env::toIndex(const std::string& name)
+    Env::Coord Env::toCoord(const std::string& name)
     {
-        return toIndex(name, curr());
+        return toCoord(name, curr());
     }
-    Bytecode Env::toIndex(const std::string& name, Bytecode depth)
+    Env::Coord Env::toCoord(const std::string& name, Bytecode depth)
     {
-        _Scope& curr = _scopes.at(depth);
-        auto it = curr.map.find(name);
-        if (it == curr.map.end())
-            return VIC_BYTECODE_MAX;
-        return it->second;
+        for (;;)
+        {
+            _Scope& scope = _scopes.at(depth);
+            if (auto it = scope.map.find(name); it != scope.map.end())
+                return {depth, it->second};
+            if (depth == 0)
+                break;
+            depth--;
+        }
+        return {};
     }
 }

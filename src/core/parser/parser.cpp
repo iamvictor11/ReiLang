@@ -202,6 +202,15 @@ namespace vic
     {
         Token::Type op = _prev().type;
         _Rule& rule = _rules_s[op];
+        if (op == TK_AND || op == TK_OR)
+        {
+            size_t jump_pos = _chunk->codes.size();
+            _emitB(op == TK_AND ? OP_AND : OP_OR);
+            _emitB(0);
+            _parsePrecedence(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
+            _patchB(jump_pos + 1, _chunk->codes.size() - (jump_pos + 2));
+            return;
+        }
         _parsePrecedence(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
         switch (op)
         {
@@ -223,8 +232,6 @@ namespace vic
             case TK_LE:     _emitB(Opcode::OP_LE); break;
             case TK_GT:     _emitB(Opcode::OP_GT); break;
             case TK_GE:     _emitB(Opcode::OP_GE); break;
-            case TK_AND:    _emitB(Opcode::OP_AND); break;
-            case TK_OR:     _emitB(Opcode::OP_OR); break;
             default: _reporterError("未知的二元运算符");
         }
     }
@@ -247,38 +254,42 @@ namespace vic
     }
     void Parser::_varExpr()
     {
-        auto& vn = _prev();
+        Token::Unit& vu = _prev();
         if (_match({TK_ASSIGN}))
         {
             _assignExpr();
-            Bytecode vi = _env->toIndex(std::string{vn.lexeme});
+            Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_SET_VAR);
-            _emitB(vi);
+            _emitB(varc.depth);
+            _emitB(varc.index);
         }
         else if (_match({TK_WALRUS}))
         {
-            Bytecode vi = _env->def(std::string{vn.lexeme});
+            _env->def(std::string{vu.lexeme});
             _expression();
             _emitB(OP_DEF_VAR);
-            _emitB(vi);
+            _emitB(_emitC(std::string{vu.lexeme}));
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
             TK_SELF_BIT_AND, TK_SELF_BIT_OR, TK_SELF_BIT_XOR, TK_SELF_BIT_XNOR, TK_SELF_BIT_NOT, TK_SELF_BIT_SHL, TK_SELF_BIT_SHR
         }))
         {
-            Bytecode vi = _env->toIndex(std::string{vn.lexeme});
+            Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(vi);
+            _emitB(varc.depth);
+            _emitB(varc.index);
             _assignExpr();
             _emitB(OP_SET_VAR);
-            _emitB(vi);
+            _emitB(varc.depth);
+            _emitB(varc.index);
         }
         else
         {
-            Bytecode vi = _env->toIndex(std::string{vn.lexeme});
+            Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(vi);
+            _emitB(varc.depth);
+            _emitB(varc.index);
         }
     }
 #pragma endregion
@@ -320,6 +331,32 @@ namespace vic
     void Parser::_ifStmt()
     {
         _expression();
+        size_t if_jump_pos = _chunk->codes.size();
+        _emitB(OP_JMPF);
+        _emitB(0);
+        _statement();
+        if (_match({TK_ELSE}))
+        {
+            size_t else_jump_pos = _chunk->codes.size();
+            _emitB(OP_JUMP);
+            _emitB(0);
+            _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
+            _statement();
+            _patchB(else_jump_pos + 1, _chunk->codes.size() - (else_jump_pos + 2));
+        }
+        else if (_match({TK_ELIF}))
+        {
+            size_t else_jump_pos = _chunk->codes.size();
+            _emitB(OP_JUMP);
+            _emitB(0);
+            _patchB(if_jump_pos + 1, _chunk->codes.size() - if_jump_pos - 2);
+            _ifStmt();
+            _patchB(else_jump_pos + 1, _chunk->codes.size() - else_jump_pos - 2);
+        }
+        else
+        {
+            _patchB(if_jump_pos + 1, _chunk->codes.size() - if_jump_pos - 2);
+        }
     }
     void Parser::_loopStmt()
     {
@@ -350,13 +387,14 @@ namespace vic
     void Parser::_varDecl()
     {
         _consume(TK_IDENT, "变量期望用标识符标记");
-        Bytecode vi = _env->def(std::string{_prev().lexeme});
+        Token::Unit& vu = _prev();
+        _env->def(std::string{vu.lexeme});
         if (_match({TK_ASSIGN}))
             _expression();
         else
             _emitB(OP_NIL);
         _emitB(OP_DEF_VAR);
-        _emitB(vi);
+        _emitB(_emitC(std::string{vu.lexeme}));
         _emitB(OP_POP);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
@@ -442,6 +480,15 @@ namespace vic
         }
         _chunk->constants.push_back(value);
         return static_cast<Bytecode>(_chunk->constants.size() - 1);
+    }
+    void Parser::_patchB(size_t pos, Bytecode op)
+    {
+        if (pos >= _chunk->codes.size())
+        {
+            _reporterError("修补位置超出字节码块范围");
+            return;
+        }
+        _chunk->codes[pos] = static_cast<Bytecode>(op);
     }
 #pragma endregion
     void Parser::_reporterError(const std::string& msg)

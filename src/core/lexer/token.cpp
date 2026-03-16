@@ -57,10 +57,13 @@ namespace vic::Token
                 {"print", TK_PRINT},
                 {"println", TK_PRINTLN},
 
+                {"while", TK_LOOP},
+                
                 {"do", TK_LBRACE},
                 {"then", TK_LBRACE},
                 {"beg", TK_LBRACE},
-                {"end", TK_RBRACE}
+                {"end", TK_RBRACE},
+                {"done", TK_RBRACE}
             });
             std::ranges::sort(arr, std::less<>{}, &std::pair<std::string_view, Type>::first);
             return arr;

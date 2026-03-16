@@ -74,6 +74,7 @@ namespace vic
     private:
         void _emitB(Bytecode op);
         Bytecode _emitC(Value::Data value);
+        void _patchB(size_t pos, Bytecode op);
     private:
         void _reporterError(const std::string& msg);
     };

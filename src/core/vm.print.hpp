@@ -88,10 +88,12 @@ namespace vic
                     printf("%-16s\n", "GE");
                     break;
                 case OP_AND:
-                    printf("%-16s\n", "AND");
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "AND", chunk->codes[i]);
                     break;
                 case OP_OR:
-                    printf("%-16s\n", "OR");
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "OR", chunk->codes[i]);
                     break;
                 case OP_BEG:
                     printf("%-16s\n", "BEG");
@@ -109,26 +111,38 @@ namespace vic
                     printf("%-16s\n", "RETURN");
                     break;
                 case OP_JUMP:
-                    printf("%-16s\n", "JUMP");
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "JUMP", chunk->codes[i]);
                     break;
-                case OP_JUMP_IF_FALSE:
-                    printf("%-16s\n", "JUMP IF FALSE");
+                case OP_JMPT:
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "JMPT", chunk->codes[i]);
+                    break;
+                case OP_JMPF:
+                    i++;
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "JMPF", chunk->codes[i]);
                     break;
                 case OP_LOOP:
                     printf("%-16s\n", "LOOP");
                     break;
                 case OP_DEF_VAR:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "DEF VAR", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "DEF VAR", chunk->codes[i], Value::getDebugString(chunk->constants[chunk->codes[i]]).c_str());
                     break;
                 case OP_GET_VAR:
-                    i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "GET VAR", chunk->codes[i]);
+                {
+                    i++; size_t cd = chunk->codes[i];
+                    i++; size_t ci = chunk->codes[i];
+                    printf("%-16s\033[1m\033[32m%04zu,%04zu\033[0m\n", "GET VAR", cd, ci);
                     break;
+                }
                 case OP_SET_VAR:
-                    i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "SET VAR", chunk->codes[i]);
+                {
+                    i++; size_t cd = chunk->codes[i];
+                    i++; size_t ci = chunk->codes[i];
+                    printf("%-16s\033[1m\033[32m%04zu,%04zu\033[0m\n", "SET VAR", cd, ci);
                     break;
+                }
                 case OP_CALL:
                     printf("%-16s\n", "CALL");
                     break;
