@@ -9,15 +9,11 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-    add_compile_options(-g -O0 -Wall -Wextra)
-else()
-    add_compile_options(-O2 -Wall -Wextra)
-endif()
 
 add_executable(rei main.cpp)
 target_include_directories(rei
@@ -38,4 +34,32 @@ PRIVATE
     "src/debug/log.cpp"
     "src/util/error.cpp"
     "src/util/file.cpp"
+)
+
+target_compile_options(rei
+PRIVATE
+    -fno-exceptions
+    -fno-rtti
+    $<$<CONFIG:Debug>:
+        -g
+        -O0
+    >
+    $<$<CONFIG:Release>:
+        -O3
+        -DNDEBUG
+        -fomit-frame-pointer
+        -fno-semantic-interposition
+        -ffunction-sections
+        -fdata-sections
+        -fno-stack-protector
+    >
+)
+target_link_options(rei
+PRIVATE
+    $<$<CONFIG:Release>:
+        -static
+        -flto
+        -s
+        -Wl,--gc-sections
+    >
 )
