@@ -54,6 +54,8 @@ namespace rei
     {
         for (;;)
         {
+            if (depth >= _scopes.size())
+                break;
             _Scope& scope = _scopes.at(depth);
             if (auto it = scope.map.find(name); it != scope.map.end())
                 return scope.values.at(it->second);
@@ -71,6 +73,8 @@ namespace rei
         Bytecode index = c.index;
         for (;;)
         {
+            if (depth >= _scopes.size())
+                break;
             _Scope& scope = _scopes.at(depth);
             if (index < scope.values.size())
                 return scope.values.at(index);
@@ -88,6 +92,8 @@ namespace rei
     {
         for (;;)
         {
+            if (depth >= _scopes.size())
+                break;
             _Scope& scope = _scopes.at(depth);
             if (auto it = scope.map.find(name); it != scope.map.end())
             {
@@ -108,6 +114,8 @@ namespace rei
         Bytecode index = c.index;
         for (;;)
         {
+            if (depth >= _scopes.size())
+                break;
             _Scope& scope = _scopes.at(depth);
             if (index < scope.values.size())
             {
