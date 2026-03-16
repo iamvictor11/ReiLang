@@ -1,8 +1,8 @@
-#include "vic/vic.hpp"
+#include "rei/rei.hpp"
 #include <locale>
 #include <iostream>
 
-void repl(vic::VM& vm)
+void repl(rei::VM& vm)
 {
     std::cout << "Luna 解释器" << std::endl;
     std::cout << "帮助 help" << std::endl;
@@ -22,7 +22,7 @@ void repl(vic::VM& vm)
 int main(int argc, char *argv[])
 {
     std::setlocale(LC_ALL, "en_US.UTF-8");
-    vic::VM vm {};
+    rei::VM vm {};
     if (argc > 1)
     {
         vm.loadFile(argv[1]);
@@ -30,7 +30,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        vm.loadFile("test.vic");
+        vm.loadFile("test.rei");
         vm.run();
     }
     std::cout << "按 Enter 键退出...";

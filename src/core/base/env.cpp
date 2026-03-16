@@ -1,7 +1,7 @@
 #include "env.hpp"
 #include <iostream>
 
-namespace vic
+namespace rei
 {
     Env::Env()
     {
@@ -65,8 +65,8 @@ namespace vic
     }
     Value::Data Env::get(Coord c)
     {
-        if (c.depth == VIC_BYTECODE_MAX) return Nil{};
-        if (c.index == VIC_BYTECODE_MAX) return Nil{};
+        if (c.depth == REI_BYTECODE_MAX) return Nil{};
+        if (c.index == REI_BYTECODE_MAX) return Nil{};
         Bytecode depth = c.depth;
         Bytecode index = c.index;
         for (;;)
@@ -102,8 +102,8 @@ namespace vic
     }
     void Env::set(Coord c, Value::Data value)
     {
-        if (c.depth == VIC_BYTECODE_MAX) return;
-        if (c.index == VIC_BYTECODE_MAX) return;
+        if (c.depth == REI_BYTECODE_MAX) return;
+        if (c.index == REI_BYTECODE_MAX) return;
         Bytecode depth = c.depth;
         Bytecode index = c.index;
         for (;;)

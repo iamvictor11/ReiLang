@@ -2,7 +2,7 @@
 #include <format>
 #include <iostream>
 
-namespace vic
+namespace rei
 {
     using namespace Token;
     Parser::_Rule Parser::_rules_s[] =
@@ -473,7 +473,7 @@ namespace vic
     }
     Bytecode Parser::_emitC(Value::Data value)
     {
-        if (_chunk->constants.size() >= VIC_BYTECODE_MAX)
+        if (_chunk->constants.size() >= REI_BYTECODE_MAX)
         {
             _reporterError("常数块溢出");
             return 0;

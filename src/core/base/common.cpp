@@ -2,7 +2,7 @@
 #include "string.hpp"
 #include <charconv>
 
-namespace vic
+namespace rei
 {
     namespace Value
     {

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(vic 
+project(rei 
     VERSION 1.0.0
     LANGUAGES CXX
 )
@@ -19,14 +19,14 @@ else()
     add_compile_options(-O2 -Wall -Wextra)
 endif()
 
-add_executable(vic main.cpp)
-target_include_directories(vic
+add_executable(rei main.cpp)
+target_include_directories(rei
 PUBLIC
     "include"
 PRIVATE
     "src"
 )
-target_sources(vic
+target_sources(rei
 PRIVATE
     "src/core/base/common.cpp"
     "src/core/base/env.cpp"

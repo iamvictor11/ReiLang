@@ -3,7 +3,7 @@
 #include <charconv>
 #include <format>
 
-namespace vic
+namespace rei
 {
 #pragma region Aid
     static bool isBdigit(char c)

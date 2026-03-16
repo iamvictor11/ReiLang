@@ -6,7 +6,7 @@
 #include <vector>
 #include "bytecode.hpp"
 
-namespace vic
+namespace rei
 {
     struct Position final
     {

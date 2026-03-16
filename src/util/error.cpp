@@ -2,7 +2,7 @@
 #include <iostream>
 #include "debug/log.hpp"
 
-namespace vic::Error
+namespace rei::Error
 {
     std::string Msg::toString()
     {
@@ -23,7 +23,7 @@ namespace vic::Error
     }
     void Reporter::report(const std::string& data, Position pos)
     {
-        VIC_DEBUG_LOG_ERROR("{}{}", data, pos.toString());
+        REI_DEBUG_LOG_ERROR("{}{}", data, pos.toString());
         _stack.emplace_back(data, pos);
     }
     Msg Reporter::pop()

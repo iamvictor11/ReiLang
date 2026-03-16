@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
 
-namespace vic
+namespace rei
 {
     class Env final
     {
@@ -14,8 +14,8 @@ namespace vic
     public:
         struct Coord final
         {
-            Bytecode depth = VIC_BYTECODE_MAX;
-            Bytecode index = VIC_BYTECODE_MAX;
+            Bytecode depth = REI_BYTECODE_MAX;
+            Bytecode index = REI_BYTECODE_MAX;
         };
         
     private:

@@ -2,7 +2,7 @@
 #include <array>
 #include <algorithm>
 
-namespace vic::Token
+namespace rei::Token
 {
     Type toTypeFromKeyword(std::string_view s)
     {
@@ -58,7 +58,7 @@ namespace vic::Token
                 {"println", TK_PRINTLN},
 
                 {"while", TK_LOOP},
-                
+
                 {"do", TK_LBRACE},
                 {"then", TK_LBRACE},
                 {"beg", TK_LBRACE},
@@ -93,124 +93,124 @@ namespace vic::Token
             return Nil{};
         }
     }
-    #define VIC_TOKEN_TYPE_LIST \
+    #define REI_TOKEN_TYPE_LIST \
         /* 注释 */ \
-        VIC_TOKEN_X(NOTE, "//") \
+        REI_TOKEN_X(NOTE, "//") \
         /* 基础 */ \
-        VIC_TOKEN_X(ASSIGN, "=") \
-        VIC_TOKEN_X(WALRUS, ":=") \
+        REI_TOKEN_X(ASSIGN, "=") \
+        REI_TOKEN_X(WALRUS, ":=") \
         /* 标识符 */ \
-        VIC_TOKEN_X(IDENT, "<ident>") \
+        REI_TOKEN_X(IDENT, "<ident>") \
         /* 字面量 */ \
-        VIC_TOKEN_X(LIT_INT, "<int>") \
-        VIC_TOKEN_X(LIT_FLOAT, "<float>") \
-        VIC_TOKEN_X(LIT_STRING, "<string>") \
+        REI_TOKEN_X(LIT_INT, "<int>") \
+        REI_TOKEN_X(LIT_FLOAT, "<float>") \
+        REI_TOKEN_X(LIT_STRING, "<string>") \
         /* 数学运算 */ \
-        VIC_TOKEN_X(ADD, "+") \
-        VIC_TOKEN_X(SUB, "-") \
-        VIC_TOKEN_X(MUL, "*") \
-        VIC_TOKEN_X(DIV, "/") \
-        VIC_TOKEN_X(MOD, "%") \
-        VIC_TOKEN_X(POW, "**") \
-        VIC_TOKEN_X(SELF_ADD, "+=") \
-        VIC_TOKEN_X(SELF_SUB, "-=") \
-        VIC_TOKEN_X(SELF_MUL, "*=") \
-        VIC_TOKEN_X(SELF_DIV, "/=") \
-        VIC_TOKEN_X(SELF_MOD, "%=") \
-        VIC_TOKEN_X(SELF_POW, "**=") \
+        REI_TOKEN_X(ADD, "+") \
+        REI_TOKEN_X(SUB, "-") \
+        REI_TOKEN_X(MUL, "*") \
+        REI_TOKEN_X(DIV, "/") \
+        REI_TOKEN_X(MOD, "%") \
+        REI_TOKEN_X(POW, "**") \
+        REI_TOKEN_X(SELF_ADD, "+=") \
+        REI_TOKEN_X(SELF_SUB, "-=") \
+        REI_TOKEN_X(SELF_MUL, "*=") \
+        REI_TOKEN_X(SELF_DIV, "/=") \
+        REI_TOKEN_X(SELF_MOD, "%=") \
+        REI_TOKEN_X(SELF_POW, "**=") \
         /* 位运算 */ \
-        VIC_TOKEN_X(BIT_AND, "&") \
-        VIC_TOKEN_X(BIT_OR, "|") \
-        VIC_TOKEN_X(BIT_XOR, "^") \
-        VIC_TOKEN_X(BIT_XNOR, "`") \
-        VIC_TOKEN_X(BIT_NOT, "~") \
-        VIC_TOKEN_X(BIT_SHL, "<<") \
-        VIC_TOKEN_X(BIT_SHR, ">>") \
-        VIC_TOKEN_X(SELF_BIT_AND, "&=") \
-        VIC_TOKEN_X(SELF_BIT_OR, "|=") \
-        VIC_TOKEN_X(SELF_BIT_XOR, "^=") \
-        VIC_TOKEN_X(SELF_BIT_XNOR, "`=") \
-        VIC_TOKEN_X(SELF_BIT_NOT, "~=") \
-        VIC_TOKEN_X(SELF_BIT_SHL, "<<=") \
-        VIC_TOKEN_X(SELF_BIT_SHR, ">>=") \
+        REI_TOKEN_X(BIT_AND, "&") \
+        REI_TOKEN_X(BIT_OR, "|") \
+        REI_TOKEN_X(BIT_XOR, "^") \
+        REI_TOKEN_X(BIT_XNOR, "`") \
+        REI_TOKEN_X(BIT_NOT, "~") \
+        REI_TOKEN_X(BIT_SHL, "<<") \
+        REI_TOKEN_X(BIT_SHR, ">>") \
+        REI_TOKEN_X(SELF_BIT_AND, "&=") \
+        REI_TOKEN_X(SELF_BIT_OR, "|=") \
+        REI_TOKEN_X(SELF_BIT_XOR, "^=") \
+        REI_TOKEN_X(SELF_BIT_XNOR, "`=") \
+        REI_TOKEN_X(SELF_BIT_NOT, "~=") \
+        REI_TOKEN_X(SELF_BIT_SHL, "<<=") \
+        REI_TOKEN_X(SELF_BIT_SHR, ">>=") \
         /* 比较运算 */ \
-        VIC_TOKEN_X(EQ, "==") \
-        VIC_TOKEN_X(NE, "!=") \
-        VIC_TOKEN_X(LT, "<") \
-        VIC_TOKEN_X(LE, "<=") \
-        VIC_TOKEN_X(GT, ">") \
-        VIC_TOKEN_X(GE, ">=") \
+        REI_TOKEN_X(EQ, "==") \
+        REI_TOKEN_X(NE, "!=") \
+        REI_TOKEN_X(LT, "<") \
+        REI_TOKEN_X(LE, "<=") \
+        REI_TOKEN_X(GT, ">") \
+        REI_TOKEN_X(GE, ">=") \
         /* 逻辑运算 */ \
-        VIC_TOKEN_X(AND, "&&") \
-        VIC_TOKEN_X(OR, "||") \
-        VIC_TOKEN_X(NOT, "!") \
+        REI_TOKEN_X(AND, "&&") \
+        REI_TOKEN_X(OR, "||") \
+        REI_TOKEN_X(NOT, "!") \
         /* 保留词 */ \
-        VIC_TOKEN_X(NIL, "nil") \
-        VIC_TOKEN_X(TRUE, "true") \
-        VIC_TOKEN_X(FALSE, "false") \
-        VIC_TOKEN_X(DEF, "def") \
-        VIC_TOKEN_X(VAR, "var") \
-        VIC_TOKEN_X(LET, "let") \
-        VIC_TOKEN_X(REF, "ref") \
-        VIC_TOKEN_X(TYPE_INT, "int") \
-        VIC_TOKEN_X(TYPE_FLOAT, "float") \
-        VIC_TOKEN_X(TYPE_STRING, "string") \
-        VIC_TOKEN_X(PACKAGE, "package") \
-        VIC_TOKEN_X(IMPORT, "import") \
-        VIC_TOKEN_X(IF, "if") \
-        VIC_TOKEN_X(ELIF, "elif") \
-        VIC_TOKEN_X(ELSE, "else") \
-        VIC_TOKEN_X(LOOP, "loop") \
-        VIC_TOKEN_X(CONTINUE, "continue") \
-        VIC_TOKEN_X(BREAK, "break") \
-        VIC_TOKEN_X(FUNC, "func") \
-        VIC_TOKEN_X(RETURN, "return") \
-        VIC_TOKEN_X(STRUCT, "struct") \
-        VIC_TOKEN_X(NAMESPACE, "namespace") \
-        VIC_TOKEN_X(GLOBAL, "global") \
-        VIC_TOKEN_X(LOCAL, "local") \
-        VIC_TOKEN_X(INTERFACE, "interface") \
-        VIC_TOKEN_X(CLASS, "class") \
-        VIC_TOKEN_X(THIS, "this") \
-        VIC_TOKEN_X(SUPER, "super") \
-        VIC_TOKEN_X(STATIC, "static") \
-        VIC_TOKEN_X(PUBLIC, "public") \
-        VIC_TOKEN_X(PROTECTED, "protected") \
-        VIC_TOKEN_X(PRIVATE, "private") \
-        VIC_TOKEN_X(VIRTUAL, "virual") \
-        VIC_TOKEN_X(OVERRIDE, "override") \
-        VIC_TOKEN_X(IS, "is")\
-        VIC_TOKEN_X(ENTITY, "entity") \
-        VIC_TOKEN_X(COMPONENT, "component") \
-        VIC_TOKEN_X(HAS, "has") \
-        VIC_TOKEN_X(NEW, "new") \
-        VIC_TOKEN_X(DEL, "del") \
-        VIC_TOKEN_X(PRINT, "print") \
-        VIC_TOKEN_X(PRINTLN, "println") \
+        REI_TOKEN_X(NIL, "nil") \
+        REI_TOKEN_X(TRUE, "true") \
+        REI_TOKEN_X(FALSE, "false") \
+        REI_TOKEN_X(DEF, "def") \
+        REI_TOKEN_X(VAR, "var") \
+        REI_TOKEN_X(LET, "let") \
+        REI_TOKEN_X(REF, "ref") \
+        REI_TOKEN_X(TYPE_INT, "int") \
+        REI_TOKEN_X(TYPE_FLOAT, "float") \
+        REI_TOKEN_X(TYPE_STRING, "string") \
+        REI_TOKEN_X(PACKAGE, "package") \
+        REI_TOKEN_X(IMPORT, "import") \
+        REI_TOKEN_X(IF, "if") \
+        REI_TOKEN_X(ELIF, "elif") \
+        REI_TOKEN_X(ELSE, "else") \
+        REI_TOKEN_X(LOOP, "loop") \
+        REI_TOKEN_X(CONTINUE, "continue") \
+        REI_TOKEN_X(BREAK, "break") \
+        REI_TOKEN_X(FUNC, "func") \
+        REI_TOKEN_X(RETURN, "return") \
+        REI_TOKEN_X(STRUCT, "struct") \
+        REI_TOKEN_X(NAMESPACE, "namespace") \
+        REI_TOKEN_X(GLOBAL, "global") \
+        REI_TOKEN_X(LOCAL, "local") \
+        REI_TOKEN_X(INTERFACE, "interface") \
+        REI_TOKEN_X(CLASS, "class") \
+        REI_TOKEN_X(THIS, "this") \
+        REI_TOKEN_X(SUPER, "super") \
+        REI_TOKEN_X(STATIC, "static") \
+        REI_TOKEN_X(PUBLIC, "public") \
+        REI_TOKEN_X(PROTECTED, "protected") \
+        REI_TOKEN_X(PRIVATE, "private") \
+        REI_TOKEN_X(VIRTUAL, "virual") \
+        REI_TOKEN_X(OVERRIDE, "override") \
+        REI_TOKEN_X(IS, "is")\
+        REI_TOKEN_X(ENTITY, "entity") \
+        REI_TOKEN_X(COMPONENT, "component") \
+        REI_TOKEN_X(HAS, "has") \
+        REI_TOKEN_X(NEW, "new") \
+        REI_TOKEN_X(DEL, "del") \
+        REI_TOKEN_X(PRINT, "print") \
+        REI_TOKEN_X(PRINTLN, "println") \
         /* 区域 */ \
-        VIC_TOKEN_X(LPAREN, "(") \
-        VIC_TOKEN_X(RPAREN, ")") \
-        VIC_TOKEN_X(LBRACKET, "[") \
-        VIC_TOKEN_X(RBRACKET, "]") \
-        VIC_TOKEN_X(LBRACE, "{") \
-        VIC_TOKEN_X(RBRACE, "}") \
+        REI_TOKEN_X(LPAREN, "(") \
+        REI_TOKEN_X(RPAREN, ")") \
+        REI_TOKEN_X(LBRACKET, "[") \
+        REI_TOKEN_X(RBRACKET, "]") \
+        REI_TOKEN_X(LBRACE, "{") \
+        REI_TOKEN_X(RBRACE, "}") \
         /* 其他 */ \
-        VIC_TOKEN_X(DOT, ".") \
-        VIC_TOKEN_X(COMMA, ",") \
-        VIC_TOKEN_X(SEMICOLON, ";") \
-        VIC_TOKEN_X(COLON, ":") \
-        VIC_TOKEN_X(DCOLON, "::") \
-        VIC_TOKEN_X(RARROW, "->") \
-        VIC_TOKEN_X(LARROW, "<-") \
+        REI_TOKEN_X(DOT, ".") \
+        REI_TOKEN_X(COMMA, ",") \
+        REI_TOKEN_X(SEMICOLON, ";") \
+        REI_TOKEN_X(COLON, ":") \
+        REI_TOKEN_X(DCOLON, "::") \
+        REI_TOKEN_X(RARROW, "->") \
+        REI_TOKEN_X(LARROW, "<-") \
         /* 结束 */ \
-        VIC_TOKEN_X(EOF, "<eof>")
+        REI_TOKEN_X(EOF, "<eof>")
     static std::string _toSymbol(Type type)
     {
         switch (type)
         {
-            #define VIC_TOKEN_X(name, symbol) case TK_##name: return symbol;
-            VIC_TOKEN_TYPE_LIST
-            #undef VIC_TOKEN_X
+            #define REI_TOKEN_X(name, symbol) case TK_##name: return symbol;
+            REI_TOKEN_TYPE_LIST
+            #undef REI_TOKEN_X
             default:
                 return "<?>";
         }
@@ -219,9 +219,9 @@ namespace vic::Token
     {
         switch (type)
         {
-            #define VIC_TOKEN_X(name, symbol) case TK_##name: return #name;
-            VIC_TOKEN_TYPE_LIST
-            #undef VIC_TOKEN_X
+            #define REI_TOKEN_X(name, symbol) case TK_##name: return #name;
+            REI_TOKEN_TYPE_LIST
+            #undef REI_TOKEN_X
             default:
                 return "UNKNOWN";
         }

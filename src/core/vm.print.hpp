@@ -2,7 +2,7 @@
 #include <cmath>
 #include <limits>
 
-namespace vic
+namespace rei
 {
     static void _Chunk_debugPrint(Chunk* chunk)
     {

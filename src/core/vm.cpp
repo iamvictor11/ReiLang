@@ -1,13 +1,13 @@
 #include "vm.hpp"
 #include "vm.expr.hpp"
 #include "vm.print.hpp"
-#include "vic/config.hpp"
+#include "rei/config.hpp"
 #include "util/file.hpp"
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
 #include <iostream>
 #include <format>
-namespace vic
+namespace rei
 {
     void VM::loadSimple(const std::string& source)
     {
@@ -15,7 +15,7 @@ namespace vic
     }
     void VM::loadFile(const std::string& path)
     {
-    #ifdef VIC_DEBUG_ENABLE
+    #ifdef REI_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m词法分析：\033[0m" << std::endl;
     #endif
         std::string source {};
@@ -27,11 +27,11 @@ namespace vic
         Lexer lexer {std::move(source), &_error_reporter};
         auto& tokens = lexer.start();
         if (!_error_reporter.empty()) return;
-    #ifdef VIC_DEBUG_ENABLE
+    #ifdef REI_DEBUG_ENABLE
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
     #endif
-    #ifdef VIC_DEBUG_ENABLE
+    #ifdef REI_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m语法分析：\033[0m" << std::endl;
     #endif
         Parser parser {std::move(tokens), &_chunk, &_env, &_error_reporter};
@@ -42,14 +42,14 @@ namespace vic
             return;
         }
         _env.clear();
-    #ifdef VIC_DEBUG_ENABLE
+    #ifdef REI_DEBUG_ENABLE
         _Chunk_debugPrint(&_chunk);
     #endif
     }
 #pragma region Run
     void VM::run()
     {
-    #ifdef VIC_DEBUG_ENABLE
+    #ifdef REI_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m运行结果：\033[0m" << std::endl; 
     #endif
         if (!_error_reporter.empty()) return;
@@ -169,7 +169,7 @@ namespace vic
                 default: break;
             }
         }
-    #ifdef VIC_DEBUG_ENABLE
+    #ifdef REI_DEBUG_ENABLE
         std::cout << std::endl;
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << _stack.size() << std::endl;

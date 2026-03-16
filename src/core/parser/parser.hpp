@@ -4,7 +4,7 @@
 #include "util/error.hpp"
 #include "precedence.hpp"
 
-namespace vic
+namespace rei
 {
     class Parser
     {

@@ -4,7 +4,7 @@
 #include "util/error.hpp"
 #include "base/env.hpp"
 
-namespace vic
+namespace rei
 {
     class Lexer;
     class VM final

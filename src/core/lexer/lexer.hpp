@@ -2,7 +2,7 @@
 #include "token.hpp"
 #include "util/error.hpp"
 
-namespace vic
+namespace rei
 {
     class Lexer final
     {

@@ -1,6 +1,6 @@
 #include "string.hpp"
 
-namespace vic
+namespace rei
 {
     static String toHex(unsigned char c)
     {

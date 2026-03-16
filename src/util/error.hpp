@@ -3,7 +3,7 @@
 #include <vector>
 #include "core/base/common.hpp"
 
-namespace vic::Error
+namespace rei::Error
 {
     struct Msg final
     {

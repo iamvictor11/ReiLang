@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace vic
+namespace rei
 {
     enum Precedence : uint8_t
     {

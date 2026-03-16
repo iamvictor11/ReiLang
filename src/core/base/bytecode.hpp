@@ -1,9 +1,9 @@
 #pragma once
-#include "vic/config.hpp"
+#include "rei/config.hpp"
 
-namespace vic
+namespace rei
 {
-    using Bytecode = VIC_BYTECODE_TYPE;
+    using Bytecode = REI_BYTECODE_TYPE;
     enum Opcode : Bytecode
     {
         OP_CONSTANT = 0,

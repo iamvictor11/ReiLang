@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cassert>
 
-namespace vic::Log
+namespace rei::Log
 {
     static void _PrintFileAndLine(const char *file, int line)
     {

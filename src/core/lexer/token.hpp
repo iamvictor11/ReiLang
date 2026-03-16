@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace vic::Token
+namespace rei::Token
 {
     enum Type : uint8_t
     {
