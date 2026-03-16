@@ -164,6 +164,7 @@ namespace rei::Token
         REI_TOKEN_X(ELIF, "elif") \
         REI_TOKEN_X(ELSE, "else") \
         REI_TOKEN_X(LOOP, "loop") \
+        REI_TOKEN_X(UNTIL, "until") \
         REI_TOKEN_X(CONTINUE, "continue") \
         REI_TOKEN_X(BREAK, "break") \
         REI_TOKEN_X(FUNC, "func") \
