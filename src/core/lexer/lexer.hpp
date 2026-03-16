@@ -2,7 +2,7 @@
 #include "token.hpp"
 #include "util/error.hpp"
 
-namespace luna
+namespace vic
 {
     class Lexer final
     {

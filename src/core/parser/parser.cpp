@@ -2,7 +2,7 @@
 #include <format>
 #include <iostream>
 
-namespace luna
+namespace vic
 {
     using namespace Token;
     Parser::_Rule Parser::_rules_s[] =
@@ -319,6 +319,7 @@ namespace luna
     }
     void Parser::_ifStmt()
     {
+        _expression();
     }
     void Parser::_loopStmt()
     {
@@ -434,7 +435,7 @@ namespace luna
     }
     Bytecode Parser::_emitC(Value::Data value)
     {
-        if (_chunk->constants.size() >= LUNA_BYTECODE_MAX)
+        if (_chunk->constants.size() >= VIC_BYTECODE_MAX)
         {
             _reporterError("常数块溢出");
             return 0;

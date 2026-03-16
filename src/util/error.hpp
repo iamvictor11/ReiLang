@@ -3,7 +3,7 @@
 #include <vector>
 #include "core/base/common.hpp"
 
-namespace luna::Error
+namespace vic::Error
 {
     struct Msg final
     {

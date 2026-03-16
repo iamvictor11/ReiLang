@@ -3,14 +3,19 @@
 #include <sstream>
 #include "debug/log.hpp"
 
-namespace luna::util
+namespace vic::util
 {
-    std::string fileToString(const std::string& path)
+    bool fileToString(const std::string& path, std::string* out)
     {
         std::ifstream file(path);
-        LUNA_DEBUG_LOG_ASSERT(file.is_open(), "文件 {} 打不开 或 不存在", path.c_str());
+        if (!file.is_open())
+        {
+            VIC_DEBUG_LOG_ASSERT(false, "文件 {} 打不开 或 不存在", path.c_str());
+            return false;
+        }
         std::stringstream buffer;
         buffer << file.rdbuf();
-        return buffer.str();
+        *out = buffer.str();
+        return true;
     }
 }

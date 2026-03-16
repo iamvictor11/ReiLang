@@ -2,7 +2,7 @@
 #include <iostream>
 #include "debug/log.hpp"
 
-namespace luna::Error
+namespace vic::Error
 {
     std::string Msg::toString()
     {
@@ -23,7 +23,7 @@ namespace luna::Error
     }
     void Reporter::report(const std::string& data, Position pos)
     {
-        LUNA_DEBUG_LOG_ERROR("{}{}", data, pos.toString());
+        VIC_DEBUG_LOG_ERROR("{}{}", data, pos.toString());
         _stack.emplace_back(data, pos);
     }
     Msg Reporter::pop()

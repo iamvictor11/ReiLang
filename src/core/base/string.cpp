@@ -1,6 +1,6 @@
 #include "string.hpp"
 
-namespace luna
+namespace vic
 {
     static String toHex(unsigned char c)
     {

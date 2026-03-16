@@ -3,7 +3,7 @@
 #include <cmath>
 #include <limits>
 
-namespace luna
+namespace vic
 {
     static Value::Data _dispatchUnary(const Value::Data& value, Opcode op);
     static Value::Data _dispatchBinary(const Value::Data& left, const Value::Data& right, Opcode op);

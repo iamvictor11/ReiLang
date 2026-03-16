@@ -4,7 +4,7 @@
 #include "util/error.hpp"
 #include "precedence.hpp"
 
-namespace luna
+namespace vic
 {
     class Parser
     {

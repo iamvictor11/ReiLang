@@ -3,7 +3,7 @@
 #include <charconv>
 #include <format>
 
-namespace luna
+namespace vic
 {
 #pragma region Aid
     static bool isBdigit(char c)

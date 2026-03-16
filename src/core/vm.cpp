@@ -1,30 +1,37 @@
 #include "vm.hpp"
 #include "vm.expr.hpp"
 #include "vm.print.hpp"
-#include "luna/config.hpp"
+#include "vic/config.hpp"
 #include "util/file.hpp"
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
 #include <iostream>
-namespace luna
+#include <format>
+namespace vic
 {
     void VM::loadSimple(const std::string& source)
     {
-        auto s = util::fileToString(source);
+        (void)source;
     }
     void VM::loadFile(const std::string& path)
     {
-    #ifdef LUNA_DEBUG_ENABLE
+    #ifdef VIC_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m词法分析：\033[0m" << std::endl;
     #endif
-        Lexer lexer {util::fileToString(path), &_error_reporter};
+        std::string source {};
+        if (!util::fileToString(path, &source))
+        {
+            _error_reporter.report(std::format("文件 {} 打不开 或 不存在", path.c_str()), {0, 0});
+            return;
+        }
+        Lexer lexer {std::move(source), &_error_reporter};
         auto& tokens = lexer.start();
         if (!_error_reporter.empty()) return;
-    #ifdef LUNA_DEBUG_ENABLE
+    #ifdef VIC_DEBUG_ENABLE
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
     #endif
-    #ifdef LUNA_DEBUG_ENABLE
+    #ifdef VIC_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m语法分析：\033[0m" << std::endl;
     #endif
         Parser parser {std::move(tokens), &_chunk, &_env, &_error_reporter};
@@ -35,14 +42,14 @@ namespace luna
             _env.clear();
             return;
         }
-    #ifdef LUNA_DEBUG_ENABLE
+    #ifdef VIC_DEBUG_ENABLE
         _Chunk_debugPrint(&_chunk);
     #endif
     }
 #pragma region Run
     void VM::run()
     {
-    #ifdef LUNA_DEBUG_ENABLE
+    #ifdef VIC_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m运行结果：\033[0m" << std::endl; 
     #endif
         if (!_error_reporter.empty()) return;
@@ -128,7 +135,7 @@ namespace luna
                 default: break;
             }
         }
-    #ifdef LUNA_DEBUG_ENABLE
+    #ifdef VIC_DEBUG_ENABLE
         std::cout << std::endl;
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << _stack.size() << std::endl;

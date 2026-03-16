@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace luna
+namespace vic
 {
     using String = std::string;
     String escape(String& s);

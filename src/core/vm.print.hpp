@@ -2,7 +2,7 @@
 #include <cmath>
 #include <limits>
 
-namespace luna
+namespace vic
 {
     static void _Chunk_debugPrint(Chunk* chunk)
     {

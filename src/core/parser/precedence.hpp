@@ -1,7 +1,7 @@
 #pragma once
 #include <cstdint>
 
-namespace luna
+namespace vic
 {
     enum Precedence : uint8_t
     {

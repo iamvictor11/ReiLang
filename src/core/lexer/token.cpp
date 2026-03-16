@@ -2,7 +2,7 @@
 #include <array>
 #include <algorithm>
 
-namespace luna::Token
+namespace vic::Token
 {
     Type toTypeFromKeyword(std::string_view s)
     {
@@ -90,124 +90,124 @@ namespace luna::Token
             return Nil{};
         }
     }
-    #define LUNA_TOKEN_TYPE_LIST \
+    #define VIC_TOKEN_TYPE_LIST \
         /* 注释 */ \
-        LUNA_TOKEN_X(NOTE, "//") \
+        VIC_TOKEN_X(NOTE, "//") \
         /* 基础 */ \
-        LUNA_TOKEN_X(ASSIGN, "=") \
-        LUNA_TOKEN_X(WALRUS, ":=") \
+        VIC_TOKEN_X(ASSIGN, "=") \
+        VIC_TOKEN_X(WALRUS, ":=") \
         /* 标识符 */ \
-        LUNA_TOKEN_X(IDENT, "<ident>") \
+        VIC_TOKEN_X(IDENT, "<ident>") \
         /* 字面量 */ \
-        LUNA_TOKEN_X(LIT_INT, "<int>") \
-        LUNA_TOKEN_X(LIT_FLOAT, "<float>") \
-        LUNA_TOKEN_X(LIT_STRING, "<string>") \
+        VIC_TOKEN_X(LIT_INT, "<int>") \
+        VIC_TOKEN_X(LIT_FLOAT, "<float>") \
+        VIC_TOKEN_X(LIT_STRING, "<string>") \
         /* 数学运算 */ \
-        LUNA_TOKEN_X(ADD, "+") \
-        LUNA_TOKEN_X(SUB, "-") \
-        LUNA_TOKEN_X(MUL, "*") \
-        LUNA_TOKEN_X(DIV, "/") \
-        LUNA_TOKEN_X(MOD, "%") \
-        LUNA_TOKEN_X(POW, "**") \
-        LUNA_TOKEN_X(SELF_ADD, "+=") \
-        LUNA_TOKEN_X(SELF_SUB, "-=") \
-        LUNA_TOKEN_X(SELF_MUL, "*=") \
-        LUNA_TOKEN_X(SELF_DIV, "/=") \
-        LUNA_TOKEN_X(SELF_MOD, "%=") \
-        LUNA_TOKEN_X(SELF_POW, "**=") \
+        VIC_TOKEN_X(ADD, "+") \
+        VIC_TOKEN_X(SUB, "-") \
+        VIC_TOKEN_X(MUL, "*") \
+        VIC_TOKEN_X(DIV, "/") \
+        VIC_TOKEN_X(MOD, "%") \
+        VIC_TOKEN_X(POW, "**") \
+        VIC_TOKEN_X(SELF_ADD, "+=") \
+        VIC_TOKEN_X(SELF_SUB, "-=") \
+        VIC_TOKEN_X(SELF_MUL, "*=") \
+        VIC_TOKEN_X(SELF_DIV, "/=") \
+        VIC_TOKEN_X(SELF_MOD, "%=") \
+        VIC_TOKEN_X(SELF_POW, "**=") \
         /* 位运算 */ \
-        LUNA_TOKEN_X(BIT_AND, "&") \
-        LUNA_TOKEN_X(BIT_OR, "|") \
-        LUNA_TOKEN_X(BIT_XOR, "^") \
-        LUNA_TOKEN_X(BIT_XNOR, "`") \
-        LUNA_TOKEN_X(BIT_NOT, "~") \
-        LUNA_TOKEN_X(BIT_SHL, "<<") \
-        LUNA_TOKEN_X(BIT_SHR, ">>") \
-        LUNA_TOKEN_X(SELF_BIT_AND, "&=") \
-        LUNA_TOKEN_X(SELF_BIT_OR, "|=") \
-        LUNA_TOKEN_X(SELF_BIT_XOR, "^=") \
-        LUNA_TOKEN_X(SELF_BIT_XNOR, "`=") \
-        LUNA_TOKEN_X(SELF_BIT_NOT, "~=") \
-        LUNA_TOKEN_X(SELF_BIT_SHL, "<<=") \
-        LUNA_TOKEN_X(SELF_BIT_SHR, ">>=") \
+        VIC_TOKEN_X(BIT_AND, "&") \
+        VIC_TOKEN_X(BIT_OR, "|") \
+        VIC_TOKEN_X(BIT_XOR, "^") \
+        VIC_TOKEN_X(BIT_XNOR, "`") \
+        VIC_TOKEN_X(BIT_NOT, "~") \
+        VIC_TOKEN_X(BIT_SHL, "<<") \
+        VIC_TOKEN_X(BIT_SHR, ">>") \
+        VIC_TOKEN_X(SELF_BIT_AND, "&=") \
+        VIC_TOKEN_X(SELF_BIT_OR, "|=") \
+        VIC_TOKEN_X(SELF_BIT_XOR, "^=") \
+        VIC_TOKEN_X(SELF_BIT_XNOR, "`=") \
+        VIC_TOKEN_X(SELF_BIT_NOT, "~=") \
+        VIC_TOKEN_X(SELF_BIT_SHL, "<<=") \
+        VIC_TOKEN_X(SELF_BIT_SHR, ">>=") \
         /* 比较运算 */ \
-        LUNA_TOKEN_X(EQ, "==") \
-        LUNA_TOKEN_X(NE, "!=") \
-        LUNA_TOKEN_X(LT, "<") \
-        LUNA_TOKEN_X(LE, "<=") \
-        LUNA_TOKEN_X(GT, ">") \
-        LUNA_TOKEN_X(GE, ">=") \
+        VIC_TOKEN_X(EQ, "==") \
+        VIC_TOKEN_X(NE, "!=") \
+        VIC_TOKEN_X(LT, "<") \
+        VIC_TOKEN_X(LE, "<=") \
+        VIC_TOKEN_X(GT, ">") \
+        VIC_TOKEN_X(GE, ">=") \
         /* 逻辑运算 */ \
-        LUNA_TOKEN_X(AND, "&&") \
-        LUNA_TOKEN_X(OR, "||") \
-        LUNA_TOKEN_X(NOT, "!") \
+        VIC_TOKEN_X(AND, "&&") \
+        VIC_TOKEN_X(OR, "||") \
+        VIC_TOKEN_X(NOT, "!") \
         /* 保留词 */ \
-        LUNA_TOKEN_X(NIL, "nil") \
-        LUNA_TOKEN_X(TRUE, "true") \
-        LUNA_TOKEN_X(FALSE, "false") \
-        LUNA_TOKEN_X(DEF, "def") \
-        LUNA_TOKEN_X(VAR, "var") \
-        LUNA_TOKEN_X(LET, "let") \
-        LUNA_TOKEN_X(REF, "ref") \
-        LUNA_TOKEN_X(TYPE_INT, "int") \
-        LUNA_TOKEN_X(TYPE_FLOAT, "float") \
-        LUNA_TOKEN_X(TYPE_STRING, "string") \
-        LUNA_TOKEN_X(PACKAGE, "package") \
-        LUNA_TOKEN_X(IMPORT, "import") \
-        LUNA_TOKEN_X(IF, "if") \
-        LUNA_TOKEN_X(ELIF, "elif") \
-        LUNA_TOKEN_X(ELSE, "else") \
-        LUNA_TOKEN_X(LOOP, "loop") \
-        LUNA_TOKEN_X(CONTINUE, "continue") \
-        LUNA_TOKEN_X(BREAK, "break") \
-        LUNA_TOKEN_X(FUNC, "func") \
-        LUNA_TOKEN_X(RETURN, "return") \
-        LUNA_TOKEN_X(STRUCT, "struct") \
-        LUNA_TOKEN_X(NAMESPACE, "namespace") \
-        LUNA_TOKEN_X(GLOBAL, "global") \
-        LUNA_TOKEN_X(LOCAL, "local") \
-        LUNA_TOKEN_X(INTERFACE, "interface") \
-        LUNA_TOKEN_X(CLASS, "class") \
-        LUNA_TOKEN_X(THIS, "this") \
-        LUNA_TOKEN_X(SUPER, "super") \
-        LUNA_TOKEN_X(STATIC, "static") \
-        LUNA_TOKEN_X(PUBLIC, "public") \
-        LUNA_TOKEN_X(PROTECTED, "protected") \
-        LUNA_TOKEN_X(PRIVATE, "private") \
-        LUNA_TOKEN_X(VIRTUAL, "virual") \
-        LUNA_TOKEN_X(OVERRIDE, "override") \
-        LUNA_TOKEN_X(IS, "is")\
-        LUNA_TOKEN_X(ENTITY, "entity") \
-        LUNA_TOKEN_X(COMPONENT, "component") \
-        LUNA_TOKEN_X(HAS, "has") \
-        LUNA_TOKEN_X(NEW, "new") \
-        LUNA_TOKEN_X(DEL, "del") \
-        LUNA_TOKEN_X(PRINT, "print") \
-        LUNA_TOKEN_X(PRINTLN, "println") \
+        VIC_TOKEN_X(NIL, "nil") \
+        VIC_TOKEN_X(TRUE, "true") \
+        VIC_TOKEN_X(FALSE, "false") \
+        VIC_TOKEN_X(DEF, "def") \
+        VIC_TOKEN_X(VAR, "var") \
+        VIC_TOKEN_X(LET, "let") \
+        VIC_TOKEN_X(REF, "ref") \
+        VIC_TOKEN_X(TYPE_INT, "int") \
+        VIC_TOKEN_X(TYPE_FLOAT, "float") \
+        VIC_TOKEN_X(TYPE_STRING, "string") \
+        VIC_TOKEN_X(PACKAGE, "package") \
+        VIC_TOKEN_X(IMPORT, "import") \
+        VIC_TOKEN_X(IF, "if") \
+        VIC_TOKEN_X(ELIF, "elif") \
+        VIC_TOKEN_X(ELSE, "else") \
+        VIC_TOKEN_X(LOOP, "loop") \
+        VIC_TOKEN_X(CONTINUE, "continue") \
+        VIC_TOKEN_X(BREAK, "break") \
+        VIC_TOKEN_X(FUNC, "func") \
+        VIC_TOKEN_X(RETURN, "return") \
+        VIC_TOKEN_X(STRUCT, "struct") \
+        VIC_TOKEN_X(NAMESPACE, "namespace") \
+        VIC_TOKEN_X(GLOBAL, "global") \
+        VIC_TOKEN_X(LOCAL, "local") \
+        VIC_TOKEN_X(INTERFACE, "interface") \
+        VIC_TOKEN_X(CLASS, "class") \
+        VIC_TOKEN_X(THIS, "this") \
+        VIC_TOKEN_X(SUPER, "super") \
+        VIC_TOKEN_X(STATIC, "static") \
+        VIC_TOKEN_X(PUBLIC, "public") \
+        VIC_TOKEN_X(PROTECTED, "protected") \
+        VIC_TOKEN_X(PRIVATE, "private") \
+        VIC_TOKEN_X(VIRTUAL, "virual") \
+        VIC_TOKEN_X(OVERRIDE, "override") \
+        VIC_TOKEN_X(IS, "is")\
+        VIC_TOKEN_X(ENTITY, "entity") \
+        VIC_TOKEN_X(COMPONENT, "component") \
+        VIC_TOKEN_X(HAS, "has") \
+        VIC_TOKEN_X(NEW, "new") \
+        VIC_TOKEN_X(DEL, "del") \
+        VIC_TOKEN_X(PRINT, "print") \
+        VIC_TOKEN_X(PRINTLN, "println") \
         /* 区域 */ \
-        LUNA_TOKEN_X(LPAREN, "(") \
-        LUNA_TOKEN_X(RPAREN, ")") \
-        LUNA_TOKEN_X(LBRACKET, "[") \
-        LUNA_TOKEN_X(RBRACKET, "]") \
-        LUNA_TOKEN_X(LBRACE, "{") \
-        LUNA_TOKEN_X(RBRACE, "}") \
+        VIC_TOKEN_X(LPAREN, "(") \
+        VIC_TOKEN_X(RPAREN, ")") \
+        VIC_TOKEN_X(LBRACKET, "[") \
+        VIC_TOKEN_X(RBRACKET, "]") \
+        VIC_TOKEN_X(LBRACE, "{") \
+        VIC_TOKEN_X(RBRACE, "}") \
         /* 其他 */ \
-        LUNA_TOKEN_X(DOT, ".") \
-        LUNA_TOKEN_X(COMMA, ",") \
-        LUNA_TOKEN_X(SEMICOLON, ";") \
-        LUNA_TOKEN_X(COLON, ":") \
-        LUNA_TOKEN_X(DCOLON, "::") \
-        LUNA_TOKEN_X(RARROW, "->") \
-        LUNA_TOKEN_X(LARROW, "<-") \
+        VIC_TOKEN_X(DOT, ".") \
+        VIC_TOKEN_X(COMMA, ",") \
+        VIC_TOKEN_X(SEMICOLON, ";") \
+        VIC_TOKEN_X(COLON, ":") \
+        VIC_TOKEN_X(DCOLON, "::") \
+        VIC_TOKEN_X(RARROW, "->") \
+        VIC_TOKEN_X(LARROW, "<-") \
         /* 结束 */ \
-        LUNA_TOKEN_X(EOF, "<eof>")
+        VIC_TOKEN_X(EOF, "<eof>")
     static std::string _toSymbol(Type type)
     {
         switch (type)
         {
-            #define LUNA_TOKEN_X(name, symbol) case TK_##name: return symbol;
-            LUNA_TOKEN_TYPE_LIST
-            #undef LUNA_TOKEN_X
+            #define VIC_TOKEN_X(name, symbol) case TK_##name: return symbol;
+            VIC_TOKEN_TYPE_LIST
+            #undef VIC_TOKEN_X
             default:
                 return "<?>";
         }
@@ -216,9 +216,9 @@ namespace luna::Token
     {
         switch (type)
         {
-            #define LUNA_TOKEN_X(name, symbol) case TK_##name: return #name;
-            LUNA_TOKEN_TYPE_LIST
-            #undef LUNA_TOKEN_X
+            #define VIC_TOKEN_X(name, symbol) case TK_##name: return #name;
+            VIC_TOKEN_TYPE_LIST
+            #undef VIC_TOKEN_X
             default:
                 return "UNKNOWN";
         }

@@ -1,7 +1,7 @@
 #pragma once
 #include "common.hpp"
 
-namespace luna
+namespace vic
 {
     class Env final
     {

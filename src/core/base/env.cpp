@@ -1,6 +1,6 @@
 #include "env.hpp"
 
-namespace luna
+namespace vic
 {
     Env::Env()
     {
@@ -143,7 +143,7 @@ namespace luna
         _Scope& curr = _scopes.at(depth);
         auto it = curr.map.find(name);
         if (it == curr.map.end())
-            return LUNA_BYTECODE_MAX;
+            return VIC_BYTECODE_MAX;
         return it->second;
     }
 }

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.10)
 
-project(luna 
+project(vic 
     VERSION 1.0.0
     LANGUAGES CXX
 )
@@ -19,14 +19,14 @@ else()
     add_compile_options(-O2 -Wall -Wextra)
 endif()
 
-add_executable(luna main.cpp)
-target_include_directories(luna
+add_executable(vic main.cpp)
+target_include_directories(vic
 PUBLIC
     "include"
 PRIVATE
     "src"
 )
-target_sources(luna
+target_sources(vic
 PRIVATE
     "src/core/base/common.cpp"
     "src/core/base/env.cpp"
@@ -38,5 +38,4 @@ PRIVATE
     "src/debug/log.cpp"
     "src/util/error.cpp"
     "src/util/file.cpp"
-    "src/kua.cpp"
 )

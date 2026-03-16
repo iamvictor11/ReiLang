@@ -1,9 +1,9 @@
 #pragma once
-#include "luna/config.hpp"
-#ifdef LUNA_DEBUG_ENABLE
+#include "vic/config.hpp"
+#ifdef VIC_DEBUG_ENABLE
 #include <string>
 #include <format>
-namespace luna
+namespace vic
 {
     namespace Log
     {
@@ -14,20 +14,20 @@ namespace luna
         void Success(const std::string &, const char *file, int line);
     };
 }
-#define LUNA_DEBUG_LOG_INFO(fmt, ...) \
-    luna::Log::Info(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
-#define LUNA_DEBUG_LOG_WARNING(fmt, ...) \
-    luna::Log::Warning(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
-#define LUNA_DEBUG_LOG_ERROR(fmt, ...) \
-    luna::Log::Error(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
-#define LUNA_DEBUG_LOG_ASSERT(ok, fmt, ...) \
-    luna::Log::Assert(ok, std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
-#define LUNA_DEBUG_LOG_SUCCESS(fmt, ...) \
-    luna::Log::Success(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+#define VIC_DEBUG_LOG_INFO(fmt, ...) \
+    vic::Log::Info(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+#define VIC_DEBUG_LOG_WARNING(fmt, ...) \
+    vic::Log::Warning(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+#define VIC_DEBUG_LOG_ERROR(fmt, ...) \
+    vic::Log::Error(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+#define VIC_DEBUG_LOG_ASSERT(ok, fmt, ...) \
+    vic::Log::Assert(ok, std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+#define VIC_DEBUG_LOG_SUCCESS(fmt, ...) \
+    vic::Log::Success(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
 #else
-#define LUNA_DEBUG_LOG_INFO(fmt, ...)
-#define LUNA_DEBUG_LOG_WARNING(fmt, ...)
-#define LUNA_DEBUG_LOG_ERROR(fmt, ...)
-#define LUNA_DEBUG_LOG_ASSERT(ok, fmt, ...)
-#define LUNA_DEBUG_LOG_SUCCESS(fmt, ...)
+#define VIC_DEBUG_LOG_INFO(fmt, ...)
+#define VIC_DEBUG_LOG_WARNING(fmt, ...)
+#define VIC_DEBUG_LOG_ERROR(fmt, ...)
+#define VIC_DEBUG_LOG_ASSERT(ok, fmt, ...)
+#define VIC_DEBUG_LOG_SUCCESS(fmt, ...)
 #endif

@@ -1,9 +1,9 @@
 #pragma once
-#include "luna/config.hpp"
+#include "vic/config.hpp"
 
-namespace luna
+namespace vic
 {
-    using Bytecode = LUNA_BYTECODE_TYPE;
+    using Bytecode = VIC_BYTECODE_TYPE;
     enum Opcode : Bytecode
     {
         OP_CONSTANT = 0,

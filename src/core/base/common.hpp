@@ -6,7 +6,7 @@
 #include <vector>
 #include "bytecode.hpp"
 
-namespace luna
+namespace vic
 {
     struct Position final
     {

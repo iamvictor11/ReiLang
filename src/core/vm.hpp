@@ -4,7 +4,7 @@
 #include "util/error.hpp"
 #include "base/env.hpp"
 
-namespace luna
+namespace vic
 {
     class Lexer;
     class VM final

@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-namespace luna::Token
+namespace vic::Token
 {
     enum Type : uint8_t
     {

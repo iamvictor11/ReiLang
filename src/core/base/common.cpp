@@ -2,7 +2,7 @@
 #include "string.hpp"
 #include <charconv>
 
-namespace luna
+namespace vic
 {
     namespace Value
     {

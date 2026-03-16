@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace luna::util
+namespace vic::util
 {
-    [[nodiscard]] std::string fileToString(const std::string& path);
+    [[nodiscard]] bool fileToString(const std::string& path, std::string* out);
 }

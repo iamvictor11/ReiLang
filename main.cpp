@@ -1,7 +1,8 @@
-#include "luna/luna.hpp"
+#include "vic/vic.hpp"
+#include <locale>
 #include <iostream>
 
-void repl(luna::VM& vm)
+void repl(vic::VM& vm)
 {
     std::cout << "Luna 解释器" << std::endl;
     std::cout << "帮助 help" << std::endl;
@@ -20,8 +21,8 @@ void repl(luna::VM& vm)
 
 int main(int argc, char *argv[])
 {
-    luna::kua::setConsoleOutputCPToUTF8();
-    luna::VM vm {};
+    std::setlocale(LC_ALL, "en_US.UTF-8");
+    vic::VM vm {};
     if (argc > 1)
     {
         vm.loadFile(argv[1]);
@@ -29,7 +30,7 @@ int main(int argc, char *argv[])
     }
     else
     {
-        vm.loadFile("test.luna");
+        vm.loadFile("test.vic");
         vm.run();
     }
     std::cout << "按 Enter 键退出...";

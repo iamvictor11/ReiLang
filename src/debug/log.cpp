@@ -2,7 +2,7 @@
 #include <iostream>
 #include <cassert>
 
-namespace luna::Log
+namespace vic::Log
 {
     static void _PrintFileAndLine(const char *file, int line)
     {

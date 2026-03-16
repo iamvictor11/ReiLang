@@ -1,6 +1,6 @@
 #pragma once
 
-namespace luna
+namespace vic
 {
     template <class... Ts>
     struct LambdaOverloaded : Ts...
