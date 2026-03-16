@@ -58,6 +58,7 @@ namespace rei::Token
                 {"println", TK_PRINTLN},
 
                 {"while", TK_LOOP},
+                {"echo", TK_PRINTLN},
 
                 {"do", TK_LBRACE},
                 {"then", TK_LBRACE},
