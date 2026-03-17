@@ -429,7 +429,7 @@ namespace rei
             _emitB(OP_END);
         Bytecode start = loop.start;
         _emitB(OP_JUMP);
-        _emitB(start - _chunk->codes.size());
+        _emitB(start - (_chunk->codes.size() + 1));
         _consume(TK_SEMICOLON, "继续语句期望以';'结束");
     }
     void Parser::_printStmt()
