@@ -157,15 +157,18 @@ namespace rei
                 }
                 case OP_GET_VAR:
                 {
-                    _push(_env.get(Env::Coord{_readByte(), _readByte()}));
+                    _push(_env.get(Env::Coord{_readByte(), _readByte(), _readByte()}));
                     break;
                 }
                 case OP_SET_VAR:
                 {
-                    _env.set(Env::Coord{_readByte(), _readByte()}, _peek());
+                    _env.set(Env::Coord{_readByte(), _readByte(), _readByte()}, _peek());
                     break;
                 }
-                case OP_CALL: break;
+                case OP_CALL:
+                {
+                    break;
+                }
                 default: break;
             }
         }

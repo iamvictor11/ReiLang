@@ -13,69 +13,68 @@ namespace rei
     }
     void Env::enter()
     {
-        _staticBlock.emplace_back();
+        Bytecode clvl = _nested.empty() ? 0 : _nested.back().closed_level;
+        _nested.emplace_back().closed_level = clvl;
+    }
+    void Env::enter(bool is_closed)
+    {
+        if (is_closed)
+        {
+            Bytecode clvl = (_nested.empty() ? 0 : _nested.back().closed_level) + 1;
+            _nested.emplace_back().closed_level = clvl;
+        }
+        else
+        {
+            Bytecode clvl = _nested.empty() ? 0 : _nested.back().closed_level;
+            _nested.emplace_back().closed_level = clvl;
+        }
     }
     void Env::exit()
     {
-        _staticBlock.pop_back();
+        _nested.pop_back();
     }
-    Bytecode Env::curr()
+    Bytecode Env::currDepth()
     {
-        return _staticBlock.size() - 1;
+        return _nested.size() - 1;
+    }
+    Bytecode Env::currClosedLevel()
+    {
+        return _nested.empty() ? 0 : _nested.back().closed_level;
     }
     void Env::clear()
     {
-        _staticBlock.clear();
+        _nested.clear();
         enter();
     }
     Env::Coord Env::def(const std::string& name)
     {
-        return def(name, Nil{}, curr());
+        return def(name, Nil{}, currDepth());
     }
     Env::Coord Env::def(const std::string& name, Value::Data value)
     {
-        return def(name, value, curr());
+        return def(name, value, currDepth());
     }
     Env::Coord Env::def(const std::string& name, Value::Data value, Bytecode depth)
     {
-        _Scope& scope = _staticBlock.at(depth);
+        _Scope& scope = _nested.at(depth);
         if (auto it = scope.map.find(name); it != scope.map.end())
-            return {depth, it->second};
+            return {depth, it->second, scope.closed_level};
         Bytecode slot = static_cast<Bytecode>(scope.stack.size());
         scope.map[name] = slot;
         scope.stack.push_back(value);
-        return {depth, slot};
-    }
-    Value::Data Env::get(const std::string& name)
-    {
-        return get(name, curr());
-    }
-    Value::Data Env::get(const std::string& name, Bytecode depth)
-    {
-        for (;;)
-        {
-            if (depth >= _staticBlock.size())
-                break;
-            _Scope& scope = _staticBlock.at(depth);
-            if (auto it = scope.map.find(name); it != scope.map.end())
-                return scope.stack.at(it->second);
-            if (depth == 0)
-                break;
-            depth--;
-        }
-        return Nil{};
+        return {depth, slot, scope.closed_level};
     }
     Value::Data Env::get(Coord c)
     {
-        if (c.depth == REI_BYTECODE_MAX) return Nil{};
+        if (c.relative_depth == REI_BYTECODE_MAX) return Nil{};
         if (c.slot == REI_BYTECODE_MAX) return Nil{};
-        Bytecode depth = c.depth;
+        Bytecode depth = c.closed_level + c.relative_depth;
         Bytecode slot = c.slot;
         for (;;)
         {
-            if (depth >= _staticBlock.size())
+            if (depth >= _nested.size())
                 break;
-            _Scope& scope = _staticBlock.at(depth);
+            _Scope& scope = _nested.at(depth);
             if (slot < scope.stack.size())
                 return scope.stack.at(slot);
             if (depth == 0)
@@ -84,39 +83,17 @@ namespace rei
         }
         return Nil{};
     }
-    void Env::set(const std::string& name, Value::Data value)
-    {
-        set(name, value, curr());
-    }
-    void Env::set(const std::string& name, Value::Data value, Bytecode depth)
-    {
-        for (;;)
-        {
-            if (depth >= _staticBlock.size())
-                break;
-            _Scope& scope = _staticBlock.at(depth);
-            if (auto it = scope.map.find(name); it != scope.map.end())
-            {
-                Bytecode slot = it->second;
-                scope.stack.at(slot) = value;
-                return;
-            }
-            if (depth == 0)
-                break;
-            depth--;
-        }
-    }
     void Env::set(Coord c, Value::Data value)
     {
-        if (c.depth == REI_BYTECODE_MAX) return;
+        if (c.relative_depth == REI_BYTECODE_MAX) return;
         if (c.slot == REI_BYTECODE_MAX) return;
-        Bytecode depth = c.depth;
+        Bytecode depth = c.closed_level + c.relative_depth;
         Bytecode slot = c.slot;
         for (;;)
         {
-            if (depth >= _staticBlock.size())
+            if (depth >= _nested.size())
                 break;
-            _Scope& scope = _staticBlock.at(depth);
+            _Scope& scope = _nested.at(depth);
             if (slot < scope.stack.size())
             {
                 scope.stack.at(slot) = value;
@@ -129,15 +106,15 @@ namespace rei
     }
     Env::Coord Env::toCoord(const std::string& name)
     {
-        return toCoord(name, curr());
+        return toCoord(name, currDepth());
     }
     Env::Coord Env::toCoord(const std::string& name, Bytecode depth)
     {
         for (;;)
         {
-            _Scope& scope = _staticBlock.at(depth);
+            _Scope& scope = _nested.at(depth);
             if (auto it = scope.map.find(name); it != scope.map.end())
-                return {depth, it->second};
+                return {depth - scope.closed_level, it->second, scope.closed_level};
             if (depth == 0)
                 break;
             depth--;

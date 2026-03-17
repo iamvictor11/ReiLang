@@ -133,14 +133,16 @@ namespace rei
                 {
                     i++; size_t cd = chunk->codes[i];
                     i++; size_t ci = chunk->codes[i];
-                    printf("%-16s\033[1m\033[32m%04zu,%04zu\033[0m\n", "GET VAR", cd, ci);
+                    i++; size_t cl = chunk->codes[i];
+                    printf("%-16s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "GET VAR", cd, ci, cl);
                     break;
                 }
                 case OP_SET_VAR:
                 {
                     i++; size_t cd = chunk->codes[i];
                     i++; size_t ci = chunk->codes[i];
-                    printf("%-16s\033[1m\033[32m%04zu,%04zu\033[0m\n", "SET VAR", cd, ci);
+                    i++; size_t cl = chunk->codes[i];
+                    printf("%-16s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "SET VAR", cd, ci, cl);
                     break;
                 }
                 case OP_CALL:

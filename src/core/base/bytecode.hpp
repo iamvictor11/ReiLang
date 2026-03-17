@@ -4,6 +4,7 @@
 namespace rei
 {
     using Bytecode = REI_BYTECODE_TYPE;
+    using Byteint = REI_BYTECODE_INT;
     enum Opcode : Bytecode
     {
         OP_CONSTANT = 0,

@@ -102,7 +102,7 @@ namespace rei
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 区域 */
-        [TK_LPAREN]    = {&Parser::_groupingExpr, nullptr, nullptr, PREC_NONE, 1},
+        [TK_LPAREN]    = {&Parser::_groupingExpr, nullptr, &Parser::_callExpr, PREC_NONE, 1},
         [TK_RPAREN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_RBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -127,7 +127,7 @@ namespace rei
     }
     void Parser::_program()
     {
-        while (!_isAtEnd())
+        while (!_isAtEnd() && _error_reporter->empty())
             _declaration();
     }
     void Parser::_parsePrecedence(Precedence precedence)
@@ -261,8 +261,9 @@ namespace rei
             _assignExpr();
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_SET_VAR);
-            _emitB(varc.depth);
-            _emitB(varc.index);
+            _emitB(varc.relative_depth);
+            _emitB(varc.slot);
+            _emitB(varc.closed_level);
         }
         else if (_match({TK_WALRUS}))
         {
@@ -278,20 +279,26 @@ namespace rei
         {
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(varc.depth);
-            _emitB(varc.index);
+            _emitB(varc.relative_depth);
+            _emitB(varc.slot);
+            _emitB(varc.closed_level);
             _assignExpr();
             _emitB(OP_SET_VAR);
-            _emitB(varc.depth);
-            _emitB(varc.index);
+            _emitB(varc.relative_depth);
+            _emitB(varc.slot);
+            _emitB(varc.closed_level);
         }
         else
         {
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(varc.depth);
-            _emitB(varc.index);
+            _emitB(varc.relative_depth);
+            _emitB(varc.slot);
+            _emitB(varc.closed_level);
         }
+    }
+    void Parser::_callExpr()
+    {
     }
 #pragma endregion
 #pragma region Stmt
@@ -307,6 +314,8 @@ namespace rei
             _breakStmt();
         else if (_match({TK_CONTINUE}))
             _continueStmt();
+        else if (_match({TK_RETURN}))
+            _returnStmt();
         else if (_match({TK_PRINT, TK_PRINTLN}))
             _printStmt();
         else if (_match({TK_SEMICOLON}))
@@ -339,14 +348,22 @@ namespace rei
         Bytecode if_jump_pos = _chunk->codes.size();
         _emitB(OP_JMPF);
         _emitB(0);
+        _env->enter();
+        _emitB(OP_BEG);
         _statement();
+        _env->exit();
+        _emitB(OP_END);
         if (_match({TK_ELSE}))
         {
             Bytecode else_jump_pos = _chunk->codes.size();
             _emitB(OP_JUMP);
             _emitB(0);
             _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
+            _env->enter();
+            _emitB(OP_BEG);
             _statement();
+            _env->exit();
+            _emitB(OP_END);
             _patchB(else_jump_pos + 1, _chunk->codes.size() - (else_jump_pos + 2));
         }
         else if (_match({TK_ELIF}))
@@ -373,7 +390,7 @@ namespace rei
         Bytecode loop_jump_pos = _chunk->codes.size();
         _emitB(loop_tk == TK_LOOP ? OP_JMPF : OP_JMPT);
         _emitB(0);
-        loop.depth = _env->curr();
+        loop.depth = _env->currDepth();
         _statement();
         _emitB(OP_JUMP);
         _emitB(start_pos - (_chunk->codes.size() + 1));
@@ -399,7 +416,7 @@ namespace rei
             return;
         }
         auto& loop = _loops.at(_loops.size() - level);
-        Bytecode diff = _env->curr() - loop.depth;
+        Bytecode diff = _env->currDepth() - loop.depth;
         for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         Bytecode pos = _chunk->codes.size();
@@ -424,13 +441,16 @@ namespace rei
             return;
         }
         auto& loop = _loops.at(_loops.size() - level);
-        Bytecode diff = _env->curr() - loop.depth;
+        Bytecode diff = _env->currDepth() - loop.depth;
         for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         Bytecode start = loop.start;
         _emitB(OP_JUMP);
         _emitB(start - (_chunk->codes.size() + 1));
         _consume(TK_SEMICOLON, "继续语句期望以';'结束");
+    }
+    void Parser::_returnStmt()
+    {
     }
     void Parser::_printStmt()
     {
@@ -458,19 +478,33 @@ namespace rei
     void Parser::_varDecl()
     {
         _consume(TK_IDENT, "变量期望用标识符标记");
-        Token::Unit& vu = _prev();
-        _env->def(std::string{vu.lexeme});
+        std::string vname = std::string(_prev().lexeme);
+        _env->def(vname);
         if (_match({TK_ASSIGN}))
             _expression();
         else
             _emitB(OP_NIL);
         _emitB(OP_DEF_VAR);
-        _emitB(_emitC(std::string{vu.lexeme}));
+        _emitB(_emitC(vname));
         _emitB(OP_POP);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
     void Parser::_funcDecl()
     {
+        // Chunk* savedChunk = _chunk;
+        // _consume(TK_IDENT, "函数声明期望函数名");
+        // std::string fname = std::string(_prev().lexeme);
+        // auto func = std::make_shared<Function>();
+        // _env->def(fname, func);
+        // func->kind = Function::Kind::SCRIPT;
+        // _chunk = &(func->chunk);
+        // _consume(TK_LPAREN, "函数声明期望有'('");
+        // _consume(TK_RPAREN, "函数声明期望有')'");
+        // _statement();
+        // _chunk = savedChunk;
+        // _emitB(OP_DEF_VAR);
+        // _emitB(_emitC(fname));
+        // _emitB(OP_POP);
     }
     void Parser::_structDecl()
     {

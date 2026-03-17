@@ -21,7 +21,6 @@ namespace rei
 
     class VM;
 
-    struct Table;
     struct Function;
 
     using Nil = std::monostate;
@@ -34,7 +33,7 @@ namespace rei
 
     namespace Value
     {
-        using Data = std::variant<Nil, Boolean, Integer, Float, String, Ref<Table>, Ref<Function>>;
+        using Data = std::variant<Nil, Boolean, Integer, Float, String, Ref<Function>>;
         bool toBoolean(const Value::Data& data);
         Integer toInteger(const Value::Data& data);
         Float toFloat(const Value::Data& data);
@@ -46,6 +45,12 @@ namespace rei
             return reinterpret_cast<uintptr_t>(&(*ref));
         }
         std::string getDebugString(Value::Data data);
+        // TODO: 声明周期暂时不考虑
+        enum Lifetime : Bytecode
+        {
+            VL_STACK,
+            VL_HEAP
+        };
     }
 
     template<typename T>
@@ -61,7 +66,7 @@ namespace rei
     template<typename T>
     constexpr bool is_str = std::is_same_v<T, String>;
     template<typename T>
-    constexpr bool is_ref = std::is_same_v<T, Ref<Table>> || std::is_same_v<T, Ref<Function>>;
+    constexpr bool is_ref = std::is_same_v<T, Ref<Function>>;
     template<typename T>
     concept IsNil = is_nil<std::decay_t<T>>;
     template<typename T>
@@ -77,57 +82,6 @@ namespace rei
     template<typename T>
     concept IsReference = is_ref<std::decay_t<T>>;
 
-    struct Variable final
-    {
-    public:
-        Value::Data value = Nil{};
-        bool is_const = false;
-    public:
-        Variable() = default;
-        Variable(Value::Data v) : value(std::move(v)) {}
-        Variable(bool ic) : is_const(ic) {}
-        Variable(Value::Data v, bool ic) : value(std::move(v)), is_const(ic) {}
-    public:
-        template<typename T>
-        bool is() const
-        {
-            return std::holds_alternative<T>(value);
-        }
-        template<typename T>
-        T& as()
-        {
-            return std::get<T>(value);
-        }
-        template<typename T>
-        const T& as() const
-        {
-            return std::get<T>(value);
-        }
-    };
-    struct Table final : public std::enable_shared_from_this<Table>
-    {
-    public:
-        static constexpr size_t npos = static_cast<size_t>(-1);
-    public:
-        std::vector<Value::Data> data;
-        std::unordered_map<String, size_t> map;
-    public:
-        size_t size() const;
-        size_t capacity() const;
-        Value::Data get(size_t index) const;
-        void set(size_t index, Value::Data value);
-        void remove(size_t index);
-        void erase(size_t index);
-        void insert(size_t index, Value::Data value);
-        Value::Data get(const String& key) const;
-        void set(const String& key, Value::Data value);
-        void remove(const String& key);
-        void erase(const String& key);
-        void affix(size_t index, const String& key);
-        void detach(const String& key);
-        void clear();
-        size_t find(const Value::Data& value) const;
-    };
     struct Chunk final
     {
     public:
@@ -147,7 +101,6 @@ namespace rei
     public:
         Kind kind = Kind::SCRIPT;
         Chunk chunk {};
-    public:
-        Value::Data call(VM* vm, std::vector<Value::Data>& args);
+        Bytecode upvalue_count = 0;
     };
 }

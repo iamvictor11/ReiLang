@@ -6,7 +6,12 @@
 
 namespace rei
 {
-    class Lexer;
+    struct CallFrame final
+    {
+        Function* func;
+        Bytecode* ip;
+    };
+    
     class VM final
     {
     private:
@@ -14,6 +19,7 @@ namespace rei
         Env _env;
         Bytecode* _ip;
         std::vector<Value::Data> _stack;
+        std::vector<CallFrame> _frames;
         Error::Reporter _error_reporter;
     public:
         VM() = default;

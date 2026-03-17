@@ -27,7 +27,9 @@ namespace rei
         };
     private:
         static _Rule _rules_s[];
+    private:
         std::vector<_LoopCtx> _loops {};
+        Bytecode _closed_floors = 0;
     private:
         Token::List _tokens;
         Chunk* _chunk;
@@ -56,6 +58,7 @@ namespace rei
         void _binaryExpr();
         void _primaryExpr();
         void _varExpr();
+        void _callExpr();
     private:
         void _statement();
         void _exprStmt();
@@ -64,6 +67,7 @@ namespace rei
         void _loopStmt();
         void _breakStmt();
         void _continueStmt();
+        void _returnStmt();
         void _printStmt();
     private:
         void _declaration();
