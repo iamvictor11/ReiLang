@@ -3,22 +3,30 @@
 
 namespace rei
 {
+    namespace Var
+    {
+        enum Nest : Bytecode
+        {
+            VN_OUTER,
+            VN_INNER
+        };
+    }
     class Env final
     {
     private:
         struct _Scope final
         {
             std::unordered_map<std::string, Bytecode> map {};
-            std::vector<Value::Data> values {};
+            std::vector<Value::Data> stack {};
         };
     public:
         struct Coord final
         {
             Bytecode depth = REI_BYTECODE_MAX;
-            Bytecode index = REI_BYTECODE_MAX;
+            Bytecode slot = REI_BYTECODE_MAX;
         };
     private:
-        std::vector<_Scope> _scopes {};
+        std::vector<_Scope> _staticBlock {};
     public:
         Env();
         ~Env();

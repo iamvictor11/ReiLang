@@ -13,19 +13,19 @@ namespace rei
     }
     void Env::enter()
     {
-        _scopes.emplace_back();
+        _staticBlock.emplace_back();
     }
     void Env::exit()
     {
-        _scopes.pop_back();
+        _staticBlock.pop_back();
     }
     Bytecode Env::curr()
     {
-        return _scopes.size() - 1;
+        return _staticBlock.size() - 1;
     }
     void Env::clear()
     {
-        _scopes.clear();
+        _staticBlock.clear();
         enter();
     }
     Env::Coord Env::def(const std::string& name)
@@ -38,13 +38,13 @@ namespace rei
     }
     Env::Coord Env::def(const std::string& name, Value::Data value, Bytecode depth)
     {
-        _Scope& scope = _scopes.at(depth);
+        _Scope& scope = _staticBlock.at(depth);
         if (auto it = scope.map.find(name); it != scope.map.end())
             return {depth, it->second};
-        Bytecode index = static_cast<Bytecode>(scope.values.size());
-        scope.map[name] = index;
-        scope.values.push_back(value);
-        return {depth, index};
+        Bytecode slot = static_cast<Bytecode>(scope.stack.size());
+        scope.map[name] = slot;
+        scope.stack.push_back(value);
+        return {depth, slot};
     }
     Value::Data Env::get(const std::string& name)
     {
@@ -54,11 +54,11 @@ namespace rei
     {
         for (;;)
         {
-            if (depth >= _scopes.size())
+            if (depth >= _staticBlock.size())
                 break;
-            _Scope& scope = _scopes.at(depth);
+            _Scope& scope = _staticBlock.at(depth);
             if (auto it = scope.map.find(name); it != scope.map.end())
-                return scope.values.at(it->second);
+                return scope.stack.at(it->second);
             if (depth == 0)
                 break;
             depth--;
@@ -68,16 +68,16 @@ namespace rei
     Value::Data Env::get(Coord c)
     {
         if (c.depth == REI_BYTECODE_MAX) return Nil{};
-        if (c.index == REI_BYTECODE_MAX) return Nil{};
+        if (c.slot == REI_BYTECODE_MAX) return Nil{};
         Bytecode depth = c.depth;
-        Bytecode index = c.index;
+        Bytecode slot = c.slot;
         for (;;)
         {
-            if (depth >= _scopes.size())
+            if (depth >= _staticBlock.size())
                 break;
-            _Scope& scope = _scopes.at(depth);
-            if (index < scope.values.size())
-                return scope.values.at(index);
+            _Scope& scope = _staticBlock.at(depth);
+            if (slot < scope.stack.size())
+                return scope.stack.at(slot);
             if (depth == 0)
                 break;
             depth--;
@@ -92,13 +92,13 @@ namespace rei
     {
         for (;;)
         {
-            if (depth >= _scopes.size())
+            if (depth >= _staticBlock.size())
                 break;
-            _Scope& scope = _scopes.at(depth);
+            _Scope& scope = _staticBlock.at(depth);
             if (auto it = scope.map.find(name); it != scope.map.end())
             {
-                Bytecode index = it->second;
-                scope.values.at(index) = value;
+                Bytecode slot = it->second;
+                scope.stack.at(slot) = value;
                 return;
             }
             if (depth == 0)
@@ -109,17 +109,17 @@ namespace rei
     void Env::set(Coord c, Value::Data value)
     {
         if (c.depth == REI_BYTECODE_MAX) return;
-        if (c.index == REI_BYTECODE_MAX) return;
+        if (c.slot == REI_BYTECODE_MAX) return;
         Bytecode depth = c.depth;
-        Bytecode index = c.index;
+        Bytecode slot = c.slot;
         for (;;)
         {
-            if (depth >= _scopes.size())
+            if (depth >= _staticBlock.size())
                 break;
-            _Scope& scope = _scopes.at(depth);
-            if (index < scope.values.size())
+            _Scope& scope = _staticBlock.at(depth);
+            if (slot < scope.stack.size())
             {
-                scope.values.at(index) = value;
+                scope.stack.at(slot) = value;
                 return;
             }
             if (depth == 0)
@@ -135,7 +135,7 @@ namespace rei
     {
         for (;;)
         {
-            _Scope& scope = _scopes.at(depth);
+            _Scope& scope = _staticBlock.at(depth);
             if (auto it = scope.map.find(name); it != scope.map.end())
                 return {depth, it->second};
             if (depth == 0)
