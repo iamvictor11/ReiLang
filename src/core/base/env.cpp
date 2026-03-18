@@ -58,11 +58,11 @@ namespace rei
     {
         _Scope& scope = _nested.at(depth);
         if (auto it = scope.map.find(name); it != scope.map.end())
-            return {depth, it->second, scope.closed_level};
+            return {depth - scope.closed_level, it->second, scope.closed_level};
         Bytecode slot = static_cast<Bytecode>(scope.stack.size());
         scope.map[name] = slot;
         scope.stack.push_back(value);
-        return {depth, slot, scope.closed_level};
+        return {depth - scope.closed_level, slot, scope.closed_level};
     }
     Value::Data Env::get(Coord c)
     {
