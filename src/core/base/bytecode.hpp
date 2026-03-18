@@ -40,6 +40,7 @@ namespace rei
         OP_OR,       // ||
         /* 操作 */
         OP_BEG,
+        OP_BEG_CLOSE,
         OP_END,
         OP_PRINT,   // print
         OP_PRINTLN, // println

@@ -120,6 +120,9 @@ namespace rei
                 case OP_BEG:
                     _env.enter();
                     break;
+                case OP_BEG_CLOSE:
+                    _env.enter(true);
+                    break;
                 case OP_END:
                     _env.exit();
                     break;
