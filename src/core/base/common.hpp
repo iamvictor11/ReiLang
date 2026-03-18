@@ -23,13 +23,20 @@ namespace rei
 
     struct Function;
 
+    template<typename T>
+    using Ptr = T*;
+    template<typename T>
+    using Ref = std::shared_ptr<T>;
+    template<typename T>
+    using Obs = std::weak_ptr<T>;
+    template<typename T>
+    using Uno = std::unique_ptr<T>;
+
     using Nil = std::monostate;
     using Boolean = bool;
     using Integer = int64_t;
     using Float = double;
     using String = std::string;
-    template<typename T>
-    using Ref = std::shared_ptr<T>;
 
     namespace Value
     {
@@ -65,8 +72,8 @@ namespace rei
     constexpr bool is_num = std::is_same_v<T, Integer> || std::is_same_v<T, Float> || std::is_same_v<T, Boolean>;
     template<typename T>
     constexpr bool is_str = std::is_same_v<T, String>;
-    template<typename T>
-    constexpr bool is_ref = std::is_same_v<T, Ref<Function>>;
+    template<typename T, typename U>
+    constexpr bool is_ref = std::is_same_v<T, Ref<U>>;
     template<typename T>
     concept IsNil = is_nil<std::decay_t<T>>;
     template<typename T>
@@ -80,7 +87,7 @@ namespace rei
     template<typename T>
     concept IsString = is_str<std::decay_t<T>>;
     template<typename T>
-    concept IsReference = is_ref<std::decay_t<T>>;
+    concept IsReference = is_ref<std::decay_t<T>, Function>;
 
     struct Chunk final
     {

@@ -25,10 +25,16 @@ namespace rei
             Bytecode depth;
             std::vector<Bytecode> breaks;
         };
+        struct _FuncCtx final
+        {
+            Bytecode depth;
+            std::vector<Bytecode> returns;
+        };
     private:
         static _Rule _rules_s[];
     private:
-        std::vector<_LoopCtx> _loops {};
+        std::vector<_LoopCtx> _loop_ctxs {};
+        std::vector<_FuncCtx> _func_ctxs {};
         Bytecode _closed_floors = 0;
     private:
         Token::List _tokens;

@@ -4,18 +4,25 @@
 
 namespace rei
 {
-    static void _Chunk_debugPrint(Chunk* chunk)
+    static void _Chunk_debugPrint(const Chunk& chunk, size_t level = 0)
     {
-        for (size_t i = 0;i < chunk->codes.size();i++)
+        for (size_t i = 0;i < chunk.codes.size();i++)
         {
-            auto instruction = static_cast<Opcode>(chunk->codes[i]);
+            auto instruction = static_cast<Opcode>(chunk.codes[i]);
+            for (size_t i = 0; i < level; i++)
+                printf("\t");
             switch (instruction)
             {
                 case OP_CONSTANT:
                 {
                     i++;
-                    Bytecode ci = chunk->codes[i];
-                    printf("%-16s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::getDebugString(chunk->constants[ci]).c_str());
+                    Bytecode ci = chunk.codes[i];
+                    printf("%-16s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::getDebugString(chunk.constants[ci]).c_str());
+                    if (std::holds_alternative<Ref<Function>>(chunk.constants[ci]))
+                    {
+                        auto func_ref = std::get<Ref<Function>>(chunk.constants[ci]);
+                        _Chunk_debugPrint(func_ref->chunk, level + 1);
+                    }
                     break;
                 }
                 case OP_POP:
@@ -89,17 +96,14 @@ namespace rei
                     break;
                 case OP_AND:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "AND", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "AND", chunk.codes[i]);
                     break;
                 case OP_OR:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "OR", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04zu\033[0m\n", "OR", chunk.codes[i]);
                     break;
                 case OP_BEG:
                     printf("%-16s\n", "BEG");
-                    break;
-                case OP_BEG_CLOSE:
-                    printf("%-16s\n", "BEG CLOSE");
                     break;
                 case OP_END:
                     printf("%-16s\n", "END");
@@ -110,46 +114,46 @@ namespace rei
                 case OP_PRINTLN:
                     printf("%-16s\n", "PRINTLN");
                     break;
-                case OP_RETURN:
-                    printf("%-16s\n", "RETURN");
-                    break;
                 case OP_JUMP:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JUMP", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JUMP", chunk.codes[i]);
                     break;
                 case OP_JMPT:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JMPT", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JMPT", chunk.codes[i]);
                     break;
                 case OP_JMPF:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JMPF", chunk->codes[i]);
+                    printf("%-16s\033[1m\033[32m%04d\033[0m\n", "JMPF", chunk.codes[i]);
                     break;
                 case OP_LOOP:
                     printf("%-16s\n", "LOOP");
                     break;
                 case OP_DEF_VAR:
                     i++;
-                    printf("%-16s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "DEF VAR", chunk->codes[i], Value::getDebugString(chunk->constants[chunk->codes[i]]).c_str());
+                    printf("%-16s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "DEF VAR", chunk.codes[i], Value::getDebugString(chunk.constants[chunk.codes[i]]).c_str());
                     break;
                 case OP_GET_VAR:
                 {
-                    i++; size_t cd = chunk->codes[i];
-                    i++; size_t ci = chunk->codes[i];
-                    i++; size_t cl = chunk->codes[i];
+                    i++; size_t cd = chunk.codes[i];
+                    i++; size_t ci = chunk.codes[i];
+                    i++; size_t cl = chunk.codes[i];
                     printf("%-16s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "GET VAR", cd, ci, cl);
                     break;
                 }
                 case OP_SET_VAR:
                 {
-                    i++; size_t cd = chunk->codes[i];
-                    i++; size_t ci = chunk->codes[i];
-                    i++; size_t cl = chunk->codes[i];
+                    i++; size_t cd = chunk.codes[i];
+                    i++; size_t ci = chunk.codes[i];
+                    i++; size_t cl = chunk.codes[i];
                     printf("%-16s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "SET VAR", cd, ci, cl);
                     break;
                 }
                 case OP_CALL:
                     printf("%-16s\n", "CALL");
+                    break;
+                case OP_RETURN:
+                    printf("%-16s\n", "RETURN");
                     break;
                 default:
                     break;

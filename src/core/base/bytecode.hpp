@@ -40,11 +40,9 @@ namespace rei
         OP_OR,       // ||
         /* 操作 */
         OP_BEG,
-        OP_BEG_CLOSE,
         OP_END,
         OP_PRINT,   // print
         OP_PRINTLN, // println
-        OP_RETURN,  // return
         OP_JUMP,
         OP_JMPT,
         OP_JMPF,
@@ -52,6 +50,7 @@ namespace rei
         OP_DEF_VAR,
         OP_GET_VAR,
         OP_SET_VAR,
-        OP_CALL
+        OP_CALL,
+        OP_RETURN
     };
 }

@@ -13,11 +13,11 @@ namespace rei
         [TK_ASSIGN]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
         [TK_WALRUS]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
         /* 标识符 */
-        [TK_IDENT] = {&Parser::_varExpr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_IDENT] = {&Parser::_varExpr, nullptr, nullptr, PREC_PRIMARY, 0},
         /* 字面量 */
-        [TK_LIT_INT]    = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
-        [TK_LIT_FLOAT]  = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
-        [TK_LIT_STRING] = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LIT_INT]    = {&Parser::_primaryExpr, nullptr, nullptr, PREC_PRIMARY, 0},
+        [TK_LIT_FLOAT]  = {&Parser::_primaryExpr, nullptr, nullptr, PREC_PRIMARY, 0},
+        [TK_LIT_STRING] = {&Parser::_primaryExpr, nullptr, nullptr, PREC_PRIMARY, 0},
         /* 数学运算 */
         [TK_ADD]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_TERM, 1},
         [TK_SUB]   = {&Parser::_unaryExpr, &Parser::_binaryExpr, nullptr, PREC_TERM, 1},
@@ -102,7 +102,7 @@ namespace rei
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 区域 */
-        [TK_LPAREN]    = {&Parser::_groupingExpr, nullptr, &Parser::_callExpr, PREC_NONE, 1},
+        [TK_LPAREN]    = {&Parser::_groupingExpr, nullptr, &Parser::_callExpr, PREC_CALL, 1},
         [TK_RPAREN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_RBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -143,6 +143,12 @@ namespace rei
         while (_rules_s[_peek().type].precedence >= precedence)
         {
             _advance();
+            _MyFnuc suffixRule = _rules_s[_prev().type].suffix;
+            if (suffixRule != nullptr)
+            {
+                (this->*suffixRule)();
+                break;
+            }
             _MyFnuc infixRule = _rules_s[_prev().type].infix;
             if (infixRule == nullptr) break;
             (this->*infixRule)();
@@ -263,7 +269,7 @@ namespace rei
             _emitB(OP_SET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.closed_level);
+            _emitB(varc.close_level);
         }
         else if (_match({TK_WALRUS}))
         {
@@ -281,12 +287,12 @@ namespace rei
             _emitB(OP_GET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.closed_level);
+            _emitB(varc.close_level);
             _assignExpr();
             _emitB(OP_SET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.closed_level);
+            _emitB(varc.close_level);
         }
         else
         {
@@ -294,11 +300,13 @@ namespace rei
             _emitB(OP_GET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.closed_level);
+            _emitB(varc.close_level);
         }
     }
     void Parser::_callExpr()
     {
+        _consume(TK_RPAREN, "调用表达式期望以')'结束");
+        _emitB(OP_CALL);
     }
 #pragma endregion
 #pragma region Stmt
@@ -384,25 +392,28 @@ namespace rei
     {
         Token::Type loop_tk = _prev().type;
         Bytecode start_pos = _chunk->codes.size();
-        auto& loop = _loops.emplace_back();
-        loop.start = start_pos;
+        auto& loop_ctx = _loop_ctxs.emplace_back();
+        loop_ctx.start = start_pos;
         _expression();
         Bytecode loop_jump_pos = _chunk->codes.size();
         _emitB(loop_tk == TK_LOOP ? OP_JMPF : OP_JMPT);
         _emitB(0);
-        loop.depth = _env->currDepth();
+        _env->enter();
+        _emitB(OP_BEG);
+        loop_ctx.depth = _env->currDepth();
         _statement();
+        _emitB(OP_END);
         _emitB(OP_JUMP);
         _emitB(start_pos - (_chunk->codes.size() + 1));
         Bytecode end_pos = _chunk->codes.size();
         _patchB(loop_jump_pos + 1, end_pos - (loop_jump_pos + 2));
-        for (Bytecode bpos : _loops.back().breaks)
+        for (Bytecode bpos : _loop_ctxs.back().breaks)
             _patchB(bpos + 1, end_pos - (bpos + 2));
-        _loops.pop_back();
+        _loop_ctxs.pop_back();
     }
     void Parser::_breakStmt()
     {
-        if (_loops.empty())
+        if (_loop_ctxs.empty())
         {
             _reporterError("中断语句不在循环中");
             return;
@@ -410,24 +421,24 @@ namespace rei
         Integer level = 1;
         if (_match({TK_LIT_INT}))
             level = Value::toInteger(_prev().literal);
-        if (level <= 0 || level > _loops.size())
+        if (level <= 0 || level > _loop_ctxs.size())
         {
             _reporterError("循环层级超出范围");
             return;
         }
-        auto& loop = _loops.at(_loops.size() - level);
-        Bytecode diff = _env->currDepth() - loop.depth;
+        auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
+        Bytecode diff = _env->currDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         Bytecode pos = _chunk->codes.size();
         _emitB(OP_JUMP);
         _emitB(0);
-        loop.breaks.push_back(pos);
+        loop_ctx.breaks.push_back(pos);
         _consume(TK_SEMICOLON, "中断语句期望以';'结束");
     }
     void Parser::_continueStmt()
     {
-        if (_loops.empty())
+        if (_loop_ctxs.empty())
         {
             _reporterError("继续语句不在循环中");
             return;
@@ -435,22 +446,37 @@ namespace rei
         Integer level = 1;
         if (_match({TK_LIT_INT}))
             level = Value::toInteger(_prev().literal);
-        if (level <= 0 || level > _loops.size())
+        if (level <= 0 || level > _loop_ctxs.size())
         {
             _reporterError("循环层级超出范围");
             return;
         }
-        auto& loop = _loops.at(_loops.size() - level);
-        Bytecode diff = _env->currDepth() - loop.depth;
+        auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
+        Bytecode diff = _env->currDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
-        Bytecode start = loop.start;
+        Bytecode start = loop_ctx.start;
         _emitB(OP_JUMP);
         _emitB(start - (_chunk->codes.size() + 1));
         _consume(TK_SEMICOLON, "继续语句期望以';'结束");
     }
     void Parser::_returnStmt()
     {
+        if (_func_ctxs.empty())
+        {
+            _reporterError("返回语句不在函数中");
+            return;
+        }
+        auto& func_ctx = _func_ctxs.back();
+        if (_match({TK_COLON}))
+            _expression();
+        else
+            _emitB(OP_NIL);
+        Bytecode diff = _env->currDepth() - func_ctx.depth;
+        for (Bytecode i = 0; i < diff; i++)
+            _emitB(OP_END);
+        _emitB(OP_RETURN);
+        _consume(TK_SEMICOLON, "返回语句期望以';'结束");
     }
     void Parser::_printStmt()
     {
@@ -491,20 +517,31 @@ namespace rei
     }
     void Parser::_funcDecl()
     {
-        // Chunk* savedChunk = _chunk;
-        // _consume(TK_IDENT, "函数声明期望函数名");
-        // std::string fname = std::string(_prev().lexeme);
-        // auto func = std::make_shared<Function>();
-        // _env->def(fname, func);
-        // func->kind = Function::Kind::SCRIPT;
-        // _chunk = &(func->chunk);
-        // _consume(TK_LPAREN, "函数声明期望有'('");
-        // _consume(TK_RPAREN, "函数声明期望有')'");
-        // _statement();
-        // _chunk = savedChunk;
-        // _emitB(OP_DEF_VAR);
-        // _emitB(_emitC(fname));
-        // _emitB(OP_POP);
+        Chunk* savedChunk = _chunk;
+        _consume(TK_IDENT, "函数声明期望函数名");
+        std::string fname = std::string(_prev().lexeme);
+        auto func = std::make_shared<Function>();
+        _env->def(fname, func);
+        func->kind = Function::Kind::SCRIPT;
+        _chunk = &(func->chunk);
+        _consume(TK_LPAREN, "函数声明期望有'('");
+        _consume(TK_RPAREN, "函数声明期望有')'");
+        _env->enter(true);
+        {
+        auto& func_ctx = _func_ctxs.emplace_back();
+        func_ctx.depth = _env->currDepth();
+        _statement();
+        _emitB(OP_NIL);
+        _emitB(OP_RETURN);
+        }
+        _func_ctxs.pop_back();
+        _env->exit();
+        _chunk = savedChunk;
+        _emitB(OP_CONSTANT);
+        _emitB(_emitC(func));
+        _emitB(OP_DEF_VAR);
+        _emitB(_emitC(fname));
+        _emitB(OP_POP);
     }
     void Parser::_structDecl()
     {
@@ -571,8 +608,10 @@ namespace rei
             _pass();
             return;
         }
-        // if (type == TK_SEMICOLON)
-        //     return;
+    #ifdef REI_OMIT_SEMICOLON_ENABLE
+        if (type == TK_SEMICOLON)
+            return;
+    #endif
         _reporterError(message);
     }
 #pragma endregion

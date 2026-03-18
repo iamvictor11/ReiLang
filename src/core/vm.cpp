@@ -43,7 +43,7 @@ namespace rei
         }
         _env.clear();
     #ifdef REI_DEBUG_ENABLE
-        _Chunk_debugPrint(&_chunk);
+        _Chunk_debugPrint(_chunk);
     #endif
     }
 #pragma region Run
@@ -120,9 +120,6 @@ namespace rei
                 case OP_BEG:
                     _env.enter();
                     break;
-                case OP_BEG_CLOSE:
-                    _env.enter(true);
-                    break;
                 case OP_END:
                     _env.exit();
                     break;
@@ -132,7 +129,6 @@ namespace rei
                 case OP_PRINTLN:
                     std::cout << Value::toString(_pop()) << std::endl;
                     break;
-                case OP_RETURN: break;
                 case OP_JUMP:
                 {
                     _jump(_readByte());
@@ -155,7 +151,7 @@ namespace rei
                 case OP_LOOP: break;
                 case OP_DEF_VAR:
                 {
-                    _env.def(Value::toString(_readConstant()), _peek());
+                    Env::Coord vc = _env.def(Value::toString(_readConstant()), _peek());
                     break;
                 }
                 case OP_GET_VAR:
@@ -170,6 +166,28 @@ namespace rei
                 }
                 case OP_CALL:
                 {
+                    Value::Data callee = _pop();
+                    if (std::holds_alternative<Ref<Function>>(callee))
+                    {
+                        auto func_ref = std::get<Ref<Function>>(callee);
+                        auto& call_frame = _frames.emplace_back();
+                        call_frame.save_ip = _ip;
+                        _ip = func_ref->chunk.codes.data();
+                        _env.enter(true);
+                    }
+                    else
+                    {
+                        _error_reporter.report("尝试调用非函数对象", {0, 0});
+                        _push(callee);
+                    }
+                    break;
+                }
+                case OP_RETURN:
+                {
+                    auto& call_frame = _frames.back();
+                    _ip = call_frame.save_ip;
+                    _frames.pop_back();
+                    _env.exit();
                     break;
                 }
                 default: break;

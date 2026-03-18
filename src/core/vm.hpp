@@ -8,8 +8,7 @@ namespace rei
 {
     struct CallFrame final
     {
-        Function* func;
-        Bytecode* ip;
+        Bytecode* save_ip = nullptr;
     };
     
     class VM final
