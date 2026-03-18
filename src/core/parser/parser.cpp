@@ -254,16 +254,16 @@ namespace rei
     void Parser::_callExpr()
     {
         Bytecode upvalue_count = 0;
-        // while (_match({TK_IDENT}))
-        // {
-        //     _expression();
-        //     upvalue_count++;
-        //     if (upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
-        //         _reporterError(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
-        //     if (_match({TK_COMMA}))
-        //         continue;
-        //     break;
-        // }
+        while (!_check({TK_RPAREN}) && !_isAtEnd())
+        {
+            _expression();
+            upvalue_count++;
+            if (upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
+                _reporterError(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+            if (_match({TK_COMMA}))
+                continue;
+            break;
+        }
         _consume(TK_RPAREN, "调用表达式期望以')'结束");
         _emitB(OP_CALL);
         _emitB(upvalue_count);
@@ -549,26 +549,27 @@ namespace rei
         func->kind = Function::Kind::SCRIPT;
         _chunk = &(func->chunk);
         _env->enter(true);
+        func->close_level = _env->currClosedLevel();
         _consume(TK_LPAREN, "函数声明期望有'('");
-        // while (_match({TK_IDENT}))
-        // {
-        //     std::string upname = std::string(_prev().lexeme);
-        //     if (_env->overlap(upname))
-        //     {
-        //         _reporterError(std::format("函数参数名重复 {}", upname));
-        //         return;
-        //     }
-        //     _env->def(upname);
-        //     func->upvalue_count++;
-        //     if (func->upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
-        //     {
-        //         _reporterError(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
-        //         return;
-        //     }
-        //     if (_match({TK_COMMA}))
-        //         continue;
-        //     break;
-        // }
+        while (_match({TK_IDENT}))
+        {
+            std::string upname = std::string(_prev().lexeme);
+            if (_env->overlap(upname))
+            {
+                _reporterError(std::format("函数参数名重复 {}", upname));
+                return;
+            }
+            _env->def(upname);
+            func->upvalue_count++;
+            if (func->upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
+            {
+                _reporterError(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+                return;
+            }
+            if (_match({TK_COMMA}))
+                continue;
+            break;
+        }
         _consume(TK_RPAREN, "函数声明期望有')'");
         {
         auto& func_ctx = _func_ctxs.emplace_back();

@@ -109,5 +109,6 @@ namespace rei
         Kind kind = Kind::SCRIPT;
         Chunk chunk {};
         Bytecode upvalue_count = 0;
+        Bytecode close_level = 1;
     };
 }
