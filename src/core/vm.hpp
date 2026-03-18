@@ -8,7 +8,9 @@ namespace rei
 {
     struct CallFrame final
     {
+        Ref<Function> func = nullptr;
         Bytecode* save_ip = nullptr;
+        Bytecode* save_end = nullptr;
     };
     
     class VM final
@@ -17,6 +19,7 @@ namespace rei
         Chunk _chunk;
         Env _env;
         Bytecode* _ip;
+        Bytecode* _end;
         std::vector<Value::Data> _stack;
         std::vector<CallFrame> _frames;
         Error::Reporter _error_reporter;

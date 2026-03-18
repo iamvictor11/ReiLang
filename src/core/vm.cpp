@@ -54,8 +54,8 @@ namespace rei
     #endif
         if (!_error_reporter.empty()) return;
         _ip = _chunk.codes.data();
-        Bytecode* endt = &_chunk.codes.back();
-        while (_ip <= endt)
+        _end = &(_chunk.codes.back());
+        while (_ip <= _end)
         {
             auto instruction = static_cast<Opcode>(_readByte());
             switch (instruction)
@@ -171,8 +171,11 @@ namespace rei
                     {
                         auto func_ref = std::get<Ref<Function>>(callee);
                         auto& call_frame = _frames.emplace_back();
+                        call_frame.func = func_ref;
                         call_frame.save_ip = _ip;
+                        call_frame.save_end = _end;
                         _ip = func_ref->chunk.codes.data();
+                        _end = &(func_ref->chunk.codes.back());
                         _env.enter(true);
                     }
                     else
@@ -186,6 +189,7 @@ namespace rei
                 {
                     auto& call_frame = _frames.back();
                     _ip = call_frame.save_ip;
+                    _end = call_frame.save_end;
                     _frames.pop_back();
                     _env.exit();
                     break;
@@ -199,6 +203,7 @@ namespace rei
         std::cout << "stack: size " << _stack.size() << std::endl;
         for (size_t i = 0; i < _stack.size(); i++)
             std::cout << Value::getDebugString(_stack[i]) << std::endl;
+        std::cout << "env: depth " << _env.currDepth() << " clvl " << _env.currClosedLevel() << std::endl;
     #endif
     }
 #pragma endregion
@@ -210,7 +215,10 @@ namespace rei
     Value::Data VM::_readConstant()
     {
         size_t index = _readByte();
-        return _chunk.constants[index];
+        if (_frames.empty())
+            return _chunk.constants[index];
+        else
+            return _frames.back().func->chunk.constants[index];
     }
     void VM::_jump(Bytecode offset)
     {
