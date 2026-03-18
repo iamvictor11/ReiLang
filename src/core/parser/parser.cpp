@@ -251,6 +251,23 @@ namespace rei
             default: _reporterError("未知的二元运算符");
         }
     }
+    void Parser::_callExpr()
+    {
+        Bytecode upvalue_count = 0;
+        // while (_match({TK_IDENT}))
+        // {
+        //     _expression();
+        //     upvalue_count++;
+        //     if (upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
+        //         _reporterError(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+        //     if (_match({TK_COMMA}))
+        //         continue;
+        //     break;
+        // }
+        _consume(TK_RPAREN, "调用表达式期望以')'结束");
+        _emitB(OP_CALL);
+        _emitB(upvalue_count);
+    }
     void Parser::_primaryExpr()
     {
         switch (_prev().type)
@@ -282,10 +299,12 @@ namespace rei
         }
         else if (_match({TK_WALRUS}))
         {
-            _env->def(std::string{vu.lexeme});
+            Env::Coord vc = _env->def(std::string{vu.lexeme});
             _expression();
             _emitB(OP_DEF_VAR);
-            _emitB(_emitC(std::string{vu.lexeme}));
+            _emitB(vc.relative_depth);
+            _emitB(vc.slot);
+            _emitB(vc.close_level);
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
@@ -311,11 +330,6 @@ namespace rei
             _emitB(varc.slot);
             _emitB(varc.close_level);
         }
-    }
-    void Parser::_callExpr()
-    {
-        _consume(TK_RPAREN, "调用表达式期望以')'结束");
-        _emitB(OP_CALL);
     }
 #pragma endregion
 #pragma region Stmt
@@ -496,7 +510,6 @@ namespace rei
     }
 #pragma endregion
 #pragma region Decl
-
     void Parser::_declaration()
     {
         if (_match({TK_VAR, TK_LET}))
@@ -514,13 +527,15 @@ namespace rei
     {
         _consume(TK_IDENT, "变量期望用标识符标记");
         std::string vname = std::string(_prev().lexeme);
-        _env->def(vname);
+        Env::Coord vc = _env->def(vname);
         if (_match({TK_ASSIGN}))
             _expression();
         else
             _emitB(OP_NIL);
         _emitB(OP_DEF_VAR);
-        _emitB(_emitC(vname));
+        _emitB(vc.relative_depth);
+        _emitB(vc.slot);
+        _emitB(vc.close_level);
         _emitB(OP_POP);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
@@ -530,12 +545,31 @@ namespace rei
         _consume(TK_IDENT, "函数声明期望函数名");
         std::string fname = std::string(_prev().lexeme);
         auto func = std::make_shared<Function>();
-        _env->def(fname, func);
+        Env::Coord fc = _env->def(fname, func);
         func->kind = Function::Kind::SCRIPT;
         _chunk = &(func->chunk);
-        _consume(TK_LPAREN, "函数声明期望有'('");
-        _consume(TK_RPAREN, "函数声明期望有')'");
         _env->enter(true);
+        _consume(TK_LPAREN, "函数声明期望有'('");
+        // while (_match({TK_IDENT}))
+        // {
+        //     std::string upname = std::string(_prev().lexeme);
+        //     if (_env->overlap(upname))
+        //     {
+        //         _reporterError(std::format("函数参数名重复 {}", upname));
+        //         return;
+        //     }
+        //     _env->def(upname);
+        //     func->upvalue_count++;
+        //     if (func->upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
+        //     {
+        //         _reporterError(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+        //         return;
+        //     }
+        //     if (_match({TK_COMMA}))
+        //         continue;
+        //     break;
+        // }
+        _consume(TK_RPAREN, "函数声明期望有')'");
         {
         auto& func_ctx = _func_ctxs.emplace_back();
         func_ctx.depth = _env->currDepth();
@@ -549,7 +583,9 @@ namespace rei
         _emitB(OP_CONSTANT);
         _emitB(_emitC(func));
         _emitB(OP_DEF_VAR);
-        _emitB(_emitC(fname));
+        _emitB(fc.relative_depth);
+        _emitB(fc.slot);
+        _emitB(fc.close_level);
         _emitB(OP_POP);
     }
     void Parser::_structDecl()

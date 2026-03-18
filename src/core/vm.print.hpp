@@ -131,9 +131,13 @@ namespace rei
                     printf("%-12s\n", "LOOP");
                     break;
                 case OP_DEF_VAR:
-                    i++;
-                    printf("%-12s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "DEF VAR", chunk.codes[i], Value::getDebugString(chunk.constants[chunk.codes[i]]).c_str());
+                {
+                    i++; size_t cd = chunk.codes[i];
+                    i++; size_t ci = chunk.codes[i];
+                    i++; size_t cl = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "DEF VAR", cd, ci, cl);
                     break;
+                }
                 case OP_GET_VAR:
                 {
                     i++; size_t cd = chunk.codes[i];
@@ -151,7 +155,8 @@ namespace rei
                     break;
                 }
                 case OP_CALL:
-                    printf("%-12s\n", "CALL");
+                    i++;
+                    printf("%-12s\033[1m\033[32m%04d\033[0m\n", "CALL", chunk.codes[i]);
                     break;
                 case OP_RETURN:
                     printf("%-12s\n", "RETURN");

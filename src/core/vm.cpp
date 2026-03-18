@@ -151,7 +151,7 @@ namespace rei
                 case OP_LOOP: break;
                 case OP_DEF_VAR:
                 {
-                    Env::Coord vc = _env.def(Value::toString(_readConstant()), _peek());
+                    _env.def(Env::Coord{_readByte(), _readByte(), _readByte()}, _peek());
                     break;
                 }
                 case OP_GET_VAR:
@@ -167,6 +167,7 @@ namespace rei
                 case OP_CALL:
                 {
                     Value::Data callee = _pop();
+                    Bytecode upvalue_count = _readByte();
                     if (std::holds_alternative<Ref<Function>>(callee))
                     {
                         auto func_ref = std::get<Ref<Function>>(callee);
@@ -177,6 +178,7 @@ namespace rei
                         _ip = func_ref->chunk.codes.data();
                         _end = &(func_ref->chunk.codes.back());
                         _env.enter(true);
+
                     }
                     else
                     {

@@ -62,9 +62,9 @@ namespace rei
         void _groupingExpr();
         void _unaryExpr();
         void _binaryExpr();
+        void _callExpr();
         void _primaryExpr();
         void _varExpr();
-        void _callExpr();
     private:
         void _statement();
         void _exprStmt();
