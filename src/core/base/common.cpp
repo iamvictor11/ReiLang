@@ -1,6 +1,7 @@
 #include "common.hpp"
 #include "string.hpp"
 #include <charconv>
+#include <format>
 
 namespace rei
 {
@@ -95,7 +96,10 @@ namespace rei
                 else if constexpr (std::is_same_v<T, String>)
                     return arg;
                 else if constexpr (std::is_same_v<T, Ref<Function>>)
-                    return "function";
+                    return std::format("function: kind {}, upc {}",
+                        arg->kind == Function::Kind::NATIVE ? "Native" : "Script",
+                        arg->upvalue_count
+                    );
                 else
                     return "unknown";
             }, data);
@@ -112,11 +116,14 @@ namespace rei
                 else if constexpr (std::is_same_v<T, Integer>)
                     return std::to_string(arg);
                 else if constexpr (std::is_same_v<T, Float>)
-                    return "\"" + std::to_string(arg) + "\"";
+                    return std::to_string(arg);
                 else if constexpr (std::is_same_v<T, String>)
                     return escape(arg);
                 else if constexpr (std::is_same_v<T, Ref<Function>>)
-                    return "function";
+                    return std::format("function: kind {}, upc {}",
+                        arg->kind == Function::Kind::NATIVE ? "Native" : "Script",
+                        arg->upvalue_count
+                    );
                 else
                     return "unknown";
             }, data);
