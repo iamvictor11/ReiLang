@@ -5,3 +5,4 @@
 #define REI_BYTECODE_TYPE uint64_t
 #define REI_BYTECODE_MAX (uint64_t)-1
 #define REI_BYTECODE_INT int64_t
+#define REI_FUNC_UPVALUE_COUNT_MAX 255
