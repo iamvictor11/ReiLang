@@ -147,7 +147,7 @@ namespace rei
             if (suffixRule != nullptr)
             {
                 (this->*suffixRule)();
-                break;
+                continue;
             }
             _MyFnuc infixRule = _rules_s[_prev().type].infix;
             if (infixRule == nullptr) break;
