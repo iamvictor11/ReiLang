@@ -136,23 +136,32 @@ namespace rei
         _MyFnuc prefixRule = _rules_s[_prev().type].prefix;
         if (prefixRule == nullptr)
         {
-            _reporterError(std::format("{} 期望前缀表达式", Token::toString(_prev().type)));
+            _reporterError(std::format("{} 不具有前缀表达式", Token::toString(_prev().type)));
             return;
         }
         (this->*prefixRule)();
-        while (_rules_s[_peek().type].precedence >= precedence)
+        do
         {
-            _advance();
-            _MyFnuc suffixRule = _rules_s[_prev().type].suffix;
+            auto& rule = _rules_s[_peek().type];
+            if (rule.precedence < precedence)
+                break;
+            _MyFnuc suffixRule = rule.suffix;
             if (suffixRule != nullptr)
             {
+                _pass();
                 (this->*suffixRule)();
                 continue;
             }
-            _MyFnuc infixRule = _rules_s[_prev().type].infix;
-            if (infixRule == nullptr) break;
-            (this->*infixRule)();
+            _MyFnuc infixRule = rule.infix;
+            if (infixRule != nullptr)
+            {
+                _pass();
+                (this->*infixRule)();
+                continue;
+            }
+            break;
         }
+        while (true);
     }
 #pragma region Expr
     void Parser::_expression()
