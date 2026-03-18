@@ -36,9 +36,11 @@ namespace rei
         Coord def(const std::string& name);
         Coord def(const std::string& name, Value::Data value);
         Coord def(const std::string& name, Value::Data value, Bytecode depth);
+        void def(Coord c, Value::Data value);
     public:
         Value::Data get(Coord c);
         void set(Coord c, Value::Data value);
+        bool overlap(const std::string& name);
     public:
         Coord toCoord(const std::string& name);
         Coord toCoord(const std::string& name, Bytecode depth);

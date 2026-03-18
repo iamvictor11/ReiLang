@@ -64,6 +64,13 @@ namespace rei
         scope.stack.push_back(value);
         return {depth - scope.close_level, slot, scope.close_level};
     }
+    void Env::def(Coord c, Value::Data value)
+    {
+        _Scope& scope = _nested.at(c.relative_depth + c.close_level);
+        if (c.slot < scope.stack.size())
+            return;
+        scope.stack.push_back(value);
+    }
     Value::Data Env::get(Coord c)
     {
         if (c.relative_depth == REI_BYTECODE_MAX) return Nil{};
@@ -103,6 +110,11 @@ namespace rei
                 break;
             depth--;
         }
+    }
+    bool Env::overlap(const std::string& name)
+    {
+        _Scope& scope = _nested.at(currDepth());
+        return scope.map.contains(name);
     }
     Env::Coord Env::toCoord(const std::string& name)
     {
