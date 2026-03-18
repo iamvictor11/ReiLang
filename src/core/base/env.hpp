@@ -10,14 +10,14 @@ namespace rei
         {
             std::unordered_map<std::string, Bytecode> map {};
             std::vector<Value::Data> stack {};
-            Bytecode closed_level = 0;
+            Bytecode close_level = 0;
         };
     public:
         struct Coord final
         {
             Bytecode relative_depth = REI_BYTECODE_MAX;
             Bytecode slot = REI_BYTECODE_MAX;
-            Bytecode closed_level = 0;
+            Bytecode close_level = 0;
         };
     private:
         std::vector<_Scope> _nested {};
