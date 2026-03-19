@@ -45,6 +45,13 @@ namespace rei
     #ifdef REI_DEBUG_ENABLE
         _Chunk_debugPrint(_chunk);
     #endif
+    #ifdef REI_DEBUG_ENABLE
+        std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
+        std::cout << "stack: size " << _stack.size() << std::endl;
+        for (size_t i = 0; i < _stack.size(); i++)
+            std::cout << Value::getDebugString(_stack[i]) << std::endl;
+        std::cout << "env: depth " << _env.currLocalDepth() << std::endl;
+    #endif
     }
 #pragma region Run
     void VM::run()
