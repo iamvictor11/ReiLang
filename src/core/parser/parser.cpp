@@ -455,7 +455,7 @@ namespace rei
         }
         auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
         Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
-        for (Bytecode i = 0; i < diff; i++)
+        for (Bytecode i = 0; i < diff + 1; i++)
             _emitB(OP_END);
         Bytecode pos = _chunk->codes.size();
         _emitB(OP_JUMP);
@@ -480,7 +480,7 @@ namespace rei
         }
         auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
         Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
-        for (Bytecode i = 0; i < diff; i++)
+        for (Bytecode i = 0; i < diff + 1; i++)
             _emitB(OP_END);
         Bytecode start = loop_ctx.start;
         _emitB(OP_JUMP);
