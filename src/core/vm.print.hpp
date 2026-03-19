@@ -132,26 +132,26 @@ namespace rei
                     break;
                 case OP_DEF_VAR:
                 {
-                    i++; size_t cd = chunk.codes[i];
-                    i++; size_t ci = chunk.codes[i];
-                    i++; size_t cl = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "DEF VAR", cd, ci, cl);
+                    i++; size_t ca = chunk.codes[i];
+                    i++; size_t cb = chunk.codes[i];
+                    i++; size_t cc = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "DEF VAR", ca, cb, cc);
                     break;
                 }
                 case OP_GET_VAR:
                 {
-                    i++; size_t cd = chunk.codes[i];
-                    i++; size_t ci = chunk.codes[i];
-                    i++; size_t cl = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "GET VAR", cd, ci, cl);
+                    i++; size_t ca = chunk.codes[i];
+                    i++; size_t cb = chunk.codes[i];
+                    i++; size_t cc = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "GET VAR", ca, cb, cc);
                     break;
                 }
                 case OP_SET_VAR:
                 {
-                    i++; size_t cd = chunk.codes[i];
-                    i++; size_t ci = chunk.codes[i];
-                    i++; size_t cl = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "SET VAR", cd, ci, cl);
+                    i++; size_t ca = chunk.codes[i];
+                    i++; size_t cb = chunk.codes[i];
+                    i++; size_t cc = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu,%04zu,%04zu\033[0m\n", "SET VAR", ca, cb, cc);
                     break;
                 }
                 case OP_CALL:

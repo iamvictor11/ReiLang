@@ -151,17 +151,17 @@ namespace rei
                 case OP_LOOP: break;
                 case OP_DEF_VAR:
                 {
-                    _env.def(Env::Coord{_readByte(), _readByte(), _readByte()}, _peek());
+                    _env.def(Env::Coord{static_cast<bool>(_readByte()), _readByte(), _readByte()}, _peek());
                     break;
                 }
                 case OP_GET_VAR:
                 {
-                    _push(_env.get(Env::Coord{_readByte(), _readByte(), _readByte()}));
+                    _push(_env.get(Env::Coord{static_cast<bool>(_readByte()), _readByte(), _readByte()}));
                     break;
                 }
                 case OP_SET_VAR:
                 {
-                    _env.set(Env::Coord{_readByte(), _readByte(), _readByte()}, _peek());
+                    _env.set(Env::Coord{static_cast<bool>(_readByte()), _readByte(), _readByte()}, _peek());
                     break;
                 }
                 case OP_CALL:
@@ -172,18 +172,19 @@ namespace rei
                     {
                         auto func_ref = std::get<Ref<Function>>(callee);
                         auto& call_frame = _frames.emplace_back();
-                        call_frame.func = func_ref;
+                        call_frame.closure.func = func_ref;
+                        // call_frame.closure = ;
                         call_frame.save_ip = _ip;
                         call_frame.save_end = _end;
                         _ip = func_ref->chunk.codes.data();
                         _end = &(func_ref->chunk.codes.back());
-                        _env.enter(true);
+                        _env.enter();
                         if (argc > func_ref->argc)
                         {
                             for (size_t upi = 1; upi <= argc; upi++)
                             {
                                 if (upi <= func_ref->argc)
-                                    _env.def(Env::Coord{0, upi - 1, true}, _peek(argc - upi));
+                                    _env.def(Env::Coord{false, 0, upi - 1}, _peek(argc - upi));
                                 else
                                     break;
                             }
@@ -194,9 +195,9 @@ namespace rei
                             for (size_t upi = 1; upi <= loop_count; upi++)
                             {
                                 if (upi <= argc)
-                                    _env.def(Env::Coord{0, upi - 1, true}, _peek(argc - upi));
+                                    _env.def(Env::Coord{false, 0, upi - 1}, _peek(argc - upi));
                                 else
-                                    _env.def(Env::Coord{0, upi - 1, true}, Nil{});
+                                    _env.def(Env::Coord{false, 0, upi - 1}, Nil{});
                             }
                         }
                         for (size_t argi = 0; argi < argc+1; argi++)
@@ -228,7 +229,7 @@ namespace rei
         std::cout << "stack: size " << _stack.size() << std::endl;
         for (size_t i = 0; i < _stack.size(); i++)
             std::cout << Value::getDebugString(_stack[i]) << std::endl;
-        std::cout << "env: depth " << _env.currDepth() << std::endl;
+        std::cout << "env: depth " << _env.currLocalDepth() << std::endl;
     #endif
     }
 #pragma endregion
@@ -243,7 +244,7 @@ namespace rei
         if (_frames.empty())
             return _chunk.constants[index];
         else
-            return _frames.back().func->chunk.constants[index];
+            return _frames.back().closure.func->chunk.constants[index];
     }
     void VM::_jump(Bytecode offset)
     {

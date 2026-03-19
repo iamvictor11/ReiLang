@@ -293,18 +293,18 @@ namespace rei
             _assignExpr();
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_SET_VAR);
-            _emitB(varc.depth);
+            _emitB(varc.is_global);
+            _emitB(varc.uplevel);
             _emitB(varc.slot);
-            _emitB(varc.in_free);
         }
         else if (_match({TK_WALRUS}))
         {
-            Env::Coord vc = _env->def(std::string{vu.lexeme});
+            Env::Coord varc = _env->def(std::string{vu.lexeme});
             _expression();
             _emitB(OP_DEF_VAR);
-            _emitB(vc.depth);
-            _emitB(vc.slot);
-            _emitB(vc.in_free);
+            _emitB(varc.is_global);
+            _emitB(varc.uplevel);
+            _emitB(varc.slot);
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
@@ -313,22 +313,22 @@ namespace rei
         {
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(varc.depth);
+            _emitB(varc.is_global);
+            _emitB(varc.uplevel);
             _emitB(varc.slot);
-            _emitB(varc.in_free);
             _assignExpr();
             _emitB(OP_SET_VAR);
-            _emitB(varc.depth);
+            _emitB(varc.is_global);
+            _emitB(varc.uplevel);
             _emitB(varc.slot);
-            _emitB(varc.in_free);
         }
         else
         {
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(varc.depth);
+            _emitB(varc.is_global);
+            _emitB(varc.uplevel);
             _emitB(varc.slot);
-            _emitB(varc.in_free);
         }
     }
 #pragma endregion
@@ -423,7 +423,7 @@ namespace rei
         _emitB(0);
         _env->enter();
         _emitB(OP_BEG);
-        loop_ctx.depth = _env->currDepth();
+        loop_ctx.depth = _env->currLocalDepth();
         _statement();
         _emitB(OP_END);
         _emitB(OP_JUMP);
@@ -450,7 +450,7 @@ namespace rei
             return;
         }
         auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
-        Bytecode diff = _env->currDepth() - loop_ctx.depth;
+        Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         Bytecode pos = _chunk->codes.size();
@@ -475,7 +475,7 @@ namespace rei
             return;
         }
         auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
-        Bytecode diff = _env->currDepth() - loop_ctx.depth;
+        Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         Bytecode start = loop_ctx.start;
@@ -495,7 +495,7 @@ namespace rei
             _expression();
         else
             _emitB(OP_NIL);
-        Bytecode diff = _env->currDepth() - func_ctx.depth;
+        Bytecode diff = _env->currLocalDepth() - func_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         _emitB(OP_RETURN);
@@ -527,15 +527,15 @@ namespace rei
     {
         _consume(TK_IDENT, "变量期望用标识符标记");
         std::string vname = std::string(_prev().lexeme);
-        Env::Coord vc = _env->def(vname);
+        Env::Coord varc = _env->def(vname);
         if (_match({TK_ASSIGN}))
             _expression();
         else
             _emitB(OP_NIL);
         _emitB(OP_DEF_VAR);
-        _emitB(vc.depth);
-        _emitB(vc.slot);
-        _emitB(vc.in_free);
+        _emitB(varc.is_global);
+        _emitB(varc.uplevel);
+        _emitB(varc.slot);
         _emitB(OP_POP);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
@@ -545,10 +545,10 @@ namespace rei
         _consume(TK_IDENT, "函数声明期望函数名");
         std::string fname = std::string(_prev().lexeme);
         auto func = std::make_shared<Function>();
-        Env::Coord fc = _env->def(fname, func);
+        Env::Coord fc = _env->def(fname);
         func->kind = Function::Kind::SCRIPT;
         _chunk = &(func->chunk);
-        _env->enter(true);
+        _env->enter();
         _consume(TK_LPAREN, "函数声明期望有'('");
         while (_match({TK_IDENT}))
         {
@@ -572,7 +572,7 @@ namespace rei
         _consume(TK_RPAREN, "函数声明期望有')'");
         {
         auto& func_ctx = _func_ctxs.emplace_back();
-        func_ctx.depth = _env->currDepth();
+        func_ctx.depth = _env->currLocalDepth();
         _statement();
         _emitB(OP_NIL);
         _emitB(OP_RETURN);
@@ -583,9 +583,9 @@ namespace rei
         _emitB(OP_CONSTANT);
         _emitB(_emitC(func));
         _emitB(OP_DEF_VAR);
-        _emitB(fc.depth);
+        _emitB(fc.is_global);
+        _emitB(fc.uplevel);
         _emitB(fc.slot);
-        _emitB(fc.in_free);
         _emitB(OP_POP);
     }
     void Parser::_structDecl()

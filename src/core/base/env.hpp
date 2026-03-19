@@ -9,39 +9,41 @@ namespace rei
         struct _Scope final
         {
             std::unordered_map<std::string, Bytecode> map {};
-            std::vector<Value::Data> stack {};
-            bool is_free = false;
+            size_t stack_start = 0;
+            size_t size = 0;
         };
     public:
         struct Coord final
         {
-            Bytecode depth = REI_BYTECODE_MAX;
+            bool is_global = false;
+            Bytecode uplevel = 0;
             Bytecode slot = REI_BYTECODE_MAX;
-            Bytecode in_free = 0;
+            bool is_valid() const { return slot != REI_BYTECODE_MAX; }
         };
     private:
-        std::vector<_Scope> _nested {};
-    public:
-        Env();
-        ~Env();
+        std::vector<Value::Data> _global_stack {};
+        _Scope _global {};
+        std::vector<Value::Data> _local_stack {};
+        std::vector<_Scope> _locals {};
     public:
         void enter();
-        void enter(bool is_free);
         void exit();
-        Bytecode currDepth();
+        Bytecode currLocalDepth();
     public:
         void clear();
     public:
         Coord def(const std::string& name);
-        Coord def(const std::string& name, Value::Data value);
-        Coord def(const std::string& name, Value::Data value, Bytecode depth);
         void def(Coord c, Value::Data value);
+    private:
+        Coord _defGlobal(const std::string& name);
+        Coord _defLocal(const std::string& name);
+        void _defGlobal(Coord c, Value::Data value);
+        void _defLocal(Coord c, Value::Data value);
     public:
         Value::Data get(Coord c);
         void set(Coord c, Value::Data value);
         bool overlap(const std::string& name);
     public:
         Coord toCoord(const std::string& name);
-        Coord toCoord(const std::string& name, Bytecode depth);
     };
 }

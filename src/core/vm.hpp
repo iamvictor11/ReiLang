@@ -8,13 +8,15 @@ namespace rei
 {
     struct Closure final
     {
+        Ref<Function> func;
+        // std::vector<Upvalue> upvalues
     };
     
     struct CallFrame final
     {
-        Ref<Function> func = nullptr;
-        Bytecode* save_ip = nullptr;
-        Bytecode* save_end = nullptr;
+        Closure closure;
+        Bytecode* save_ip;
+        Bytecode* save_end;
     };
     
     class VM final

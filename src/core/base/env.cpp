@@ -3,121 +3,171 @@
 
 namespace rei
 {
-    Env::Env()
-    {
-        enter();
-    }
-    Env::~Env()
-    {
-        exit();
-    }
     void Env::enter()
     {
-        bool is_free = _nested.empty() ? false : _nested.back().is_free;
-        _nested.emplace_back().is_free = is_free;
-    }
-    void Env::enter(bool is_free)
-    {
-        _nested.emplace_back().is_free = is_free;
+        _Scope scope;
+        scope.stack_start = _local_stack.size();
+        _locals.push_back(std::move(scope));
     }
     void Env::exit()
     {
-        _nested.pop_back();
+        _local_stack.resize(_locals.back().stack_start);
+        _locals.pop_back();
     }
-    Bytecode Env::currDepth()
+    Bytecode Env::currLocalDepth()
     {
-        return _nested.size() - 1;
+        return _locals.size();
     }
     void Env::clear()
     {
-        _nested.clear();
-        enter();
+        _global_stack.clear();
+        _global.map.clear();
+        _global.size = 0;
+        _local_stack.clear();
+        _locals.clear();
     }
+#pragma region Def
     Env::Coord Env::def(const std::string& name)
     {
-        return def(name, Nil{}, currDepth());
+        if (_locals.empty())
+            return _defGlobal(name);
+        return _defLocal(name);
     }
-    Env::Coord Env::def(const std::string& name, Value::Data value)
+    Env::Coord Env::_defGlobal(const std::string& name)
     {
-        return def(name, value, currDepth());
-    }
-    Env::Coord Env::def(const std::string& name, Value::Data value, Bytecode depth)
-    {
-        _Scope& scope = _nested.at(depth);
+        _Scope& scope = _global;
         if (auto it = scope.map.find(name); it != scope.map.end())
-            return {depth, it->second, scope.is_free};
-        Bytecode slot = static_cast<Bytecode>(scope.stack.size());
+            return {true, 0, it->second};
+        Bytecode slot = static_cast<Bytecode>(_global_stack.size());
         scope.map[name] = slot;
-        scope.stack.push_back(value);
-        return {depth, slot, scope.is_free};
+        scope.size++;
+        _global_stack.push_back(Nil{});
+        return {true, 0, slot};
+    }
+    Env::Coord Env::_defLocal(const std::string& name)
+    {
+        Bytecode depth = currLocalDepth() - 1;
+        _Scope& scope = _locals.at(depth);
+        if (auto it = scope.map.find(name); it != scope.map.end())
+            return {false, 0, it->second};
+        Bytecode slot = static_cast<Bytecode>(_local_stack.size()) - scope.stack_start;
+        scope.map[name] = slot;
+        scope.size++;
+        _local_stack.push_back(Nil{});
+        return {false, 0, slot};
     }
     void Env::def(Coord c, Value::Data value)
     {
-        _Scope& scope = _nested.at(c.in_free ? currDepth() : c.depth);
-        if (c.slot < scope.stack.size())
-            return;
-        scope.stack.push_back(value);
+        if (c.is_global || _locals.empty())
+            _defGlobal(c, value);
+        else
+            _defLocal(c, value);
     }
+    void Env::_defGlobal(Coord c, Value::Data value)
+    {
+        _Scope& scope = _global;
+        if (c.slot < scope.size)
+            return;
+        scope.size++;
+        _global_stack.push_back(value);
+    }
+    void Env::_defLocal(Coord c, Value::Data value)
+    {
+        _Scope& scope = _locals.at(currLocalDepth() - 1 - c.uplevel);
+        if (c.slot < scope.size)
+            return;
+        scope.size++;
+        _local_stack.push_back(value);
+    }
+#pragma endregion
+#pragma get/set/overlap
     Value::Data Env::get(Coord c)
     {
-        if (c.depth == REI_BYTECODE_MAX) return Nil{};
-        if (c.slot == REI_BYTECODE_MAX) return Nil{};
-        Bytecode depth = c.in_free ? currDepth() : c.depth;
-        Bytecode slot = c.slot;
-        for (;;)
+        if (!c.is_valid()) return Nil{};
+        if (c.is_global)
         {
-            if (depth >= _nested.size())
-                break;
-            _Scope& scope = _nested.at(depth);
-            if (slot < scope.stack.size())
-                return scope.stack.at(slot);
-            if (depth == 0)
-                break;
-            depth--;
+            Bytecode slot = c.slot;
+            _Scope& scope = _global;
+            if (slot < scope.size)
+                return _global_stack.at(slot);
+        }
+        else
+        {
+            if (_locals.empty()) return Nil{};
+            Bytecode depth = currLocalDepth() - 1 - c.uplevel;
+            Bytecode slot = c.slot;
+            for (;;)
+            {
+                if (depth >= _locals.size())
+                    break;
+                _Scope& scope = _locals.at(depth);
+                if (slot < scope.size)
+                    return _local_stack.at(scope.stack_start + slot);
+                if (depth == 0)
+                    break;
+                depth--;
+            }
         }
         return Nil{};
     }
     void Env::set(Coord c, Value::Data value)
     {
-        if (c.depth == REI_BYTECODE_MAX) return;
-        if (c.slot == REI_BYTECODE_MAX) return;
-        Bytecode depth = c.in_free ? currDepth() : c.depth;
-        Bytecode slot = c.slot;
-        for (;;)
+        if (!c.is_valid()) return;
+        if (c.is_global)
         {
-            if (depth >= _nested.size())
-                break;
-            _Scope& scope = _nested.at(depth);
-            if (slot < scope.stack.size())
+            Bytecode slot = c.slot;
+            _Scope& scope = _global;
+            if (slot < scope.size)
+                _global_stack.at(slot) = value;
+        }
+        else
+        {
+            if (_locals.empty()) return;
+            Bytecode depth = currLocalDepth() - 1 - c.uplevel;
+            Bytecode slot = c.slot;
+            for (;;)
             {
-                scope.stack.at(slot) = value;
-                return;
+                if (depth >= _locals.size())
+                    break;
+                _Scope& scope = _locals.at(depth);
+                if (slot < scope.size)
+                {
+                    _local_stack.at(scope.stack_start + slot) = value;
+                    return;
+                }
+                if (depth == 0)
+                    break;
+                depth--;
             }
-            if (depth == 0)
-                break;
-            depth--;
         }
     }
     bool Env::overlap(const std::string& name)
     {
-        _Scope& scope = _nested.at(currDepth());
+        if (_locals.empty())
+            return _global.map.contains(name);
+        _Scope& scope = _locals.at(currLocalDepth() - 1);
         return scope.map.contains(name);
     }
+#pragma endregion
     Env::Coord Env::toCoord(const std::string& name)
     {
-        return toCoord(name, currDepth());
-    }
-    Env::Coord Env::toCoord(const std::string& name, Bytecode depth)
-    {
-        for (;;)
+        if (!_locals.empty())
         {
-            _Scope& scope = _nested.at(depth);
-            if (auto it = scope.map.find(name); it != scope.map.end())
-                return {depth, it->second, scope.is_free};
-            if (depth == 0)
-                break;
-            depth--;
+            Bytecode depth = currLocalDepth() - 1;
+            Bytecode uplevel = 0;
+            for (;;)
+            {
+                _Scope& scope = _locals.at(depth);
+                if (auto it = scope.map.find(name); it != scope.map.end())
+                    return {false, uplevel, it->second};
+                if (depth == 0)
+                    break;
+                depth--;
+                uplevel++;
+            }
         }
+        if (auto it = _global.map.find(name); it != _global.map.end())
+            return {true, 0, it->second};
         return {};
     }
 }
