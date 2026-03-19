@@ -174,10 +174,14 @@ namespace rei
         _parsePrecedence(PREC_ASSIGN);
         switch (operatorType)
         {
-            case TK_ASSIGN: break;
+            case TK_ASSIGN:
+            {
+                _reporterError("你怎么做到的，'='的逻辑不会走这里");
+                break;
+            }
             case TK_WALRUS:
             {
-                _reporterError("定义赋值暂未实现");
+                _reporterError("你怎么做到的，':='的逻辑不会走这里");
                 break;
             }
             case TK_SELF_ADD:   _emitB(Opcode::OP_ADD); break;
@@ -290,7 +294,7 @@ namespace rei
         Token::Unit& vu = _prev();
         if (_match({TK_ASSIGN}))
         {
-            _assignExpr();
+            _expression();
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_SET_VAR);
             _emitB(varc.is_global);
