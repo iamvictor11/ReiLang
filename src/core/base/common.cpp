@@ -96,9 +96,9 @@ namespace rei
                 else if constexpr (std::is_same_v<T, String>)
                     return arg;
                 else if constexpr (std::is_same_v<T, Ref<Function>>)
-                    return std::format("function: kind {}, upc {}",
+                    return std::format("function: kind {}, argc {}",
                         arg->kind == Function::Kind::NATIVE ? "Native" : "Script",
-                        arg->upvalue_count
+                        arg->argc
                     );
                 else
                     return "unknown";
@@ -120,9 +120,9 @@ namespace rei
                 else if constexpr (std::is_same_v<T, String>)
                     return escape(arg);
                 else if constexpr (std::is_same_v<T, Ref<Function>>)
-                    return std::format("function: kind {}, upc {}",
+                    return std::format("function: kind {}, argc {}",
                         arg->kind == Function::Kind::NATIVE ? "Native" : "Script",
-                        arg->upvalue_count
+                        arg->argc
                     );
                 else
                     return "unknown";

@@ -35,7 +35,7 @@ namespace rei
     private:
         std::vector<_LoopCtx> _loop_ctxs {};
         std::vector<_FuncCtx> _func_ctxs {};
-        Bytecode _closed_floors = 0;
+        Bytecode _free_floors = 0;
     private:
         Token::List _tokens;
         Chunk* _chunk;

@@ -13,20 +13,20 @@ namespace rei
     }
     void Env::enter()
     {
-        Bytecode clvl = _nested.empty() ? 0 : _nested.back().close_level;
-        _nested.emplace_back().close_level = clvl;
+        Bytecode flvl = _nested.empty() ? 0 : _nested.back().free_level;
+        _nested.emplace_back().free_level = flvl;
     }
-    void Env::enter(bool is_closed)
+    void Env::enter(bool is_free)
     {
-        if (is_closed)
+        if (is_free)
         {
-            Bytecode clvl = (_nested.empty() ? 0 : _nested.back().close_level) + 1;
-            _nested.emplace_back().close_level = clvl;
+            Bytecode flvl = (_nested.empty() ? 0 : _nested.back().free_level) + 1;
+            _nested.emplace_back().free_level = flvl;
         }
         else
         {
-            Bytecode clvl = _nested.empty() ? 0 : _nested.back().close_level;
-            _nested.emplace_back().close_level = clvl;
+            Bytecode flvl = _nested.empty() ? 0 : _nested.back().free_level;
+            _nested.emplace_back().free_level = flvl;
         }
     }
     void Env::exit()
@@ -37,9 +37,9 @@ namespace rei
     {
         return _nested.size() - 1;
     }
-    Bytecode Env::currClosedLevel()
+    Bytecode Env::currFreeLevel()
     {
-        return _nested.empty() ? 0 : _nested.back().close_level;
+        return _nested.empty() ? 0 : _nested.back().free_level;
     }
     void Env::clear()
     {
@@ -58,15 +58,15 @@ namespace rei
     {
         _Scope& scope = _nested.at(depth);
         if (auto it = scope.map.find(name); it != scope.map.end())
-            return {depth - scope.close_level, it->second, scope.close_level};
+            return {depth - scope.free_level, it->second, scope.free_level};
         Bytecode slot = static_cast<Bytecode>(scope.stack.size());
         scope.map[name] = slot;
         scope.stack.push_back(value);
-        return {depth - scope.close_level, slot, scope.close_level};
+        return {depth - scope.free_level, slot, scope.free_level};
     }
     void Env::def(Coord c, Value::Data value)
     {
-        _Scope& scope = _nested.at(c.relative_depth + c.close_level);
+        _Scope& scope = _nested.at(c.relative_depth + c.free_level);
         if (c.slot < scope.stack.size())
             return;
         scope.stack.push_back(value);
@@ -75,7 +75,8 @@ namespace rei
     {
         if (c.relative_depth == REI_BYTECODE_MAX) return Nil{};
         if (c.slot == REI_BYTECODE_MAX) return Nil{};
-        Bytecode depth = c.close_level + c.relative_depth;
+        if (c.free_level == REI_BYTECODE_MAX) return Nil{};
+        Bytecode depth = c.free_level + c.relative_depth;
         Bytecode slot = c.slot;
         for (;;)
         {
@@ -94,7 +95,8 @@ namespace rei
     {
         if (c.relative_depth == REI_BYTECODE_MAX) return;
         if (c.slot == REI_BYTECODE_MAX) return;
-        Bytecode depth = c.close_level + c.relative_depth;
+        if (c.free_level == REI_BYTECODE_MAX) return;
+        Bytecode depth = c.free_level + c.relative_depth;
         Bytecode slot = c.slot;
         for (;;)
         {
@@ -126,7 +128,7 @@ namespace rei
         {
             _Scope& scope = _nested.at(depth);
             if (auto it = scope.map.find(name); it != scope.map.end())
-                return {depth - scope.close_level, it->second, scope.close_level};
+                return {depth - scope.free_level, it->second, scope.free_level};
             if (depth == 0)
                 break;
             depth--;

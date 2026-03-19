@@ -166,8 +166,8 @@ namespace rei
                 }
                 case OP_CALL:
                 {
-                    Bytecode upvalue_count = _readByte();
-                    Value::Data callee = _peek(upvalue_count);
+                    Bytecode argc = _readByte();
+                    Value::Data callee = _peek(argc);
                     if (std::holds_alternative<Ref<Function>>(callee))
                     {
                         auto func_ref = std::get<Ref<Function>>(callee);
@@ -178,36 +178,36 @@ namespace rei
                         _ip = func_ref->chunk.codes.data();
                         _end = &(func_ref->chunk.codes.back());
                         _env.enter(true);
-                        if (upvalue_count > func_ref->upvalue_count)
+                        if (argc > func_ref->argc)
                         {
-                            Bytecode clvl = func_ref->close_level;
-                            for (size_t upi = 1; upi <= upvalue_count; upi++)
+                            Bytecode clvl = func_ref->free_level;
+                            for (size_t upi = 1; upi <= argc; upi++)
                             {
-                                if (upi <= func_ref->upvalue_count)
-                                    _env.def(Env::Coord{0, upi - 1, clvl}, _peek(upvalue_count - upi));
+                                if (upi <= func_ref->argc)
+                                    _env.def(Env::Coord{0, upi - 1, clvl}, _peek(argc - upi));
                                 else
                                     break;
                             }
                         }
                         else
                         {
-                            Bytecode clvl = func_ref->close_level;
-                            Bytecode loop_count = func_ref->upvalue_count;
+                            Bytecode clvl = func_ref->free_level;
+                            Bytecode loop_count = func_ref->argc;
                             for (size_t upi = 1; upi <= loop_count; upi++)
                             {
-                                if (upi <= upvalue_count)
-                                    _env.def(Env::Coord{0, upi - 1, clvl}, _peek(upvalue_count - upi));
+                                if (upi <= argc)
+                                    _env.def(Env::Coord{0, upi - 1, clvl}, _peek(argc - upi));
                                 else
                                     _env.def(Env::Coord{0, upi - 1, clvl}, Nil{});
                             }
                         }
-                        for (size_t upi = 0; upi < upvalue_count+1; upi++)
+                        for (size_t argi = 0; argi < argc+1; argi++)
                             _pop();
                     }
                     else
                     {
                         _error_reporter.report("尝试调用非函数对象", {0, 0});
-                        for (size_t upi = 0; upi < upvalue_count; upi++)
+                        for (size_t argi = 0; argi < argc; argi++)
                             _pop();
                     }
                     break;
@@ -230,7 +230,7 @@ namespace rei
         std::cout << "stack: size " << _stack.size() << std::endl;
         for (size_t i = 0; i < _stack.size(); i++)
             std::cout << Value::getDebugString(_stack[i]) << std::endl;
-        std::cout << "env: depth " << _env.currDepth() << " clvl " << _env.currClosedLevel() << std::endl;
+        std::cout << "env: depth " << _env.currDepth() << " flvl " << _env.currFreeLevel() << std::endl;
     #endif
     }
 #pragma endregion

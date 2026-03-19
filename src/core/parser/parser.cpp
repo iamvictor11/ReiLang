@@ -253,12 +253,12 @@ namespace rei
     }
     void Parser::_callExpr()
     {
-        Bytecode upvalue_count = 0;
+        Bytecode argc = 0;
         while (!_check({TK_RPAREN}) && !_isAtEnd())
         {
             _expression();
-            upvalue_count++;
-            if (upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
+            argc++;
+            if (argc > REI_FUNC_UPVALUE_COUNT_MAX)
                 _reporterError(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
             if (_match({TK_COMMA}))
                 continue;
@@ -266,7 +266,7 @@ namespace rei
         }
         _consume(TK_RPAREN, "调用表达式期望以')'结束");
         _emitB(OP_CALL);
-        _emitB(upvalue_count);
+        _emitB(argc);
     }
     void Parser::_primaryExpr()
     {
@@ -295,7 +295,7 @@ namespace rei
             _emitB(OP_SET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.close_level);
+            _emitB(varc.free_level);
         }
         else if (_match({TK_WALRUS}))
         {
@@ -304,7 +304,7 @@ namespace rei
             _emitB(OP_DEF_VAR);
             _emitB(vc.relative_depth);
             _emitB(vc.slot);
-            _emitB(vc.close_level);
+            _emitB(vc.free_level);
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
@@ -315,12 +315,12 @@ namespace rei
             _emitB(OP_GET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.close_level);
+            _emitB(varc.free_level);
             _assignExpr();
             _emitB(OP_SET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.close_level);
+            _emitB(varc.free_level);
         }
         else
         {
@@ -328,7 +328,7 @@ namespace rei
             _emitB(OP_GET_VAR);
             _emitB(varc.relative_depth);
             _emitB(varc.slot);
-            _emitB(varc.close_level);
+            _emitB(varc.free_level);
         }
     }
 #pragma endregion
@@ -535,7 +535,7 @@ namespace rei
         _emitB(OP_DEF_VAR);
         _emitB(vc.relative_depth);
         _emitB(vc.slot);
-        _emitB(vc.close_level);
+        _emitB(vc.free_level);
         _emitB(OP_POP);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
@@ -549,7 +549,7 @@ namespace rei
         func->kind = Function::Kind::SCRIPT;
         _chunk = &(func->chunk);
         _env->enter(true);
-        func->close_level = _env->currClosedLevel();
+        func->free_level = _env->currFreeLevel();
         _consume(TK_LPAREN, "函数声明期望有'('");
         while (_match({TK_IDENT}))
         {
@@ -560,8 +560,8 @@ namespace rei
                 return;
             }
             _env->def(upname);
-            func->upvalue_count++;
-            if (func->upvalue_count > REI_FUNC_UPVALUE_COUNT_MAX)
+            func->argc++;
+            if (func->argc > REI_FUNC_UPVALUE_COUNT_MAX)
             {
                 _reporterError(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
                 return;
@@ -586,7 +586,7 @@ namespace rei
         _emitB(OP_DEF_VAR);
         _emitB(fc.relative_depth);
         _emitB(fc.slot);
-        _emitB(fc.close_level);
+        _emitB(fc.free_level);
         _emitB(OP_POP);
     }
     void Parser::_structDecl()
