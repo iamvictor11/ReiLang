@@ -425,10 +425,11 @@ namespace rei
         Bytecode loop_jump_pos = _chunk->codes.size();
         _emitB(loop_tk == TK_LOOP ? OP_JMPF : OP_JMPT);
         _emitB(0);
+        loop_ctx.depth = _env->currLocalDepth();
         _env->enter();
         _emitB(OP_BEG);
-        loop_ctx.depth = _env->currLocalDepth();
         _statement();
+        _env->exit();
         _emitB(OP_END);
         _emitB(OP_JUMP);
         _emitB(start_pos - (_chunk->codes.size() + 1));
@@ -455,7 +456,7 @@ namespace rei
         }
         auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
         Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
-        for (Bytecode i = 0; i < diff + 1; i++)
+        for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         Bytecode pos = _chunk->codes.size();
         _emitB(OP_JUMP);
@@ -480,7 +481,7 @@ namespace rei
         }
         auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
         Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
-        for (Bytecode i = 0; i < diff + 1; i++)
+        for (Bytecode i = 0; i < diff; i++)
             _emitB(OP_END);
         Bytecode start = loop_ctx.start;
         _emitB(OP_JUMP);
