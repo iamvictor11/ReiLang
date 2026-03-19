@@ -293,18 +293,18 @@ namespace rei
             _assignExpr();
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_SET_VAR);
-            _emitB(varc.relative_depth);
+            _emitB(varc.depth);
             _emitB(varc.slot);
-            _emitB(varc.free_level);
+            _emitB(varc.in_free);
         }
         else if (_match({TK_WALRUS}))
         {
             Env::Coord vc = _env->def(std::string{vu.lexeme});
             _expression();
             _emitB(OP_DEF_VAR);
-            _emitB(vc.relative_depth);
+            _emitB(vc.depth);
             _emitB(vc.slot);
-            _emitB(vc.free_level);
+            _emitB(vc.in_free);
         }
         else if (_match({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
@@ -313,22 +313,22 @@ namespace rei
         {
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(varc.relative_depth);
+            _emitB(varc.depth);
             _emitB(varc.slot);
-            _emitB(varc.free_level);
+            _emitB(varc.in_free);
             _assignExpr();
             _emitB(OP_SET_VAR);
-            _emitB(varc.relative_depth);
+            _emitB(varc.depth);
             _emitB(varc.slot);
-            _emitB(varc.free_level);
+            _emitB(varc.in_free);
         }
         else
         {
             Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
             _emitB(OP_GET_VAR);
-            _emitB(varc.relative_depth);
+            _emitB(varc.depth);
             _emitB(varc.slot);
-            _emitB(varc.free_level);
+            _emitB(varc.in_free);
         }
     }
 #pragma endregion
@@ -533,9 +533,9 @@ namespace rei
         else
             _emitB(OP_NIL);
         _emitB(OP_DEF_VAR);
-        _emitB(vc.relative_depth);
+        _emitB(vc.depth);
         _emitB(vc.slot);
-        _emitB(vc.free_level);
+        _emitB(vc.in_free);
         _emitB(OP_POP);
         _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
@@ -549,7 +549,6 @@ namespace rei
         func->kind = Function::Kind::SCRIPT;
         _chunk = &(func->chunk);
         _env->enter(true);
-        func->free_level = _env->currFreeLevel();
         _consume(TK_LPAREN, "函数声明期望有'('");
         while (_match({TK_IDENT}))
         {
@@ -584,9 +583,9 @@ namespace rei
         _emitB(OP_CONSTANT);
         _emitB(_emitC(func));
         _emitB(OP_DEF_VAR);
-        _emitB(fc.relative_depth);
+        _emitB(fc.depth);
         _emitB(fc.slot);
-        _emitB(fc.free_level);
+        _emitB(fc.in_free);
         _emitB(OP_POP);
     }
     void Parser::_structDecl()

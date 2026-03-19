@@ -6,6 +6,10 @@
 
 namespace rei
 {
+    struct Closure final
+    {
+    };
+    
     struct CallFrame final
     {
         Ref<Function> func = nullptr;

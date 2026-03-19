@@ -180,25 +180,23 @@ namespace rei
                         _env.enter(true);
                         if (argc > func_ref->argc)
                         {
-                            Bytecode clvl = func_ref->free_level;
                             for (size_t upi = 1; upi <= argc; upi++)
                             {
                                 if (upi <= func_ref->argc)
-                                    _env.def(Env::Coord{0, upi - 1, clvl}, _peek(argc - upi));
+                                    _env.def(Env::Coord{0, upi - 1, true}, _peek(argc - upi));
                                 else
                                     break;
                             }
                         }
                         else
                         {
-                            Bytecode clvl = func_ref->free_level;
                             Bytecode loop_count = func_ref->argc;
                             for (size_t upi = 1; upi <= loop_count; upi++)
                             {
                                 if (upi <= argc)
-                                    _env.def(Env::Coord{0, upi - 1, clvl}, _peek(argc - upi));
+                                    _env.def(Env::Coord{0, upi - 1, true}, _peek(argc - upi));
                                 else
-                                    _env.def(Env::Coord{0, upi - 1, clvl}, Nil{});
+                                    _env.def(Env::Coord{0, upi - 1, true}, Nil{});
                             }
                         }
                         for (size_t argi = 0; argi < argc+1; argi++)
@@ -230,7 +228,7 @@ namespace rei
         std::cout << "stack: size " << _stack.size() << std::endl;
         for (size_t i = 0; i < _stack.size(); i++)
             std::cout << Value::getDebugString(_stack[i]) << std::endl;
-        std::cout << "env: depth " << _env.currDepth() << " flvl " << _env.currFreeLevel() << std::endl;
+        std::cout << "env: depth " << _env.currDepth() << std::endl;
     #endif
     }
 #pragma endregion
