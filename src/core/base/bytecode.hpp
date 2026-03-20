@@ -46,11 +46,11 @@ namespace rei
         OP_JUMP,
         OP_JMPT,
         OP_JMPF,
-        OP_LOOP,
         OP_DEF_VAR,
         OP_GET_VAR,
         OP_SET_VAR,
         OP_CALL,
-        OP_RETURN
+        OP_RETURN,
+        OP_HALT
     };
 }

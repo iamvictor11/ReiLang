@@ -129,6 +129,7 @@ namespace rei
     {
         while (!isAtEnd_() && _error_reporter->empty())
             declaration_();
+        emitB_(OP_HALT);
     }
     void Parser::parsePrecedence_(Precedence precedence)
     {
