@@ -5,14 +5,13 @@
 #include "util/file.hpp"
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
-#include "stl/stl.hpp"
 #include <iostream>
 #include <format>
 namespace rei
 {
     VM::VM()
     {
-        bind("dump", stl::dump);
+        bindSTL_();
     }
     Value::Coord VM::bind(const std::string& name, const Value::Data& val)
     {
@@ -184,9 +183,9 @@ namespace rei
                 {
                     Bytecode argc = readByte_();
                     Value::Data callee = peek_(argc);
-                    if (std::holds_alternative<Ref<Function>>(callee))
+                    if (Value::is<Ref<Function>>(callee))
                     {
-                        auto func_ref = std::get<Ref<Function>>(callee);
+                        auto func_ref = Value::as<Ref<Function>>(callee);
                         auto& call_frame = _frames.emplace_back();
                         call_frame.closure.func = func_ref;
                         // call_frame.closure = ;
@@ -219,9 +218,9 @@ namespace rei
                         for (size_t argi = 0; argi < argc+1; argi++)
                             pop_();
                     }
-                    else if (std::holds_alternative<Native>(callee))
+                    else if (Value::is<Native>(callee))
                     {
-                        auto native = std::get<Native>(callee);
+                        auto native = Value::as<Native>(callee);
                         Value::Data* argv = argc == 0 ? nullptr : &_stack[_stack.size() - argc];
                         Value::Data result = native(argc, argv);
                         for (size_t i = 0; i < argc + 1; i++)

@@ -71,6 +71,21 @@ namespace rei
         Float toFloat(const Value::Data& data);
         String toString(Value::Data data);
         String getDebugString(Value::Data data);
+        template<typename T>
+        bool is(const Value::Data& data)
+        {
+            return std::holds_alternative<T>(data);
+        }
+        template<typename T>
+        T& as(Value::Data& data)
+        {
+            return std::get<T>(data);
+        }
+        template<typename T>
+        const T& as(const Value::Data& data)
+        {
+            return std::get<T>(data);
+        }
     }
 
     template<typename T, typename U>

@@ -34,6 +34,8 @@ namespace rei
         ~VM() = default;
     public:
         Value::Coord bind(const std::string& name, const Value::Data& val);
+    private:
+        void bindSTL_();
     public:
         void loadSimple(const std::string& source);
         void loadFile(const std::string& path);
