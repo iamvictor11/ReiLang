@@ -33,7 +33,6 @@ namespace rei::Token
                 {"until", TK_UNTIL},
                 {"continue", TK_CONTINUE},
                 {"break", TK_BREAK},
-                {"do", TK_DO},
                 {"func", TK_FUNC},
                 {"return", TK_RETURN},
                 {"struct", TK_STRUCT},
@@ -63,9 +62,11 @@ namespace rei::Token
                 {"while", TK_LOOP},
                 {"echo", TK_PRINTLN},
 
+                {"do", TK_LBRACE},
                 {"beg", TK_LBRACE},
                 {"then", TK_LBRACE},
                 {"end", TK_RBRACE},
+                {"done", TK_RBRACE},
 
                 {"pass", TK_SEMICOLON}
             });
@@ -168,7 +169,6 @@ namespace rei::Token
         REI_TOKEN_X(UNTIL, "until") \
         REI_TOKEN_X(CONTINUE, "continue") \
         REI_TOKEN_X(BREAK, "break") \
-        REI_TOKEN_X(DO, "do") \
         REI_TOKEN_X(FUNC, "func") \
         REI_TOKEN_X(RETURN, "return") \
         REI_TOKEN_X(STRUCT, "struct") \

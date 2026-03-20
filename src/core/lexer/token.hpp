@@ -77,7 +77,6 @@ namespace rei::Token
         TK_UNTIL,       // until
         TK_CONTINUE,    // continue
         TK_BREAK,       // break
-        TK_DO,          // do
         TK_FUNC,        // func
         TK_RETURN,      // return
         TK_STRUCT,      // struct
