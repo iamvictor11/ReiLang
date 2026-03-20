@@ -123,19 +123,7 @@ namespace rei
         else
         {
             if (locals_area_.empty()) return Nil{};
-            Bytecode depth = currLocalDepth() - 1 - c.uplevel;
-            Bytecode slot = c.slot;
-            for (;;)
-            {
-                if (depth >= locals_area_.size())
-                    break;
-                Area_& area = locals_area_.at(depth);
-                if (slot < area.size)
-                    return local_stack_.at(area.stack_start + slot);
-                if (depth == 0)
-                    break;
-                depth--;
-            }
+            return local_stack_.at(locals_area_.at(currLocalDepth() - 1 - c.uplevel).stack_start + c.slot);
         }
         return Nil{};
     }
@@ -159,20 +147,7 @@ namespace rei
             if (locals_area_.empty()) return;
             Bytecode depth = currLocalDepth() - 1 - c.uplevel;
             Bytecode slot = c.slot;
-            for (;;)
-            {
-                if (depth >= locals_area_.size())
-                    break;
-                Area_& area = locals_area_.at(depth);
-                if (slot < area.size)
-                {
-                    local_stack_.at(area.stack_start + slot) = value;
-                    return;
-                }
-                if (depth == 0)
-                    break;
-                depth--;
-            }
+            local_stack_.at(locals_area_.at(currLocalDepth() - 1 - c.uplevel).stack_start + c.slot) = value;
         }
     }
     bool Env::overlap(const std::string& name)
