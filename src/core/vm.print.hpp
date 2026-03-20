@@ -127,9 +127,6 @@ namespace rei
                     i++;
                     printf("%-12s\033[1m\033[32m%04d\033[0m\n", "JMPF", chunk.codes[i]);
                     break;
-                case OP_LOOP:
-                    printf("%-12s\n", "LOOP");
-                    break;
                 case OP_DEF_VAR:
                 {
                     i++; size_t ca = chunk.codes[i];

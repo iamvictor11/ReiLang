@@ -22,13 +22,13 @@ namespace rei
     class VM final
     {
     private:
-        Chunk _chunk;
-        Env _env;
-        Bytecode* _ip;
-        Bytecode* _end;
-        std::vector<Value::Data> _stack;
-        std::vector<CallFrame> _frames;
-        Error::Reporter _error_reporter;
+        Chunk chunk_;
+        Env env_;
+        Bytecode* ip_;
+        Bytecode* end_;
+        std::vector<Value::Data> stack_;
+        std::vector<CallFrame> frames_;
+        Error::Reporter error_reporter_;
     public:
         VM();
         ~VM() = default;

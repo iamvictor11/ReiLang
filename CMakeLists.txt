@@ -31,6 +31,8 @@ PRIVATE
     "src/core/lexer/token.cpp"
     "src/core/parser/parser.cpp"
     "src/core/vm.cpp"
+    "src/core/vm.run.cgoto.cpp"
+    "src/core/vm.run.switch.cpp"
     "src/debug/log.cpp"
     "src/stl/stl.cpp"
     "src/util/error.cpp"
