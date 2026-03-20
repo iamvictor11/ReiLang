@@ -210,7 +210,7 @@ namespace rei::Token
         REI_TOKEN_X(LARROW, "<-") \
         /* 结束 */ \
         REI_TOKEN_X(EOF, "<eof>")
-    static std::string _toSymbol(Type type)
+    static std::string toSymbol_(Type type)
     {
         switch (type)
         {
@@ -221,7 +221,7 @@ namespace rei::Token
                 return "<?>";
         }
     }
-    static std::string _toString(Type type)
+    static std::string toString_(Type type)
     {
         switch (type)
         {
@@ -234,15 +234,15 @@ namespace rei::Token
     }
     std::string toString(Type t)
     {
-        return _toString(t);
+        return toString_(t);
     }
     std::string toSymbol(Type t)
     {
-        return _toSymbol(t);
+        return toSymbol_(t);
     }
     std::string Unit::toString() const
     {
-        std::string res = _toString(type);
+        std::string res = toString_(type);
         int tabCount = 2 - res.length() / 8;
         for (int i = 0; i < tabCount; i++)
             res += "\t";
@@ -252,12 +252,12 @@ namespace rei::Token
         else if (type == TK_IDENT)
             res += std::string(lexeme);
         else
-            res += _toSymbol(type);
+            res += toSymbol_(type);
         res += "\033[0m";
         return res;
     }
     std::string Unit::toSymbol() const
     {
-        return _toSymbol(type);
+        return toSymbol_(type);
     }
 }

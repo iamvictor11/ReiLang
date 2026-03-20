@@ -5,62 +5,62 @@
 namespace rei
 {
     using namespace Token;
-    Parser::_Rule Parser::_rules_s[] =
+    Parser::Rule_ Parser::rules_s_[] =
     {
         /* 注释 */
         [TK_NOTE]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 基础 */
-        [TK_ASSIGN]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_WALRUS]    = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_ASSIGN]    = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_WALRUS]    = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
         /* 标识符 */
-        [TK_IDENT] = {&Parser::_varExpr, nullptr, nullptr, PREC_PRIMARY, 0},
+        [TK_IDENT] = {&Parser::varExpr_, nullptr, nullptr, PREC_PRIMARY, 0},
         /* 字面量 */
-        [TK_LIT_INT]    = {&Parser::_primaryExpr, nullptr, nullptr, PREC_PRIMARY, 0},
-        [TK_LIT_FLOAT]  = {&Parser::_primaryExpr, nullptr, nullptr, PREC_PRIMARY, 0},
-        [TK_LIT_STRING] = {&Parser::_primaryExpr, nullptr, nullptr, PREC_PRIMARY, 0},
+        [TK_LIT_INT]    = {&Parser::primaryExpr_, nullptr, nullptr, PREC_PRIMARY, 0},
+        [TK_LIT_FLOAT]  = {&Parser::primaryExpr_, nullptr, nullptr, PREC_PRIMARY, 0},
+        [TK_LIT_STRING] = {&Parser::primaryExpr_, nullptr, nullptr, PREC_PRIMARY, 0},
         /* 数学运算 */
-        [TK_ADD]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_TERM, 1},
-        [TK_SUB]   = {&Parser::_unaryExpr, &Parser::_binaryExpr, nullptr, PREC_TERM, 1},
-        [TK_MUL]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_FACTOR, 1},
-        [TK_DIV]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_FACTOR, 1},
-        [TK_MOD]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_FACTOR, 1},
-        [TK_POW]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_POW, 1},
-        [TK_SELF_ADD]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_SUB]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_MUL]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_DIV]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_MOD]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_POW]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_ADD]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_TERM, 1},
+        [TK_SUB]   = {&Parser::unaryExpr_, &Parser::binaryExpr_, nullptr, PREC_TERM, 1},
+        [TK_MUL]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_FACTOR, 1},
+        [TK_DIV]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_FACTOR, 1},
+        [TK_MOD]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_FACTOR, 1},
+        [TK_POW]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_POW, 1},
+        [TK_SELF_ADD]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_SUB]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_MUL]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_DIV]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_MOD]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_POW]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
         /* 位运算 */
-        [TK_BIT_AND]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BAND, 1},
-        [TK_BIT_OR]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BOR, 1},
-        [TK_BIT_XOR]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BXOR, 1},
-        [TK_BIT_XNOR]  = {nullptr, &Parser::_binaryExpr, nullptr, PREC_BXOR, 1},
-        [TK_BIT_NOT]   = {&Parser::_unaryExpr, nullptr, nullptr, PREC_UNARY, 1},
-        [TK_BIT_SHL]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_SHIFT, 1},
-        [TK_BIT_SHR]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_SHIFT, 1},
-        [TK_SELF_BIT_AND]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_OR]   = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_XOR]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_XNOR] = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_NOT]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_SHL]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
-        [TK_SELF_BIT_SHR]  = {nullptr, &Parser::_assignExpr, nullptr, PREC_ASSIGN, 0},
+        [TK_BIT_AND]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_BAND, 1},
+        [TK_BIT_OR]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_BOR, 1},
+        [TK_BIT_XOR]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_BXOR, 1},
+        [TK_BIT_XNOR]  = {nullptr, &Parser::binaryExpr_, nullptr, PREC_BXOR, 1},
+        [TK_BIT_NOT]   = {&Parser::unaryExpr_, nullptr, nullptr, PREC_UNARY, 1},
+        [TK_BIT_SHL]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_SHIFT, 1},
+        [TK_BIT_SHR]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_SHIFT, 1},
+        [TK_SELF_BIT_AND]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_OR]   = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_XOR]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_XNOR] = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_NOT]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_SHL]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_SELF_BIT_SHR]  = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
         /* 比较运算 */
-        [TK_EQ]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_EQUAL, 1},
-        [TK_NE]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_EQUAL, 1},
-        [TK_LT]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
-        [TK_LE]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
-        [TK_GT]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
-        [TK_GE]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_COMPAR, 1},
+        [TK_EQ]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_EQUAL, 1},
+        [TK_NE]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_EQUAL, 1},
+        [TK_LT]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_COMPAR, 1},
+        [TK_LE]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_COMPAR, 1},
+        [TK_GT]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_COMPAR, 1},
+        [TK_GE]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_COMPAR, 1},
         /* 逻辑运算 */
-        [TK_AND]   = {nullptr, &Parser::_binaryExpr, nullptr, PREC_LAND, 1},
-        [TK_OR]    = {nullptr, &Parser::_binaryExpr, nullptr, PREC_LOR, 1},
-        [TK_NOT]   = {&Parser::_unaryExpr, nullptr, nullptr, PREC_UNARY, 1},
+        [TK_AND]   = {nullptr, &Parser::binaryExpr_, nullptr, PREC_LAND, 1},
+        [TK_OR]    = {nullptr, &Parser::binaryExpr_, nullptr, PREC_LOR, 1},
+        [TK_NOT]   = {&Parser::unaryExpr_, nullptr, nullptr, PREC_UNARY, 1},
         /* 保留词 */
-        [TK_NIL]   = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 1},
-        [TK_TRUE]  = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 1},
-        [TK_FALSE] = {&Parser::_primaryExpr, nullptr, nullptr, PREC_NONE, 1},
+        [TK_NIL]   = {&Parser::primaryExpr_, nullptr, nullptr, PREC_NONE, 1},
+        [TK_TRUE]  = {&Parser::primaryExpr_, nullptr, nullptr, PREC_NONE, 1},
+        [TK_FALSE] = {&Parser::primaryExpr_, nullptr, nullptr, PREC_NONE, 1},
         [TK_DEF]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_VAR]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LET]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -102,7 +102,7 @@ namespace rei
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 区域 */
-        [TK_LPAREN]    = {&Parser::_groupingExpr, nullptr, &Parser::_callExpr, PREC_CALL, 1},
+        [TK_LPAREN]    = {&Parser::groupingExpr_, nullptr, &Parser::callExpr_, PREC_CALL, 1},
         [TK_RPAREN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_RBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -122,40 +122,40 @@ namespace rei
     
     void Parser::start()
     {
-        _advance();
-        _program();
+        advance_();
+        program_();
     }
-    void Parser::_program()
+    void Parser::program_()
     {
-        while (!_isAtEnd() && _error_reporter->empty())
-            _declaration();
+        while (!isAtEnd_() && _error_reporter->empty())
+            declaration_();
     }
-    void Parser::_parsePrecedence(Precedence precedence)
+    void Parser::parsePrecedence_(Precedence precedence)
     {
-        _advance();
-        _MyFnuc prefixRule = _rules_s[_prev().type].prefix;
+        advance_();
+        MyFnuc_ prefixRule = rules_s_[prev_().type].prefix;
         if (prefixRule == nullptr)
         {
-            _reporterError(std::format("{} 不具有前缀表达式", Token::toString(_prev().type)));
+            reporterError_(std::format("{} 不具有前缀表达式", Token::toString(prev_().type)));
             return;
         }
         (this->*prefixRule)();
         do
         {
-            auto& rule = _rules_s[_peek().type];
+            auto& rule = rules_s_[peek_().type];
             if (rule.precedence < precedence)
                 break;
-            _MyFnuc suffixRule = rule.suffix;
+            MyFnuc_ suffixRule = rule.suffix;
             if (suffixRule != nullptr)
             {
-                _pass();
+                pass_();
                 (this->*suffixRule)();
                 continue;
             }
-            _MyFnuc infixRule = rule.infix;
+            MyFnuc_ infixRule = rule.infix;
             if (infixRule != nullptr)
             {
-                _pass();
+                pass_();
                 (this->*infixRule)();
                 continue;
             }
@@ -164,453 +164,453 @@ namespace rei
         while (true);
     }
 #pragma region Expr
-    void Parser::_expression()
+    void Parser::expression_()
     {
-        _parsePrecedence(PREC_ASSIGN);
+        parsePrecedence_(PREC_ASSIGN);
     }
-    void Parser::_assignExpr()
+    void Parser::assignExpr_()
     {
-        Token::Type operatorType = _prev().type;
-        _parsePrecedence(PREC_ASSIGN);
+        Token::Type operatorType = prev_().type;
+        parsePrecedence_(PREC_ASSIGN);
         switch (operatorType)
         {
             case TK_ASSIGN:
             {
-                _reporterError("你怎么做到的，'='的逻辑不会走这里");
+                reporterError_("你怎么做到的，'='的逻辑不会走这里");
                 break;
             }
             case TK_WALRUS:
             {
-                _reporterError("你怎么做到的，':='的逻辑不会走这里");
+                reporterError_("你怎么做到的，':='的逻辑不会走这里");
                 break;
             }
-            case TK_SELF_ADD:   _emitB(Opcode::OP_ADD); break;
-            case TK_SELF_SUB:   _emitB(Opcode::OP_SUB); break;
-            case TK_SELF_MUL:   _emitB(Opcode::OP_MUL); break;
-            case TK_SELF_DIV:   _emitB(Opcode::OP_DIV); break;
-            case TK_SELF_MOD:   _emitB(Opcode::OP_MOD); break;
-            case TK_SELF_POW:   _emitB(Opcode::OP_POW); break;
-            case TK_SELF_BIT_AND:   _emitB(Opcode::OP_BIT_AND); break;
-            case TK_SELF_BIT_OR:    _emitB(Opcode::OP_BIT_OR); break;
-            case TK_SELF_BIT_XOR:   _emitB(Opcode::OP_BIT_XOR); break;
-            case TK_SELF_BIT_XNOR:  _emitB(Opcode::OP_BIT_XNOR); break;
-            case TK_SELF_BIT_NOT:   _emitB(Opcode::OP_BIT_NOT); break;
-            case TK_SELF_BIT_SHL:   _emitB(Opcode::OP_BIT_SHL); break;
-            case TK_SELF_BIT_SHR:   _emitB(Opcode::OP_BIT_SHR); break;
+            case TK_SELF_ADD:   emitB_(Opcode::OP_ADD); break;
+            case TK_SELF_SUB:   emitB_(Opcode::OP_SUB); break;
+            case TK_SELF_MUL:   emitB_(Opcode::OP_MUL); break;
+            case TK_SELF_DIV:   emitB_(Opcode::OP_DIV); break;
+            case TK_SELF_MOD:   emitB_(Opcode::OP_MOD); break;
+            case TK_SELF_POW:   emitB_(Opcode::OP_POW); break;
+            case TK_SELF_BIT_AND:   emitB_(Opcode::OP_BIT_AND); break;
+            case TK_SELF_BIT_OR:    emitB_(Opcode::OP_BIT_OR); break;
+            case TK_SELF_BIT_XOR:   emitB_(Opcode::OP_BIT_XOR); break;
+            case TK_SELF_BIT_XNOR:  emitB_(Opcode::OP_BIT_XNOR); break;
+            case TK_SELF_BIT_NOT:   emitB_(Opcode::OP_BIT_NOT); break;
+            case TK_SELF_BIT_SHL:   emitB_(Opcode::OP_BIT_SHL); break;
+            case TK_SELF_BIT_SHR:   emitB_(Opcode::OP_BIT_SHR); break;
             default:
-                _reporterError("未知的赋值运算符");
+                reporterError_("未知的赋值运算符");
         }
     }
-    void Parser::_groupingExpr()
+    void Parser::groupingExpr_()
     {
-        _expression();
-        _consume(TK_RPAREN, "分组表达式期望以')'结束");
+        expression_();
+        consume_(TK_RPAREN, "分组表达式期望以')'结束");
     }
-    void Parser::_unaryExpr()
+    void Parser::unaryExpr_()
     {
-        Token::Type op = _prev().type;
-        _parsePrecedence(PREC_UNARY);
+        Token::Type op = prev_().type;
+        parsePrecedence_(PREC_UNARY);
         switch (op)
         {
-            case TK_SUB:        _emitB(Opcode::OP_NEG); break;
-            case TK_BIT_NOT:    _emitB(Opcode::OP_BIT_NOT); break;
-            case TK_NOT:        _emitB(Opcode::OP_NOT); break;
-            default: _reporterError("未知的一元运算符");
+            case TK_SUB:        emitB_(Opcode::OP_NEG); break;
+            case TK_BIT_NOT:    emitB_(Opcode::OP_BIT_NOT); break;
+            case TK_NOT:        emitB_(Opcode::OP_NOT); break;
+            default: reporterError_("未知的一元运算符");
         }
     }
-    void Parser::_binaryExpr()
+    void Parser::binaryExpr_()
     {
-        Token::Type op = _prev().type;
-        _Rule& rule = _rules_s[op];
+        Token::Type op = prev_().type;
+        Rule_& rule = rules_s_[op];
         if (op == TK_AND || op == TK_OR)
         {
-            Bytecode jump_pos = _chunk->codes.size();
-            _emitB(op == TK_AND ? OP_AND : OP_OR);
-            _emitB(0);
-            _parsePrecedence(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
-            _patchB(jump_pos + 1, _chunk->codes.size() - (jump_pos + 2));
+            Bytecode jump_pos = chunk_->codes.size();
+            emitB_(op == TK_AND ? OP_AND : OP_OR);
+            emitB_(0);
+            parsePrecedence_(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
+            patchB_(jump_pos + 1, chunk_->codes.size() - (jump_pos + 2));
             return;
         }
-        _parsePrecedence(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
+        parsePrecedence_(static_cast<Precedence>(rule.precedence + rule.is_left_assoc));
         switch (op)
         {
-            case TK_ADD:    _emitB(Opcode::OP_ADD); break;
-            case TK_SUB:    _emitB(Opcode::OP_SUB); break;
-            case TK_MUL:    _emitB(Opcode::OP_MUL); break;
-            case TK_DIV:    _emitB(Opcode::OP_DIV); break;
-            case TK_MOD:    _emitB(Opcode::OP_MOD); break;
-            case TK_POW:    _emitB(Opcode::OP_POW); break;
-            case TK_BIT_AND:    _emitB(Opcode::OP_BIT_AND); break;
-            case TK_BIT_OR:     _emitB(Opcode::OP_BIT_OR); break;
-            case TK_BIT_XOR:    _emitB(Opcode::OP_BIT_XOR); break;
-            case TK_BIT_XNOR:   _emitB(Opcode::OP_BIT_XNOR); break;
-            case TK_BIT_SHL:    _emitB(Opcode::OP_BIT_SHL); break;
-            case TK_BIT_SHR:    _emitB(Opcode::OP_BIT_SHR); break;
-            case TK_EQ:     _emitB(Opcode::OP_EQ); break;
-            case TK_NE:     _emitB(Opcode::OP_NE); break;
-            case TK_LT:     _emitB(Opcode::OP_LT); break;
-            case TK_LE:     _emitB(Opcode::OP_LE); break;
-            case TK_GT:     _emitB(Opcode::OP_GT); break;
-            case TK_GE:     _emitB(Opcode::OP_GE); break;
-            default: _reporterError("未知的二元运算符");
+            case TK_ADD:    emitB_(Opcode::OP_ADD); break;
+            case TK_SUB:    emitB_(Opcode::OP_SUB); break;
+            case TK_MUL:    emitB_(Opcode::OP_MUL); break;
+            case TK_DIV:    emitB_(Opcode::OP_DIV); break;
+            case TK_MOD:    emitB_(Opcode::OP_MOD); break;
+            case TK_POW:    emitB_(Opcode::OP_POW); break;
+            case TK_BIT_AND:    emitB_(Opcode::OP_BIT_AND); break;
+            case TK_BIT_OR:     emitB_(Opcode::OP_BIT_OR); break;
+            case TK_BIT_XOR:    emitB_(Opcode::OP_BIT_XOR); break;
+            case TK_BIT_XNOR:   emitB_(Opcode::OP_BIT_XNOR); break;
+            case TK_BIT_SHL:    emitB_(Opcode::OP_BIT_SHL); break;
+            case TK_BIT_SHR:    emitB_(Opcode::OP_BIT_SHR); break;
+            case TK_EQ:     emitB_(Opcode::OP_EQ); break;
+            case TK_NE:     emitB_(Opcode::OP_NE); break;
+            case TK_LT:     emitB_(Opcode::OP_LT); break;
+            case TK_LE:     emitB_(Opcode::OP_LE); break;
+            case TK_GT:     emitB_(Opcode::OP_GT); break;
+            case TK_GE:     emitB_(Opcode::OP_GE); break;
+            default: reporterError_("未知的二元运算符");
         }
     }
-    void Parser::_callExpr()
+    void Parser::callExpr_()
     {
         Bytecode argc = 0;
-        while (!_check({TK_RPAREN}) && !_isAtEnd())
+        while (!check_({TK_RPAREN}) && !isAtEnd_())
         {
-            _expression();
+            expression_();
             argc++;
             if (argc > REI_FUNC_UPVALUE_COUNT_MAX)
-                _reporterError(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
-            if (_match({TK_COMMA}))
+                reporterError_(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+            if (match_({TK_COMMA}))
                 continue;
             break;
         }
-        _consume(TK_RPAREN, "调用表达式期望以')'结束");
-        _emitB(OP_CALL);
-        _emitB(argc);
+        consume_(TK_RPAREN, "调用表达式期望以')'结束");
+        emitB_(OP_CALL);
+        emitB_(argc);
     }
-    void Parser::_primaryExpr()
+    void Parser::primaryExpr_()
     {
-        switch (_prev().type)
+        switch (prev_().type)
         {
             case TK_LIT_INT:
             case TK_LIT_FLOAT:
             case TK_LIT_STRING:
-                _emitB(Opcode::OP_CONSTANT);
-                _emitB(_emitC(_prev().literal));
+                emitB_(Opcode::OP_CONSTANT);
+                emitC_(prev_().literal);
                 break;
-            case TK_NIL:    _emitB(Opcode::OP_NIL); break;
-            case TK_TRUE:   _emitB(Opcode::OP_TRUE); break;
-            case TK_FALSE:  _emitB(Opcode::OP_FALSE); break;
+            case TK_NIL:    emitB_(Opcode::OP_NIL); break;
+            case TK_TRUE:   emitB_(Opcode::OP_TRUE); break;
+            case TK_FALSE:  emitB_(Opcode::OP_FALSE); break;
             default:
-                _reporterError("非法的初级表达式");
+                reporterError_("非法的初级表达式");
         }
     }
-    void Parser::_varExpr()
+    void Parser::varExpr_()
     {
-        Token::Unit& vu = _prev();
-        if (_match({TK_ASSIGN}))
+        Token::Unit& vu = prev_();
+        if (match_({TK_ASSIGN}))
         {
-            _expression();
-            Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
-            _emitB(OP_SET_VAR);
-            _emitB(varc.is_global);
-            _emitB(varc.uplevel);
-            _emitB(varc.slot);
+            expression_();
+            Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
+            emitB_(OP_SET_VAR);
+            emitB_(varc.lifecycle);
+            emitB_(varc.uplevel);
+            emitB_(varc.slot);
         }
-        else if (_match({TK_WALRUS}))
+        else if (match_({TK_WALRUS}))
         {
-            Env::Coord varc = _env->def(std::string{vu.lexeme});
-            _expression();
-            _emitB(OP_DEF_VAR);
-            _emitB(varc.is_global);
-            _emitB(varc.uplevel);
-            _emitB(varc.slot);
+            Value::Coord varc = env_->def(std::string{vu.lexeme});
+            expression_();
+            emitB_(OP_DEF_VAR);
+            emitB_(varc.lifecycle);
+            emitB_(varc.uplevel);
+            emitB_(varc.slot);
         }
-        else if (_match({
+        else if (match_({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
             TK_SELF_BIT_AND, TK_SELF_BIT_OR, TK_SELF_BIT_XOR, TK_SELF_BIT_XNOR, TK_SELF_BIT_NOT, TK_SELF_BIT_SHL, TK_SELF_BIT_SHR
         }))
         {
-            Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
-            _emitB(OP_GET_VAR);
-            _emitB(varc.is_global);
-            _emitB(varc.uplevel);
-            _emitB(varc.slot);
-            _assignExpr();
-            _emitB(OP_SET_VAR);
-            _emitB(varc.is_global);
-            _emitB(varc.uplevel);
-            _emitB(varc.slot);
+            Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
+            emitB_(OP_GET_VAR);
+            emitB_(varc.lifecycle);
+            emitB_(varc.uplevel);
+            emitB_(varc.slot);
+            assignExpr_();
+            emitB_(OP_SET_VAR);
+            emitB_(varc.lifecycle);
+            emitB_(varc.uplevel);
+            emitB_(varc.slot);
         }
         else
         {
-            Env::Coord varc = _env->toCoord(std::string{vu.lexeme});
-            _emitB(OP_GET_VAR);
-            _emitB(varc.is_global);
-            _emitB(varc.uplevel);
-            _emitB(varc.slot);
+            Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
+            emitB_(OP_GET_VAR);
+            emitB_(varc.lifecycle);
+            emitB_(varc.uplevel);
+            emitB_(varc.slot);
         }
     }
 #pragma endregion
 #pragma region Stmt
-    void Parser::_statement()
+    void Parser::statement_()
     {
-        if (_match({TK_LBRACE}))
+        if (match_({TK_LBRACE}))
             _blockStmt();
-        else if (_match({TK_IF}))
-            _ifStmt();
-        else if (_match({TK_LOOP, TK_UNTIL}))
-            _loopStmt();
-        else if (_match({TK_BREAK}))
-            _breakStmt();
-        else if (_match({TK_CONTINUE}))
-            _continueStmt();
-        else if (_match({TK_RETURN}))
-            _returnStmt();
-        else if (_match({TK_PRINT, TK_PRINTLN}))
-            _printStmt();
-        else if (_match({TK_SEMICOLON}))
+        else if (match_({TK_IF}))
+            ifStmt_();
+        else if (match_({TK_LOOP, TK_UNTIL}))
+            loopStmt_();
+        else if (match_({TK_BREAK}))
+            breakStmt_();
+        else if (match_({TK_CONTINUE}))
+            continueStmt_();
+        else if (match_({TK_RETURN}))
+            returnStmt_();
+        else if (match_({TK_PRINT, TK_PRINTLN}))
+            printStmt_();
+        else if (match_({TK_SEMICOLON}))
         {
         }
         else
         {
-            _exprStmt();
+            exprStmt_();
         }
     }
-    void Parser::_exprStmt()
+    void Parser::exprStmt_()
     {
-        _expression();
-        _consume(TK_SEMICOLON, "表达式语句期望以';'结束");
-        _emitB(OP_POP);
+        expression_();
+        consume_(TK_SEMICOLON, "表达式语句期望以';'结束");
+        emitB_(OP_POP);
     }
     void Parser::_blockStmt()
     {
-        _env->enter();
-        _emitB(OP_BEG);
-        while (!_check(TK_RBRACE) && !_isAtEnd())
-            _declaration();
-        _consume(TK_RBRACE, "语句块期望以'}'结束");
-        _env->exit();
-        _emitB(OP_END);
+        env_->enter();
+        emitB_(OP_BEG);
+        while (!check_(TK_RBRACE) && !isAtEnd_())
+            declaration_();
+        consume_(TK_RBRACE, "语句块期望以'}'结束");
+        env_->exit();
+        emitB_(OP_END);
     }
-    void Parser::_ifStmt()
+    void Parser::ifStmt_()
     {
-        _expression();
-        Bytecode if_jump_pos = _chunk->codes.size();
-        _emitB(OP_JMPF);
-        _emitB(0);
-        _env->enter();
-        _emitB(OP_BEG);
-        _statement();
-        _env->exit();
-        _emitB(OP_END);
-        if (_match({TK_ELSE}))
+        expression_();
+        Bytecode if_jump_pos = chunk_->codes.size();
+        emitB_(OP_JMPF);
+        emitB_(0);
+        env_->enter();
+        emitB_(OP_BEG);
+        statement_();
+        env_->exit();
+        emitB_(OP_END);
+        if (match_({TK_ELSE}))
         {
-            Bytecode else_jump_pos = _chunk->codes.size();
-            _emitB(OP_JUMP);
-            _emitB(0);
-            _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
-            _env->enter();
-            _emitB(OP_BEG);
-            _statement();
-            _env->exit();
-            _emitB(OP_END);
-            _patchB(else_jump_pos + 1, _chunk->codes.size() - (else_jump_pos + 2));
+            Bytecode else_jump_pos = chunk_->codes.size();
+            emitB_(OP_JUMP);
+            emitB_(0);
+            patchB_(if_jump_pos + 1, chunk_->codes.size() - (if_jump_pos + 2));
+            env_->enter();
+            emitB_(OP_BEG);
+            statement_();
+            env_->exit();
+            emitB_(OP_END);
+            patchB_(else_jump_pos + 1, chunk_->codes.size() - (else_jump_pos + 2));
         }
-        else if (_match({TK_ELIF}))
+        else if (match_({TK_ELIF}))
         {
-            Bytecode else_jump_pos = _chunk->codes.size();
-            _emitB(OP_JUMP);
-            _emitB(0);
-            _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
-            _ifStmt();
-            _patchB(else_jump_pos + 1, _chunk->codes.size() - (else_jump_pos + 2));
+            Bytecode else_jump_pos = chunk_->codes.size();
+            emitB_(OP_JUMP);
+            emitB_(0);
+            patchB_(if_jump_pos + 1, chunk_->codes.size() - (if_jump_pos + 2));
+            ifStmt_();
+            patchB_(else_jump_pos + 1, chunk_->codes.size() - (else_jump_pos + 2));
         }
         else
         {
-            _patchB(if_jump_pos + 1, _chunk->codes.size() - (if_jump_pos + 2));
+            patchB_(if_jump_pos + 1, chunk_->codes.size() - (if_jump_pos + 2));
         }
     }
-    void Parser::_loopStmt()
+    void Parser::loopStmt_()
     {
-        Token::Type loop_tk = _prev().type;
-        Bytecode start_pos = _chunk->codes.size();
-        auto& loop_ctx = _loop_ctxs.emplace_back();
+        Token::Type loop_tk = prev_().type;
+        Bytecode start_pos = chunk_->codes.size();
+        auto& loop_ctx = loop_ctxs_.emplace_back();
         loop_ctx.start = start_pos;
-        _expression();
-        Bytecode loop_jump_pos = _chunk->codes.size();
-        _emitB(loop_tk == TK_LOOP ? OP_JMPF : OP_JMPT);
-        _emitB(0);
-        loop_ctx.depth = _env->currLocalDepth();
-        _env->enter();
-        _emitB(OP_BEG);
-        _statement();
-        _env->exit();
-        _emitB(OP_END);
-        _emitB(OP_JUMP);
-        _emitB(start_pos - (_chunk->codes.size() + 1));
-        Bytecode end_pos = _chunk->codes.size();
-        _patchB(loop_jump_pos + 1, end_pos - (loop_jump_pos + 2));
-        for (Bytecode bpos : _loop_ctxs.back().breaks)
-            _patchB(bpos + 1, end_pos - (bpos + 2));
-        _loop_ctxs.pop_back();
+        expression_();
+        Bytecode loop_jump_pos = chunk_->codes.size();
+        emitB_(loop_tk == TK_LOOP ? OP_JMPF : OP_JMPT);
+        emitB_(0);
+        loop_ctx.depth = env_->currLocalDepth();
+        env_->enter();
+        emitB_(OP_BEG);
+        statement_();
+        env_->exit();
+        emitB_(OP_END);
+        emitB_(OP_JUMP);
+        emitB_(start_pos - (chunk_->codes.size() + 1));
+        Bytecode end_pos = chunk_->codes.size();
+        patchB_(loop_jump_pos + 1, end_pos - (loop_jump_pos + 2));
+        for (Bytecode bpos : loop_ctxs_.back().breaks)
+            patchB_(bpos + 1, end_pos - (bpos + 2));
+        loop_ctxs_.pop_back();
     }
-    void Parser::_breakStmt()
+    void Parser::breakStmt_()
     {
-        if (_loop_ctxs.empty())
+        if (loop_ctxs_.empty())
         {
-            _reporterError("中断语句不在循环中");
+            reporterError_("中断语句不在循环中");
             return;
         }
         Integer level = 1;
-        if (_match({TK_LIT_INT}))
-            level = Value::toInteger(_prev().literal);
-        if (level <= 0 || level > _loop_ctxs.size())
+        if (match_({TK_LIT_INT}))
+            level = Value::toInteger(prev_().literal);
+        if (level <= 0 || level > loop_ctxs_.size())
         {
-            _reporterError("循环层级超出范围");
+            reporterError_("循环层级超出范围");
             return;
         }
-        auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
-        Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
+        auto& loop_ctx = loop_ctxs_.at(loop_ctxs_.size() - level);
+        Bytecode diff = env_->currLocalDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
-            _emitB(OP_END);
-        Bytecode pos = _chunk->codes.size();
-        _emitB(OP_JUMP);
-        _emitB(0);
+            emitB_(OP_END);
+        Bytecode pos = chunk_->codes.size();
+        emitB_(OP_JUMP);
+        emitB_(0);
         loop_ctx.breaks.push_back(pos);
-        _consume(TK_SEMICOLON, "中断语句期望以';'结束");
+        consume_(TK_SEMICOLON, "中断语句期望以';'结束");
     }
-    void Parser::_continueStmt()
+    void Parser::continueStmt_()
     {
-        if (_loop_ctxs.empty())
+        if (loop_ctxs_.empty())
         {
-            _reporterError("继续语句不在循环中");
+            reporterError_("继续语句不在循环中");
             return;
         }
         Integer level = 1;
-        if (_match({TK_LIT_INT}))
-            level = Value::toInteger(_prev().literal);
-        if (level <= 0 || level > _loop_ctxs.size())
+        if (match_({TK_LIT_INT}))
+            level = Value::toInteger(prev_().literal);
+        if (level <= 0 || level > loop_ctxs_.size())
         {
-            _reporterError("循环层级超出范围");
+            reporterError_("循环层级超出范围");
             return;
         }
-        auto& loop_ctx = _loop_ctxs.at(_loop_ctxs.size() - level);
-        Bytecode diff = _env->currLocalDepth() - loop_ctx.depth;
+        auto& loop_ctx = loop_ctxs_.at(loop_ctxs_.size() - level);
+        Bytecode diff = env_->currLocalDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
-            _emitB(OP_END);
+            emitB_(OP_END);
         Bytecode start = loop_ctx.start;
-        _emitB(OP_JUMP);
-        _emitB(start - (_chunk->codes.size() + 1));
-        _consume(TK_SEMICOLON, "继续语句期望以';'结束");
+        emitB_(OP_JUMP);
+        emitB_(start - (chunk_->codes.size() + 1));
+        consume_(TK_SEMICOLON, "继续语句期望以';'结束");
     }
-    void Parser::_returnStmt()
+    void Parser::returnStmt_()
     {
-        if (_func_ctxs.empty())
+        if (func_ctxs_.empty())
         {
-            _reporterError("返回语句不在函数中");
+            reporterError_("返回语句不在函数中");
             return;
         }
-        auto& func_ctx = _func_ctxs.back();
-        if (_match({TK_COLON}))
-            _expression();
+        auto& func_ctx = func_ctxs_.back();
+        if (match_({TK_COLON}))
+            expression_();
         else
-            _emitB(OP_NIL);
-        Bytecode diff = _env->currLocalDepth() - func_ctx.depth;
+            emitB_(OP_NIL);
+        Bytecode diff = env_->currLocalDepth() - func_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
-            _emitB(OP_END);
-        _emitB(OP_RETURN);
-        _consume(TK_SEMICOLON, "返回语句期望以';'结束");
+            emitB_(OP_END);
+        emitB_(OP_RETURN);
+        consume_(TK_SEMICOLON, "返回语句期望以';'结束");
     }
-    void Parser::_printStmt()
+    void Parser::printStmt_()
     {
-        Opcode type = _prev().type == TK_PRINT ? OP_PRINT : OP_PRINTLN;
-        _expression();
-        _consume(TK_SEMICOLON, "打印语句期望以';'结束");
-        _emitB(type);
+        Opcode type = prev_().type == TK_PRINT ? OP_PRINT : OP_PRINTLN;
+        expression_();
+        consume_(TK_SEMICOLON, "打印语句期望以';'结束");
+        emitB_(type);
     }
 #pragma endregion
 #pragma region Decl
-    void Parser::_declaration()
+    void Parser::declaration_()
     {
-        if (_match({TK_VAR, TK_LET}))
-            _varDecl();
-        else if (_match({TK_FUNC}))
-            _funcDecl();
-        else if (_match({TK_STRUCT}))
-            _structDecl();
-        else if (_match({TK_CLASS}))
-            _classDecl();
+        if (match_({TK_VAR, TK_LET}))
+            varDecl_();
+        else if (match_({TK_FUNC}))
+            funcDecl_();
+        else if (match_({TK_STRUCT}))
+            structDecl_();
+        else if (match_({TK_CLASS}))
+            classDecl_();
         else
-            _statement();
+            statement_();
     }
-    void Parser::_varDecl()
+    void Parser::varDecl_()
     {
-        _consume(TK_IDENT, "变量期望用标识符标记");
-        std::string vname = std::string(_prev().lexeme);
-        Env::Coord varc = _env->def(vname);
-        if (_match({TK_ASSIGN}))
-            _expression();
+        consume_(TK_IDENT, "变量期望用标识符标记");
+        std::string vname = std::string(prev_().lexeme);
+        Value::Coord varc = env_->def(vname);
+        if (match_({TK_ASSIGN}))
+            expression_();
         else
-            _emitB(OP_NIL);
-        _emitB(OP_DEF_VAR);
-        _emitB(varc.is_global);
-        _emitB(varc.uplevel);
-        _emitB(varc.slot);
-        _emitB(OP_POP);
-        _consume(TK_SEMICOLON, "变量声明语句期望以';'结束");
+            emitB_(OP_NIL);
+        emitB_(OP_DEF_VAR);
+        emitB_(varc.lifecycle);
+        emitB_(varc.uplevel);
+        emitB_(varc.slot);
+        emitB_(OP_POP);
+        consume_(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
-    void Parser::_funcDecl()
+    void Parser::funcDecl_()
     {
-        Chunk* savedChunk = _chunk;
-        _consume(TK_IDENT, "函数声明期望函数名");
-        std::string fname = std::string(_prev().lexeme);
+        Chunk* savedChunk = chunk_;
+        consume_(TK_IDENT, "函数声明期望函数名");
+        std::string fname = std::string(prev_().lexeme);
         auto func = std::make_shared<Function>();
-        Env::Coord fc = _env->def(fname);
+        Value::Coord fc = env_->def(fname);
         func->kind = Function::Kind::SCRIPT;
-        _chunk = &(func->chunk);
-        _env->enter();
-        _consume(TK_LPAREN, "函数声明期望有'('");
-        while (_match({TK_IDENT}))
+        chunk_ = &(func->chunk);
+        env_->enter();
+        consume_(TK_LPAREN, "函数声明期望有'('");
+        while (match_({TK_IDENT}))
         {
-            std::string upname = std::string(_prev().lexeme);
-            if (_env->overlap(upname))
+            std::string upname = std::string(prev_().lexeme);
+            if (env_->overlap(upname))
             {
-                _reporterError(std::format("函数参数名重复 {}", upname));
+                reporterError_(std::format("函数参数名重复 {}", upname));
                 return;
             }
-            _env->def(upname);
+            env_->def(upname);
             func->argc++;
             if (func->argc > REI_FUNC_UPVALUE_COUNT_MAX)
             {
-                _reporterError(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+                reporterError_(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
                 return;
             }
-            if (_match({TK_COMMA}))
+            if (match_({TK_COMMA}))
                 continue;
             break;
         }
-        _consume(TK_RPAREN, "函数声明期望有')'");
+        consume_(TK_RPAREN, "函数声明期望有')'");
         {
-        auto& func_ctx = _func_ctxs.emplace_back();
-        func_ctx.depth = _env->currLocalDepth();
-        _statement();
-        _emitB(OP_NIL);
-        _emitB(OP_RETURN);
+        auto& func_ctx = func_ctxs_.emplace_back();
+        func_ctx.depth = env_->currLocalDepth();
+        statement_();
+        emitB_(OP_NIL);
+        emitB_(OP_RETURN);
         }
-        _func_ctxs.pop_back();
-        _env->exit();
-        _chunk = savedChunk;
-        _emitB(OP_CONSTANT);
-        _emitB(_emitC(func));
-        _emitB(OP_DEF_VAR);
-        _emitB(fc.is_global);
-        _emitB(fc.uplevel);
-        _emitB(fc.slot);
-        _emitB(OP_POP);
+        func_ctxs_.pop_back();
+        env_->exit();
+        chunk_ = savedChunk;
+        emitB_(OP_CONSTANT);
+        emitC_(func);
+        emitB_(OP_DEF_VAR);
+        emitB_(fc.lifecycle);
+        emitB_(fc.uplevel);
+        emitB_(fc.slot);
+        emitB_(OP_POP);
     }
-    void Parser::_structDecl()
+    void Parser::structDecl_()
     {
     }
-    void Parser::_classDecl()
+    void Parser::classDecl_()
     {
     }
 #pragma endregion
 #pragma region Kan/Move
-    bool Parser::_isAtEnd() const
+    bool Parser::isAtEnd_() const
     {
         return _cursor.curr == nullptr || _cursor.curr->type == TK_EOF;
     }
-    Token::Unit& Parser::_advance()
+    Token::Unit& Parser::advance_()
     {
         if (_cursor.curr == nullptr)
         {
             _cursor.prev = nullptr;
-            _cursor.curr = &_tokens.front();
+            _cursor.curr = &tokens_.front();
         }
         else if (_cursor.curr->type != TK_EOF)
         {
@@ -619,79 +619,80 @@ namespace rei
         }
         return *_cursor.prev;
     }
-    void Parser::_pass()
+    void Parser::pass_()
     {
-        if (!_isAtEnd())
-            _advance();
+        if (!isAtEnd_())
+            advance_();
     }
-    Token::Unit& Parser::_prev()
+    Token::Unit& Parser::prev_()
     {
         return *_cursor.prev;
     }
-    Token::Unit& Parser::_peek()
+    Token::Unit& Parser::peek_()
     {
         return *_cursor.curr;
     }
-    bool Parser::_check(Token::Type type)
+    bool Parser::check_(Token::Type type)
     {
-        if (_isAtEnd()) return false;
+        if (isAtEnd_()) return false;
         return _cursor.curr->type == type;
     }
-    bool Parser::_check(std::initializer_list<Token::Type> types)
+    bool Parser::check_(std::initializer_list<Token::Type> types)
     {
-        if (_isAtEnd()) return false;
+        if (isAtEnd_()) return false;
         for (auto type : types)
             if (_cursor.curr->type == type)
                 return true;
         return false;
     }
-    bool Parser::_match(std::initializer_list<Token::Type> types)
+    bool Parser::match_(std::initializer_list<Token::Type> types)
     {
-        if (!_check(types)) return false;
-        _advance();
+        if (!check_(types)) return false;
+        advance_();
         return true;
     }
-    void Parser::_consume(Token::Type type, const std::string& message)
+    void Parser::consume_(Token::Type type, const std::string& message)
     {
-        if (_check(type))
+        if (check_(type))
         {
-            _pass();
+            pass_();
             return;
         }
     #ifdef REI_OMIT_SEMICOLON_ENABLE
         if (type == TK_SEMICOLON)
             return;
     #endif
-        _reporterError(message);
+        reporterError_(message);
     }
 #pragma endregion
 #pragma region Emit
-    void Parser::_emitB(Bytecode op)
+    void Parser::emitB_(Bytecode op)
     {
-        _chunk->codes.push_back(op);
+        chunk_->codes.push_back(op);
     }
-    Bytecode Parser::_emitC(Value::Data value)
+    void Parser::emitC_(Value::Data value)
     {
-        if (_chunk->constants.size() >= REI_BYTECODE_MAX)
+        if (chunk_->constants.size() >= REI_BYTECODE_MAX)
         {
-            _reporterError("常数块溢出");
-            return 0;
-        }
-        _chunk->constants.push_back(value);
-        return static_cast<Bytecode>(_chunk->constants.size() - 1);
-    }
-    void Parser::_patchB(Bytecode pos, Bytecode op)
-    {
-        if (pos >= _chunk->codes.size())
-        {
-            _reporterError("修补位置超出字节码块范围");
+            reporterError_("常数块溢出");
+            chunk_->codes.push_back(0);
             return;
         }
-        _chunk->codes[pos] = static_cast<Bytecode>(op);
+        chunk_->constants.push_back(value);
+        chunk_->codes.push_back(static_cast<Bytecode>(chunk_->constants.size() - 1));
+    }
+    void Parser::patchB_(Bytecode pos, Bytecode op)
+    {
+        if (pos >= chunk_->codes.size())
+        {
+            reporterError_("修补位置超出字节码块范围");
+            return;
+        }
+        chunk_->codes[pos] = static_cast<Bytecode>(op);
     }
 #pragma endregion
-    void Parser::_reporterError(const std::string& msg)
+    void Parser::reporterError_(const std::string& msg)
     {
-        _error_reporter->report(std::format("{}: {}", Token::toString(_prev().type), msg), _prev().pos);
+        _error_reporter->report(std::format("{}: {}", Token::toString(prev_().type), msg), prev_().pos);
     }
 }

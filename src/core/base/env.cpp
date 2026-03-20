@@ -5,104 +5,104 @@ namespace rei
 {
     void Env::enter()
     {
-        _Scope scope;
-        scope.stack_start = _local_stack.size();
-        _locals.push_back(std::move(scope));
+        Area_ scope;
+        scope.stack_start = local_stack_.size();
+        locals_area_.push_back(std::move(scope));
     }
     void Env::exit()
     {
-        _local_stack.resize(_locals.back().stack_start);
-        _locals.pop_back();
+        local_stack_.resize(locals_area_.back().stack_start);
+        locals_area_.pop_back();
     }
     Bytecode Env::currLocalDepth()
     {
-        return _locals.size();
+        return locals_area_.size();
     }
     void Env::clear()
     {
-        _global_stack.clear();
-        _global.map.clear();
-        _global.size = 0;
-        _local_stack.clear();
-        _locals.clear();
+        global_stack_.clear();
+        global_area_.map.clear();
+        global_area_.size = 0;
+        local_stack_.clear();
+        locals_area_.clear();
     }
 #pragma region Def
-    Env::Coord Env::def(const std::string& name)
+    Value::Coord Env::def(const std::string& name)
     {
-        if (_locals.empty())
-            return _defGlobal(name);
-        return _defLocal(name);
+        if (locals_area_.empty())
+            return defGlobal_(name);
+        return defLocal_(name);
     }
-    Env::Coord Env::_defGlobal(const std::string& name)
+    Value::Coord Env::defGlobal_(const std::string& name)
     {
-        _Scope& scope = _global;
+        Area_& scope = global_area_;
         if (auto it = scope.map.find(name); it != scope.map.end())
-            return {true, 0, it->second};
-        Bytecode slot = static_cast<Bytecode>(_global_stack.size());
+            return {Value::VLC_GLOBAL, 0, it->second};
+        Bytecode slot = static_cast<Bytecode>(global_stack_.size());
         scope.map[name] = slot;
         scope.size++;
-        _global_stack.push_back(Nil{});
-        return {true, 0, slot};
+        global_stack_.push_back(Nil{});
+        return {Value::VLC_GLOBAL, 0, slot};
     }
-    Env::Coord Env::_defLocal(const std::string& name)
+    Value::Coord Env::defLocal_(const std::string& name)
     {
         Bytecode depth = currLocalDepth() - 1;
-        _Scope& scope = _locals.at(depth);
+        Area_& scope = locals_area_.at(depth);
         if (auto it = scope.map.find(name); it != scope.map.end())
-            return {false, 0, it->second};
-        Bytecode slot = static_cast<Bytecode>(_local_stack.size()) - scope.stack_start;
+            return {Value::VLC_LOCAL, 0, it->second};
+        Bytecode slot = static_cast<Bytecode>(local_stack_.size()) - scope.stack_start;
         scope.map[name] = slot;
         scope.size++;
-        _local_stack.push_back(Nil{});
-        return {false, 0, slot};
+        local_stack_.push_back(Nil{});
+        return {Value::VLC_LOCAL, 0, slot};
     }
-    void Env::def(Coord c, Value::Data value)
+    void Env::def(Value::Coord c, Value::Data value)
     {
-        if (c.is_global || _locals.empty())
-            _defGlobal(c, value);
+        if (c.lifecycle == Value::VLC_GLOBAL || locals_area_.empty())
+            defGlobal_(c, value);
         else
-            _defLocal(c, value);
+            defLocal_(c, value);
     }
-    void Env::_defGlobal(Coord c, Value::Data value)
+    void Env::defGlobal_(Value::Coord c, Value::Data value)
     {
-        _Scope& scope = _global;
+        Area_& scope = global_area_;
         if (c.slot < scope.size)
             return;
         scope.size++;
-        _global_stack.push_back(value);
+        global_stack_.push_back(value);
     }
-    void Env::_defLocal(Coord c, Value::Data value)
+    void Env::defLocal_(Value::Coord c, Value::Data value)
     {
-        _Scope& scope = _locals.at(currLocalDepth() - 1 - c.uplevel);
+        Area_& scope = locals_area_.at(currLocalDepth() - 1 - c.uplevel);
         if (c.slot < scope.size)
             return;
         scope.size++;
-        _local_stack.push_back(value);
+        local_stack_.push_back(value);
     }
 #pragma endregion
 #pragma get/set/overlap
-    Value::Data Env::get(Coord c)
+    Value::Data Env::get(Value::Coord c)
     {
-        if (!c.is_valid()) return Nil{};
-        if (c.is_global)
+        if (!c.isValid()) return Nil{};
+        if (c.lifecycle == Value::VLC_GLOBAL)
         {
             Bytecode slot = c.slot;
-            _Scope& scope = _global;
+            Area_& scope = global_area_;
             if (slot < scope.size)
-                return _global_stack.at(slot);
+                return global_stack_.at(slot);
         }
         else
         {
-            if (_locals.empty()) return Nil{};
+            if (locals_area_.empty()) return Nil{};
             Bytecode depth = currLocalDepth() - 1 - c.uplevel;
             Bytecode slot = c.slot;
             for (;;)
             {
-                if (depth >= _locals.size())
+                if (depth >= locals_area_.size())
                     break;
-                _Scope& scope = _locals.at(depth);
+                Area_& scope = locals_area_.at(depth);
                 if (slot < scope.size)
-                    return _local_stack.at(scope.stack_start + slot);
+                    return local_stack_.at(scope.stack_start + slot);
                 if (depth == 0)
                     break;
                 depth--;
@@ -110,29 +110,29 @@ namespace rei
         }
         return Nil{};
     }
-    void Env::set(Coord c, Value::Data value)
+    void Env::set(Value::Coord c, Value::Data value)
     {
-        if (!c.is_valid()) return;
-        if (c.is_global)
+        if (!c.isValid()) return;
+        if (c.lifecycle == Value::VLC_GLOBAL)
         {
             Bytecode slot = c.slot;
-            _Scope& scope = _global;
+            Area_& scope = global_area_;
             if (slot < scope.size)
-                _global_stack.at(slot) = value;
+                global_stack_.at(slot) = value;
         }
         else
         {
-            if (_locals.empty()) return;
+            if (locals_area_.empty()) return;
             Bytecode depth = currLocalDepth() - 1 - c.uplevel;
             Bytecode slot = c.slot;
             for (;;)
             {
-                if (depth >= _locals.size())
+                if (depth >= locals_area_.size())
                     break;
-                _Scope& scope = _locals.at(depth);
+                Area_& scope = locals_area_.at(depth);
                 if (slot < scope.size)
                 {
-                    _local_stack.at(scope.stack_start + slot) = value;
+                    local_stack_.at(scope.stack_start + slot) = value;
                     return;
                 }
                 if (depth == 0)
@@ -143,31 +143,31 @@ namespace rei
     }
     bool Env::overlap(const std::string& name)
     {
-        if (_locals.empty())
-            return _global.map.contains(name);
-        _Scope& scope = _locals.at(currLocalDepth() - 1);
+        if (locals_area_.empty())
+            return global_area_.map.contains(name);
+        Area_& scope = locals_area_.at(currLocalDepth() - 1);
         return scope.map.contains(name);
     }
 #pragma endregion
-    Env::Coord Env::toCoord(const std::string& name)
+    Value::Coord Env::toCoord(const std::string& name)
     {
-        if (!_locals.empty())
+        if (!locals_area_.empty())
         {
             Bytecode depth = currLocalDepth() - 1;
             Bytecode uplevel = 0;
             for (;;)
             {
-                _Scope& scope = _locals.at(depth);
+                Area_& scope = locals_area_.at(depth);
                 if (auto it = scope.map.find(name); it != scope.map.end())
-                    return {false, uplevel, it->second};
+                    return {Value::VLC_LOCAL, uplevel, it->second};
                 if (depth == 0)
                     break;
                 depth--;
                 uplevel++;
             }
         }
-        if (auto it = _global.map.find(name); it != _global.map.end())
-            return {true, 0, it->second};
+        if (auto it = global_area_.map.find(name); it != global_area_.map.end())
+            return {Value::VLC_GLOBAL, 0, it->second};
         return {};
     }
 }

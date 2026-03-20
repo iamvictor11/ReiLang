@@ -52,12 +52,6 @@ namespace rei
             return reinterpret_cast<uintptr_t>(&(*ref));
         }
         std::string getDebugString(Value::Data data);
-        // TODO: 声明周期暂时不考虑
-        enum Lifetime : Bytecode
-        {
-            VL_STACK,
-            VL_HEAP
-        };
     }
 
     template<typename T>

@@ -22,32 +22,32 @@ namespace rei
     public:
         [[nodiscard]] Token::List& start();
     private:
-        void _scan();
-        void _moveCursor();
-        void _moveCursorln();
-        void _smartMoceCursor(char c);
+        void scan_();
+        void moveCursor_();
+        void moveCursorln_();
+        void smartMoceCursor_(char c);
     private:
-        bool _isAtEnd() const;
-        bool _isAtEnd(size_t offset) const;
-        char _advance();
-        void _pass();
-        void _pass(size_t step);
-        bool _match(char c);
-        bool _match(const char* s, size_t omit = 1);
-        char _peek() const;
-        char _peek(size_t offset) const;
+        bool isAtEnd_() const;
+        bool isAtEnd_(size_t offset) const;
+        char advance_();
+        void pass_();
+        void pass_(size_t step);
+        bool match_(char c);
+        bool match_(const char* s, size_t omit = 1);
+        char peek_() const;
+        char peek_(size_t offset) const;
     private:
-        void _skipNote();
-        void _skipWhite();
+        void skipNote_();
+        void skipWhite_();
     private:
-        void _lexOther(char c);
-        void _lexNumber();
-        void _lexString(char beg);
-        void _lexRawString(char beg);
-        void _lexIdentifier();
+        void lexOther_(char c);
+        void lexNumber_();
+        void lexString_(char beg);
+        void lexRawString_(char beg);
+        void lexIdentifier_();
     private:
-        void _addToken(Token::Type type);
-        void _addToken(Token::Type type, Value::Data literal);
-        void _addToken(Token::Type type, std::string_view lexeme, Value::Data literal);
+        void addToken_(Token::Type type);
+        void addToken_(Token::Type type, Value::Data literal);
+        void addToken_(Token::Type type, std::string_view lexeme, Value::Data literal);
     };
 }

@@ -7,23 +7,23 @@ namespace rei
 {
     namespace Log
     {
-        void Info(const std::string &, const char *file, int line);
-        void Warning(const std::string &, const char *file, int line);
-        void Error(const std::string &, const char *file, int line);
-        void Assert(bool ok, const std::string &, const char *file, int line);
-        void Success(const std::string &, const char *file, int line);
+        void echoInfo(const std::string &, const char *file, int line);
+        void echoWarning(const std::string &, const char *file, int line);
+        void echoError(const std::string &, const char *file, int line);
+        void echoAssert(bool ok, const std::string &, const char *file, int line);
+        void echoSuccess(const std::string &, const char *file, int line);
     };
 }
 #define REI_DEBUG_LOG_INFO(fmt, ...) \
-    rei::Log::Info(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+    rei::Log::echoInfo(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
 #define REI_DEBUG_LOG_WARNING(fmt, ...) \
-    rei::Log::Warning(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+    rei::Log::echoWarning(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
 #define REI_DEBUG_LOG_ERROR(fmt, ...) \
-    rei::Log::Error(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+    rei::Log::echoError(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
 #define REI_DEBUG_LOG_ASSERT(ok, fmt, ...) \
-    rei::Log::Assert(ok, std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+    rei::Log::echoAssert(ok, std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
 #define REI_DEBUG_LOG_SUCCESS(fmt, ...) \
-    rei::Log::Success(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
+    rei::Log::echoSuccess(std::format(fmt __VA_OPT__(, ) __VA_ARGS__), __FILE__, __LINE__)
 #else
 #define REI_DEBUG_LOG_INFO(fmt, ...)
 #define REI_DEBUG_LOG_WARNING(fmt, ...)

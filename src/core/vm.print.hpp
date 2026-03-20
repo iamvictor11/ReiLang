@@ -4,7 +4,7 @@
 
 namespace rei
 {
-    static void _Chunk_debugPrint(const Chunk& chunk, size_t level = 0)
+    static void chunk_debugPrint_(const Chunk& chunk, size_t level = 0)
     {
         for (size_t i = 0;i < chunk.codes.size();i++)
         {
@@ -22,7 +22,7 @@ namespace rei
                     if (std::holds_alternative<Ref<Function>>(chunk.constants[ci]))
                     {
                         auto func_ref = std::get<Ref<Function>>(chunk.constants[ci]);
-                        _Chunk_debugPrint(func_ref->chunk, level + 1);
+                        chunk_debugPrint_(func_ref->chunk, level + 1);
                     }
                     break;
                 }

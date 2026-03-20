@@ -38,14 +38,14 @@ namespace rei
     public:
         void run();
     private:
-        Bytecode _readByte();
-        Value::Data _readConstant();
-        void _jump(Bytecode offset);
+        Bytecode readByte_();
+        Value::Data readConstant_();
+        void jump_(Bytecode offset);
     private:
-        void _push(Value::Data value);
-        Value::Data _pop();
-        Value::Data _peek();
-        Value::Data _peek(int distance);
+        void push_(Value::Data value);
+        Value::Data pop_();
+        Value::Data peek_();
+        Value::Data peek_(int distance);
     public:
         bool hasError();
         Error::Msg popError();

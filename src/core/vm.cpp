@@ -43,7 +43,7 @@ namespace rei
         }
         _env.clear();
     #ifdef REI_DEBUG_ENABLE
-        _Chunk_debugPrint(_chunk);
+        chunk_debugPrint_(_chunk);
     #endif
     #ifdef REI_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
@@ -64,20 +64,20 @@ namespace rei
         _end = &(_chunk.codes.back());
         while (_ip <= _end)
         {
-            auto instruction = static_cast<Opcode>(_readByte());
+            auto instruction = static_cast<Opcode>(readByte_());
             switch (instruction)
             {
-                case OP_CONSTANT:   _push(_readConstant()); break;
-                case OP_POP:        _pop(); break;
-                case OP_NIL:    _push(Nil{}); break;
-                case OP_TRUE:   _push(Boolean(true)); break;
-                case OP_FALSE:  _push(Boolean(false)); break;
+                case OP_CONSTANT:   push_(readConstant_()); break;
+                case OP_POP:        pop_(); break;
+                case OP_NIL:    push_(Nil{}); break;
+                case OP_TRUE:   push_(Boolean(true)); break;
+                case OP_FALSE:  push_(Boolean(false)); break;
                 case OP_NEG:
                 case OP_BIT_NOT:
                 case OP_NOT:
                 {
-                    Value::Data v = _pop();
-                    _push(_dispatchUnary(v, instruction));
+                    Value::Data v = pop_();
+                    push_(_dispatchUnary(v, instruction));
                     break;
                 }
                 case OP_ADD:
@@ -99,28 +99,28 @@ namespace rei
                 case OP_GT:
                 case OP_GE:
                 {
-                    Value::Data r = _pop();
-                    Value::Data l = _pop();
-                    _push(_dispatchBinary(l, r, instruction));
+                    Value::Data r = pop_();
+                    Value::Data l = pop_();
+                    push_(_dispatchBinary(l, r, instruction));
                     break;
                 }
                 case OP_AND:
                 {
-                    Bytecode offset = _readByte();
-                    if (!Value::toBoolean(_pop()))
+                    Bytecode offset = readByte_();
+                    if (!Value::toBoolean(pop_()))
                     {
-                        _jump(offset);
-                        _push(false);
+                        jump_(offset);
+                        push_(false);
                     }
                     break;
                 }
                 case OP_OR:
                 {
-                    Bytecode offset = _readByte();
-                    if (Value::toBoolean(_pop()))
+                    Bytecode offset = readByte_();
+                    if (Value::toBoolean(pop_()))
                     {
-                        _jump(offset);
-                        _push(true);
+                        jump_(offset);
+                        push_(true);
                     }
                     break;
                 }
@@ -131,50 +131,50 @@ namespace rei
                     _env.exit();
                     break;
                 case OP_PRINT:
-                    std::cout << Value::toString(_pop());
+                    std::cout << Value::toString(pop_());
                     break;
                 case OP_PRINTLN:
-                    std::cout << Value::toString(_pop()) << std::endl;
+                    std::cout << Value::toString(pop_()) << std::endl;
                     break;
                 case OP_JUMP:
                 {
-                    _jump(_readByte());
+                    jump_(readByte_());
                     break;
                 }
                 case OP_JMPT:
                 {
-                    Bytecode offset = _readByte();
-                    if (Value::toBoolean(_pop()))
-                        _jump(offset);
+                    Bytecode offset = readByte_();
+                    if (Value::toBoolean(pop_()))
+                        jump_(offset);
                     break;
                 }
                 case OP_JMPF:
                 {
-                    Bytecode offset = _readByte();
-                    if (!Value::toBoolean(_pop()))
-                        _jump(offset);
+                    Bytecode offset = readByte_();
+                    if (!Value::toBoolean(pop_()))
+                        jump_(offset);
                     break;
                 }
                 case OP_LOOP: break;
                 case OP_DEF_VAR:
                 {
-                    _env.def(Env::Coord{static_cast<bool>(_readByte()), _readByte(), _readByte()}, _peek());
+                    _env.def(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}, peek_());
                     break;
                 }
                 case OP_GET_VAR:
                 {
-                    _push(_env.get(Env::Coord{static_cast<bool>(_readByte()), _readByte(), _readByte()}));
+                    push_(_env.get(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}));
                     break;
                 }
                 case OP_SET_VAR:
                 {
-                    _env.set(Env::Coord{static_cast<bool>(_readByte()), _readByte(), _readByte()}, _peek());
+                    _env.set(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}, peek_());
                     break;
                 }
                 case OP_CALL:
                 {
-                    Bytecode argc = _readByte();
-                    Value::Data callee = _peek(argc);
+                    Bytecode argc = readByte_();
+                    Value::Data callee = peek_(argc);
                     if (std::holds_alternative<Ref<Function>>(callee))
                     {
                         auto func_ref = std::get<Ref<Function>>(callee);
@@ -191,7 +191,7 @@ namespace rei
                             for (size_t upi = 1; upi <= argc; upi++)
                             {
                                 if (upi <= func_ref->argc)
-                                    _env.def(Env::Coord{false, 0, upi - 1}, _peek(argc - upi));
+                                    _env.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, peek_(argc - upi));
                                 else
                                     break;
                             }
@@ -202,19 +202,19 @@ namespace rei
                             for (size_t upi = 1; upi <= loop_count; upi++)
                             {
                                 if (upi <= argc)
-                                    _env.def(Env::Coord{false, 0, upi - 1}, _peek(argc - upi));
+                                    _env.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, peek_(argc - upi));
                                 else
-                                    _env.def(Env::Coord{false, 0, upi - 1}, Nil{});
+                                    _env.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, Nil{});
                             }
                         }
                         for (size_t argi = 0; argi < argc+1; argi++)
-                            _pop();
+                            pop_();
                     }
                     else
                     {
                         _error_reporter.report("尝试调用非函数对象", {0, 0});
                         for (size_t argi = 0; argi < argc; argi++)
-                            _pop();
+                            pop_();
                     }
                     break;
                 }
@@ -241,39 +241,39 @@ namespace rei
     }
 #pragma endregion
 #pragma region Chunk
-    Bytecode VM::_readByte()
+    Bytecode VM::readByte_()
     {
         return *_ip++;
     }
-    Value::Data VM::_readConstant()
+    Value::Data VM::readConstant_()
     {
-        size_t index = _readByte();
+        size_t index = readByte_();
         if (_frames.empty())
             return _chunk.constants[index];
         else
             return _frames.back().closure.func->chunk.constants[index];
     }
-    void VM::_jump(Bytecode offset)
+    void VM::jump_(Bytecode offset)
     {
         _ip += static_cast<REI_BYTECODE_INT>(offset);
     }
 #pragma endregion
 #pragma region Stack
-    void VM::_push(Value::Data value)
+    void VM::push_(Value::Data value)
     {
         _stack.push_back(value);
     }
-    Value::Data VM::_pop()
+    Value::Data VM::pop_()
     {
         Value::Data value = _stack.back();
         _stack.pop_back();
         return value;
     }
-    Value::Data VM::_peek()
+    Value::Data VM::peek_()
     {
         return _stack.back();
     }
-    Value::Data VM::_peek(int distance)
+    Value::Data VM::peek_(int distance)
     {
         return _stack[_stack.size() -1 - distance];
     }
