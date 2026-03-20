@@ -43,10 +43,10 @@ namespace rei
         {
             Token::Unit* prev = nullptr;
             Token::Unit* curr = nullptr;
-        } _cursor;
-        Error::Reporter* _error_reporter;
+        } cursor_;
+        Error::Reporter* error_reporter_;
     public:
-        Parser(Token::List&& ts, Chunk* ck, Env* ev, Error::Reporter* er) : tokens_(std::move(ts)), chunk_(ck), env_(ev), _error_reporter(er) {};
+        Parser(Token::List&& ts, Chunk* ck, Env* ev, Error::Reporter* er) : tokens_(std::move(ts)), chunk_(ck), env_(ev), error_reporter_(er) {};
         ~Parser() = default;
     public:
         void start();

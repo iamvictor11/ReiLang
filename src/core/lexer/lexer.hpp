@@ -7,17 +7,17 @@ namespace rei
     class Lexer final
     {
     private:
-        std::string _source;
-        Token::List _tokens;
+        std::string source_;
+        Token::List tokens_;
         struct
         {
             uint64_t start = 0;
             uint64_t current = 0;
             Position pos = {1, 1};
-        } _cursor;
+        } cursor_;
         Error::Reporter* _error_reporter;
     public:
-        Lexer(std::string&& s, Error::Reporter* er) : _source(std::move(s)), _error_reporter(er) {};
+        Lexer(std::string&& s, Error::Reporter* er) : source_(std::move(s)), _error_reporter(er) {};
         ~Lexer() = default;
     public:
         [[nodiscard]] Token::List& start();

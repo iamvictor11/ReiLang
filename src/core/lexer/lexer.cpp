@@ -19,14 +19,14 @@ namespace rei
     {
         while (!isAtEnd_())
             scan_();
-        _tokens.emplace_back(Token::TK_EOF, "", 0, _cursor.pos);
-        return _tokens;
+        tokens_.emplace_back(Token::TK_EOF, "", 0, cursor_.pos);
+        return tokens_;
     }
 #pragma region Scan
     void Lexer::scan_()
     {
         skipWhite_();
-        _cursor.start = _cursor.current;
+        cursor_.start = cursor_.current;
         char c = advance_();
         switch (c)
         {
@@ -79,14 +79,14 @@ namespace rei
     }
     void Lexer::moveCursor_()
     {
-        _cursor.current++;
-        _cursor.pos.column++;
+        cursor_.current++;
+        cursor_.pos.column++;
     }
     void Lexer::moveCursorln_()
     {
-        _cursor.current++;
-        _cursor.pos.line++;
-        _cursor.pos.column = 1;
+        cursor_.current++;
+        cursor_.pos.line++;
+        cursor_.pos.column = 1;
     }
     void Lexer::smartMoceCursor_(char c)
     {
@@ -97,36 +97,36 @@ namespace rei
 #pragma region Kan/Move
     bool Lexer::isAtEnd_() const
     {
-        return _cursor.current >= _source.length();
+        return cursor_.current >= source_.length();
     }
     bool Lexer::isAtEnd_(size_t offset) const
     {
-        return _cursor.current + offset >= _source.length();
+        return cursor_.current + offset >= source_.length();
     }
     char Lexer::advance_()
     {
         if (isAtEnd_()) return '\0';
-        char c = _source.at(_cursor.current);
+        char c = source_.at(cursor_.current);
         smartMoceCursor_(c);
         return c;
     }
     void Lexer::pass_()
     {
         if (isAtEnd_()) return;
-        smartMoceCursor_(_source.at(_cursor.current));
+        smartMoceCursor_(source_.at(cursor_.current));
     }
     void Lexer::pass_(size_t step)
     {
         while (step > 0)
         {
             if (isAtEnd_()) return;
-            smartMoceCursor_(_source.at(_cursor.current));
+            smartMoceCursor_(source_.at(cursor_.current));
             step--;
         }
     }
     bool Lexer::match_(char c)
     {
-        if (isAtEnd_() || _source.at(_cursor.current) != c)
+        if (isAtEnd_() || source_.at(cursor_.current) != c)
             return false;
         smartMoceCursor_(c);
         return true;
@@ -149,12 +149,12 @@ namespace rei
     char Lexer::peek_() const
     {
         if (isAtEnd_()) return '\0';
-        return _source.at(_cursor.current);
+        return source_.at(cursor_.current);
     }
     char Lexer::peek_(int offset) const
     {
         if (isAtEnd_(offset)) return '\0';
-        return _source.at(_cursor.current + offset);
+        return source_.at(cursor_.current + offset);
     }
 #pragma endregion
 #pragma region Skip
@@ -197,12 +197,12 @@ void Lexer::lexOther_(char c)
         lexIdentifier_();
         return;
     }
-    _error_reporter->report(std::format("未知的字符'{}'(HEX: 0x{:02x})", c, (unsigned char)c), _cursor.pos);
+    _error_reporter->report(std::format("未知的字符'{}'(HEX: 0x{:02x})", c, (unsigned char)c), cursor_.pos);
 }
 void Lexer::lexNumber_()
 {
     bool is_float = false;
-    const char* start = _source.data() + _cursor.start;
+    const char* start = source_.data() + cursor_.start;
     printf("debug n %c\n", peek_(-1));
     if (peek_(-1) == '0')
     {
@@ -213,7 +213,7 @@ void Lexer::lexNumber_()
         {
             pass_(2);
             while (isBdigit(peek_())) pass_();
-            std::string_view lexeme {start, _cursor.current - _cursor.start};
+            std::string_view lexeme {start, cursor_.current - cursor_.start};
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
                 value = (value << 1) | (lexeme[i] - '0');
@@ -226,7 +226,7 @@ void Lexer::lexNumber_()
         {
             pass_(2);
             while (isOdigit(peek_())) pass_();
-            std::string_view lexeme {start, _cursor.current - _cursor.start};
+            std::string_view lexeme {start, cursor_.current - cursor_.start};
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
                 value = value * 8 + (lexeme[i] - '0');
@@ -239,7 +239,7 @@ void Lexer::lexNumber_()
         {
             pass_(2);
             while (isxdigit(peek_())) pass_();
-            std::string_view lexeme {start, _cursor.current - _cursor.start};
+            std::string_view lexeme {start, cursor_.current - cursor_.start};
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
             {
@@ -279,28 +279,28 @@ void Lexer::lexNumber_()
                 }
                 else
                 {
-                    _error_reporter->report("科学计数法格式错误", _cursor.pos);
+                    _error_reporter->report("科学计数法格式错误", cursor_.pos);
                     return;
                 }
             }
         }
     }
     // ok
-    const char* end = _source.data() + _cursor.current;
-    std::string_view lexeme {start, _cursor.current - _cursor.start};
+    const char* end = source_.data() + cursor_.current;
+    std::string_view lexeme {start, cursor_.current - cursor_.start};
     if (is_float)
     {
         Float value;
         auto [ptr, ec] = std::from_chars(start, end, value);
         if (ec == std::errc()) addToken_(Token::TK_LIT_FLOAT, lexeme, value);
-        else _error_reporter->report("错误的浮点数格式", _cursor.pos);
+        else _error_reporter->report("错误的浮点数格式", cursor_.pos);
     }
     else
     {
         Integer value;
         auto [ptr, ec] = std::from_chars(start, end, value);
         if (ec == std::errc()) addToken_(Token::TK_LIT_INT, lexeme, value);
-        else _error_reporter->report("错误的整数格式", _cursor.pos);
+        else _error_reporter->report("错误的整数格式", cursor_.pos);
     }
 }
 void Lexer::lexString_(char beg)
@@ -332,7 +332,7 @@ void Lexer::lexString_(char beg)
     }
     if (isAtEnd_())
     {
-        _error_reporter->report("字符串未闭合", _cursor.pos);
+        _error_reporter->report("字符串未闭合", cursor_.pos);
         return;
     }
     pass_();
@@ -364,7 +364,7 @@ void Lexer::lexRawString_(char beg)
     }
     if (isAtEnd_())
     {
-        _error_reporter->report("字符串未闭合", _cursor.pos);
+        _error_reporter->report("字符串未闭合", cursor_.pos);
         return;
     }
     pass_();
@@ -377,7 +377,7 @@ void Lexer::lexIdentifier_()
         return isalnum(c) || c == '_';
     };
     while (isidentifier(peek_())) pass_();
-    std::string_view lexeme {_source.data() + _cursor.start, _cursor.current - _cursor.start};
+    std::string_view lexeme {source_.data() + cursor_.start, cursor_.current - cursor_.start};
     Token::Type type = Token::toTypeFromKeyword(lexeme);
     Value::Data literal = Token::toLiteralFromKeyword(type);
     addToken_(type, lexeme, literal);
@@ -386,17 +386,17 @@ void Lexer::lexIdentifier_()
 #pragma region Xie
     void Lexer::addToken_(Token::Type type)
     {
-        std::string_view lexeme {_source.data() + _cursor.start, _cursor.current - _cursor.start};
-        _tokens.emplace_back(type, lexeme, _cursor.pos);
+        std::string_view lexeme {source_.data() + cursor_.start, cursor_.current - cursor_.start};
+        tokens_.emplace_back(type, lexeme, cursor_.pos);
     }
     void Lexer::addToken_(Token::Type type, Value::Data literal)
     {
-        std::string_view lexeme {_source.data() + _cursor.start, _cursor.current - _cursor.start};
-        _tokens.emplace_back(type, lexeme, literal, _cursor.pos);
+        std::string_view lexeme {source_.data() + cursor_.start, cursor_.current - cursor_.start};
+        tokens_.emplace_back(type, lexeme, literal, cursor_.pos);
     }
     void Lexer::addToken_(Token::Type type, std::string_view lexeme, Value::Data literal)
     {
-        _tokens.emplace_back(type, lexeme, literal, _cursor.pos);
+        tokens_.emplace_back(type, lexeme, literal, cursor_.pos);
     }
 #pragma endregion
 }

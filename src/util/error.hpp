@@ -19,7 +19,7 @@ namespace rei::Error
     class Reporter final
     {
     private:
-        Stack _stack = {};
+        Stack stack_ = {};
     public:
         bool empty();
         void report(const std::string& data, Position pos);

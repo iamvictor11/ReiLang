@@ -19,23 +19,23 @@ namespace rei::Error
 
     bool Reporter::empty()
     {
-        return _stack.empty();
+        return stack_.empty();
     }
     void Reporter::report(const std::string& data, Position pos)
     {
         REI_DEBUG_LOG_ERROR("{}{}", data, pos.toString());
-        _stack.emplace_back(data, pos);
+        stack_.emplace_back(data, pos);
     }
     Msg Reporter::pop()
     {
-        if (_stack.empty())
+        if (stack_.empty())
             return {"", 0, 0};
-        Msg top = _stack.back();
-        _stack.pop_back();
+        Msg top = stack_.back();
+        stack_.pop_back();
         return top;
     }
     void Reporter::clear()
     {
-        _stack.clear();
+        stack_.clear();
     }
 }

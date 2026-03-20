@@ -127,7 +127,7 @@ namespace rei
     }
     void Parser::program_()
     {
-        while (!isAtEnd_() && _error_reporter->empty())
+        while (!isAtEnd_() && error_reporter_->empty())
             declaration_();
         emitB_(OP_HALT);
     }
@@ -603,21 +603,21 @@ namespace rei
 #pragma region Kan/Move
     bool Parser::isAtEnd_() const
     {
-        return _cursor.curr == nullptr || _cursor.curr->type == TK_EOF;
+        return cursor_.curr == nullptr || cursor_.curr->type == TK_EOF;
     }
     Token::Unit& Parser::advance_()
     {
-        if (_cursor.curr == nullptr)
+        if (cursor_.curr == nullptr)
         {
-            _cursor.prev = nullptr;
-            _cursor.curr = &tokens_.front();
+            cursor_.prev = nullptr;
+            cursor_.curr = &tokens_.front();
         }
-        else if (_cursor.curr->type != TK_EOF)
+        else if (cursor_.curr->type != TK_EOF)
         {
-            _cursor.prev = _cursor.curr;
-            _cursor.curr += 1;
+            cursor_.prev = cursor_.curr;
+            cursor_.curr += 1;
         }
-        return *_cursor.prev;
+        return *cursor_.prev;
     }
     void Parser::pass_()
     {
@@ -626,22 +626,22 @@ namespace rei
     }
     Token::Unit& Parser::prev_()
     {
-        return *_cursor.prev;
+        return *cursor_.prev;
     }
     Token::Unit& Parser::peek_()
     {
-        return *_cursor.curr;
+        return *cursor_.curr;
     }
     bool Parser::check_(Token::Type type)
     {
         if (isAtEnd_()) return false;
-        return _cursor.curr->type == type;
+        return cursor_.curr->type == type;
     }
     bool Parser::check_(std::initializer_list<Token::Type> types)
     {
         if (isAtEnd_()) return false;
         for (auto type : types)
-            if (_cursor.curr->type == type)
+            if (cursor_.curr->type == type)
                 return true;
         return false;
     }
@@ -693,6 +693,6 @@ namespace rei
 #pragma endregion
     void Parser::reporterError_(const std::string& msg)
     {
-        _error_reporter->report(std::format("{}: {}", Token::toString(prev_().type), msg), prev_().pos);
+        error_reporter_->report(std::format("{}: {}", Token::toString(prev_().type), msg), prev_().pos);
     }
 }
