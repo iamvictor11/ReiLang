@@ -151,7 +151,7 @@ namespace rei
         if (isAtEnd_()) return '\0';
         return _source.at(_cursor.current);
     }
-    char Lexer::peek_(size_t offset) const
+    char Lexer::peek_(int offset) const
     {
         if (isAtEnd_(offset)) return '\0';
         return _source.at(_cursor.current + offset);
@@ -203,9 +203,11 @@ void Lexer::lexNumber_()
 {
     bool is_float = false;
     const char* start = _source.data() + _cursor.start;
-    if (peek_() == 0)
+    printf("debug n %c\n", peek_(-1));
+    if (peek_(-1) == '0')
     {
-        char next = peek_(1);
+        char next = peek_();
+        printf("debug 0 %c\n", next);
         // 二进制
         if (next == 'b' || next == 'B')
         {
@@ -213,8 +215,9 @@ void Lexer::lexNumber_()
             while (isBdigit(peek_())) pass_();
             std::string_view lexeme {start, _cursor.current - _cursor.start};
             Integer value = 0;
-            for (size_t i = 2; i < lexeme.length(); ++i)
+            for (size_t i = 2; i < lexeme.length(); i++)
                 value = (value << 1) | (lexeme[i] - '0');
+            printf("debug b %s\n", std::string(lexeme).c_str());
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
@@ -225,8 +228,9 @@ void Lexer::lexNumber_()
             while (isOdigit(peek_())) pass_();
             std::string_view lexeme {start, _cursor.current - _cursor.start};
             Integer value = 0;
-            for (size_t i = 2; i < lexeme.length(); ++i)
+            for (size_t i = 2; i < lexeme.length(); i++)
                 value = value * 8 + (lexeme[i] - '0');
+            printf("debug o %s\n", std::string(lexeme).c_str());
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
@@ -237,11 +241,12 @@ void Lexer::lexNumber_()
             while (isxdigit(peek_())) pass_();
             std::string_view lexeme {start, _cursor.current - _cursor.start};
             Integer value = 0;
-            for (size_t i = 2; i < lexeme.length(); ++i)
+            for (size_t i = 2; i < lexeme.length(); i++)
             {
                 char c = lexeme[i];
                 value = value * 16 + (isdigit(c) ? c - '0' : tolower(c) - 'a' + 10);
             }
+            printf("debug x %s\n", std::string(lexeme).c_str());
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
@@ -369,7 +374,7 @@ void Lexer::lexIdentifier_()
 {
     auto isidentifier = [](char c) -> bool
     {
-        return isalnum(c) || isdigit(c);
+        return isalnum(c) || c == '_';
     };
     while (isidentifier(peek_())) pass_();
     std::string_view lexeme {_source.data() + _cursor.start, _cursor.current - _cursor.start};

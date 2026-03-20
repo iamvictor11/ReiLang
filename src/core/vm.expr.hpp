@@ -71,7 +71,7 @@ namespace rei
             requires (IsString<decltype(v)>)
             { return Nil{}; },
             [&](auto&& v) -> Value::Data
-            requires (IsReference<decltype(v)>)
+            requires (IsObject<decltype(v)>)
             { return Nil{}; },
             [](auto&&, auto&&) -> Value::Data { return Nil{}; }
         }, value);
@@ -96,13 +96,13 @@ namespace rei
             requires (IsString<decltype(l)> || IsString<decltype(r)>)
             { return _stringBinary(Value::toString(l), Value::toString(r), op); },
             [&](auto&& l, auto&& r) -> Value::Data
-            requires (IsReference<decltype(l)> && IsReference<decltype(r)>)
-            { return _referenceBinary(l, r, op); },
+            requires (IsObject<decltype(l)> && IsObject<decltype(r)>)
+            { return Nil{}; },
             [&](auto&& l, auto&& r) -> Value::Data
-            requires (IsReference<decltype(l)> && IsNumber<decltype(r)>)
+            requires (IsObject<decltype(l)> && IsNumber<decltype(r)>)
             { return _mixedBinary(l, r, op); },
             [&](auto&& l, auto&& r) -> Value::Data
-            requires (IsNumber<decltype(l)> && IsReference<decltype(r)>)
+            requires (IsNumber<decltype(l)> && IsObject<decltype(r)>)
             { return _mixedBinary(r, l, op); },
             [](auto&&, auto&&) -> Value::Data { return Nil{}; }
         }, left, right);
@@ -188,22 +188,6 @@ namespace rei
         if (op == OP_ADD)
             return left + right;
         return Nil{};
-    }
-    template<typename L, typename R>
-    static Value::Data _referenceBinary(L&& left, R&& right, Opcode op)
-    {
-        uintptr_t left_addr = Value::toAddress(left);
-        uintptr_t right_addr = Value::toAddress(right);
-        switch (op)
-        {
-        case OP_EQ: return Boolean(left_addr == right_addr);
-        case OP_NE: return Boolean(left_addr != right_addr);
-        case OP_LT: return Boolean(left_addr < right_addr);
-        case OP_LE: return Boolean(left_addr <= right_addr);
-        case OP_GT: return Boolean(left_addr > right_addr);
-        case OP_GE: return Boolean(left_addr >= right_addr);
-        default: return Nil{};
-        }
     }
     template<typename L, typename R>
     static Value::Data _mixedBinary(L&& obj, R&& num, Opcode op)

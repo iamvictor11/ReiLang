@@ -35,7 +35,7 @@ namespace rei
         bool match_(char c);
         bool match_(const char* s, size_t omit = 1);
         char peek_() const;
-        char peek_(size_t offset) const;
+        char peek_(int offset) const;
     private:
         void skipNote_();
         void skipWhite_();

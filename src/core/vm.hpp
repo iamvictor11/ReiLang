@@ -30,8 +30,10 @@ namespace rei
         std::vector<CallFrame> _frames;
         Error::Reporter _error_reporter;
     public:
-        VM() = default;
+        VM();
         ~VM() = default;
+    public:
+        Value::Coord bind(const std::string& name, const Value::Data& val);
     public:
         void loadSimple(const std::string& source);
         void loadFile(const std::string& path);

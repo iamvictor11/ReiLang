@@ -5,10 +5,19 @@
 #include "util/file.hpp"
 #include "lexer/lexer.hpp"
 #include "parser/parser.hpp"
+#include "stl/stl.hpp"
 #include <iostream>
 #include <format>
 namespace rei
 {
+    VM::VM()
+    {
+        bind("dump", stl::dump);
+    }
+    Value::Coord VM::bind(const std::string& name, const Value::Data& val)
+    {
+        return _env.bind(name, val);
+    }
     void VM::loadSimple(const std::string& source)
     {
         (void)source;
@@ -41,7 +50,7 @@ namespace rei
             _chunk.clear();
             return;
         }
-        _env.clear();
+        _env.clearCache();
     #ifdef REI_DEBUG_ENABLE
         chunk_debugPrint_(_chunk);
     #endif
@@ -209,6 +218,15 @@ namespace rei
                         }
                         for (size_t argi = 0; argi < argc+1; argi++)
                             pop_();
+                    }
+                    else if (std::holds_alternative<Native>(callee))
+                    {
+                        auto native = std::get<Native>(callee);
+                        Value::Data* argv = argc == 0 ? nullptr : &_stack[_stack.size() - argc];
+                        Value::Data result = native(argc, argv);
+                        for (size_t i = 0; i < argc + 1; i++)
+                            pop_();
+                        push_(result);
                     }
                     else
                     {

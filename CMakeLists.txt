@@ -32,6 +32,7 @@ PRIVATE
     "src/core/parser/parser.cpp"
     "src/core/vm.cpp"
     "src/debug/log.cpp"
+    "src/stl/stl.cpp"
     "src/util/error.cpp"
     "src/util/file.cpp"
 )

@@ -517,7 +517,7 @@ namespace rei
 #pragma region Decl
     void Parser::declaration_()
     {
-        if (match_({TK_VAR, TK_LET}))
+        if (match_({TK_DEF, TK_VAR, TK_LET}))
             varDecl_();
         else if (match_({TK_FUNC}))
             funcDecl_();
@@ -551,7 +551,6 @@ namespace rei
         std::string fname = std::string(prev_().lexeme);
         auto func = std::make_shared<Function>();
         Value::Coord fc = env_->def(fname);
-        func->kind = Function::Kind::SCRIPT;
         chunk_ = &(func->chunk);
         env_->enter();
         consume_(TK_LPAREN, "函数声明期望有'('");

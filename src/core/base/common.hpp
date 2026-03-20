@@ -21,8 +21,6 @@ namespace rei
 
     class VM;
 
-    struct Function;
-
     template<typename T>
     using Ptr = T*;
     template<typename T>
@@ -31,57 +29,68 @@ namespace rei
     using Obs = std::weak_ptr<T>;
     template<typename T>
     using Uno = std::unique_ptr<T>;
-
+    
+    namespace Value
+    {
+        struct Data;
+    }
     using Nil = std::monostate;
     using Boolean = bool;
     using Integer = int64_t;
     using Float = double;
     using String = std::string;
+    using Array = std::vector<struct Value::Data>;
+    using Map = std::unordered_map<String, struct Value::Data>;
+    struct Function;
+    using Native = Value::Data(*)(REI_BYTECODE_TYPE argc, Value::Data argv[]);
 
     namespace Value
     {
-        using Data = std::variant<Nil, Boolean, Integer, Float, String, Ref<Function>>;
+        struct Data : std::variant<
+            Nil,
+            Boolean, Integer, Float,
+            String,
+            // Ref<Array>,
+            // Ref<Map>,
+            Ref<Function>,
+            Native
+        >
+        {
+            using variant::variant;
+            using variant::operator=;
+            Data() = default;
+            Data(const Data&) = default;
+            Data(Data&&) = default;
+            Data& operator=(const Data&) = default;
+            Data& operator=(Data&&) = default;
+            template<typename T>
+            Data(T&& value) : variant(std::forward<T>(value)) {}
+        };
         bool toBoolean(const Value::Data& data);
         Integer toInteger(const Value::Data& data);
         Float toFloat(const Value::Data& data);
-        std::string toString(Value::Data data);
-        template<typename T>
-        uintptr_t toAddress(const Ref<T>& ref)
-        {
-            if (!ref) return 0;
-            return reinterpret_cast<uintptr_t>(&(*ref));
-        }
-        std::string getDebugString(Value::Data data);
+        String toString(Value::Data data);
+        String getDebugString(Value::Data data);
     }
 
-    template<typename T>
-    constexpr bool is_nil = std::is_same_v<T, Nil>;
-    template<typename T>
-    constexpr bool is_int = std::is_same_v<T, Integer>;
-    template<typename T>
-    constexpr bool is_float = std::is_same_v<T, Float>;
-    template<typename T>
-    constexpr bool is_bool = std::is_same_v<T, Boolean>;
-    template<typename T>
-    constexpr bool is_num = std::is_same_v<T, Integer> || std::is_same_v<T, Float> || std::is_same_v<T, Boolean>;
-    template<typename T>
-    constexpr bool is_str = std::is_same_v<T, String>;
     template<typename T, typename U>
-    constexpr bool is_ref = std::is_same_v<T, Ref<U>>;
+    constexpr bool is_type = std::is_same_v<T, U>;
     template<typename T>
-    concept IsNil = is_nil<std::decay_t<T>>;
+    concept IsNil = is_type<std::decay_t<T>, Nil>;
     template<typename T>
-    concept IsInteger = is_int<std::decay_t<T>>;
+    concept IsInteger = is_type<std::decay_t<T>, Integer>;
     template<typename T>
-    concept IsFloat = is_float<std::decay_t<T>>;
+    concept IsFloat = is_type<std::decay_t<T>, Float>;
     template<typename T>
-    concept IsBoolean = is_bool<std::decay_t<T>>;
+    concept IsBoolean = is_type<std::decay_t<T>, Boolean>;
     template<typename T>
-    concept IsNumber = is_num<std::decay_t<T>>;
+    concept IsNumber = is_type<std::decay_t<T>, Integer> || is_type<std::decay_t<T>, Float> || is_type<std::decay_t<T>, Boolean>;
     template<typename T>
-    concept IsString = is_str<std::decay_t<T>>;
+    concept IsString = is_type<std::decay_t<T>, String>;
     template<typename T>
-    concept IsReference = is_ref<std::decay_t<T>, Function>;
+    concept IsObject = is_type<std::decay_t<T>, Ref<Function>> || is_type<std::decay_t<T>, Native>;
+    template<typename T, typename U>
+    concept IsX = is_type<std::decay_t<T>, U>;
 
     struct Chunk final
     {
@@ -94,13 +103,6 @@ namespace rei
     struct Function final : public std::enable_shared_from_this<Function>
     {
     public:
-        enum class Kind : uint8_t
-        {
-            NATIVE,
-            SCRIPT
-        };
-    public:
-        Kind kind = Kind::SCRIPT;
         Chunk chunk {};
         Bytecode argc = 0;
     };

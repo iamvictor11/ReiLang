@@ -7,6 +7,7 @@ namespace rei
     {
         enum Lifecycle : Bytecode
         {
+            VLC_HOST,
             VLC_GLOBAL,
             VLC_LOCAL,
             VLC_UPVALUE
@@ -29,6 +30,8 @@ namespace rei
             size_t size = 0;
         };
     private:
+        std::vector<Value::Data> host_stack_ {};
+        Area_ host_area_ {};
         std::vector<Value::Data> global_stack_ {};
         Area_ global_area_ {};
         std::vector<Value::Data> local_stack_ {};
@@ -38,7 +41,10 @@ namespace rei
         void exit();
         Bytecode currLocalDepth();
     public:
-        void clear();
+        void clearHost();
+        void clearCache();
+    public:
+        Value::Coord bind(const std::string& name, const Value::Data& val);
     public:
         Value::Coord def(const std::string& name);
         void def(Value::Coord c, Value::Data value);
