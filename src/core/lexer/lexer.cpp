@@ -203,11 +203,9 @@ void Lexer::lexNumber_()
 {
     bool is_float = false;
     const char* start = source_.data() + cursor_.start;
-    printf("debug n %c\n", peek_(-1));
     if (peek_(-1) == '0')
     {
         char next = peek_();
-        printf("debug 0 %c\n", next);
         // 二进制
         if (next == 'b' || next == 'B')
         {
@@ -217,7 +215,6 @@ void Lexer::lexNumber_()
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
                 value = (value << 1) | (lexeme[i] - '0');
-            printf("debug b %s\n", std::string(lexeme).c_str());
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
@@ -230,7 +227,6 @@ void Lexer::lexNumber_()
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
                 value = value * 8 + (lexeme[i] - '0');
-            printf("debug o %s\n", std::string(lexeme).c_str());
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
@@ -246,7 +242,6 @@ void Lexer::lexNumber_()
                 char c = lexeme[i];
                 value = value * 16 + (isdigit(c) ? c - '0' : tolower(c) - 'a' + 10);
             }
-            printf("debug x %s\n", std::string(lexeme).c_str());
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
