@@ -210,11 +210,15 @@ void Lexer::lexNumber_()
         if (next == 'b' || next == 'B')
         {
             pass_(2);
-            while (isBdigit(peek_())) pass_();
+            while (isBdigit(peek_()) || peek_() == '\'') pass_();
             std::string_view lexeme {start, cursor_.current - cursor_.start};
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
-                value = (value << 1) | (lexeme[i] - '0');
+            {
+                char c = lexeme[i];
+                if (c == '\'') continue;
+                value = (value << 1) | (c - '0');
+            }
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
@@ -222,11 +226,15 @@ void Lexer::lexNumber_()
         if (next == 'o' || next == 'O')
         {
             pass_(2);
-            while (isOdigit(peek_())) pass_();
+            while (isOdigit(peek_()) || peek_() == '\'') pass_();
             std::string_view lexeme {start, cursor_.current - cursor_.start};
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
-                value = value * 8 + (lexeme[i] - '0');
+            {
+                char c = lexeme[i];
+                if (c == '\'') continue;
+                value = value * 8 + (c - '0');
+            }
             addToken_(Token::TK_LIT_INT, lexeme, value);
             return;
         }
@@ -234,12 +242,13 @@ void Lexer::lexNumber_()
         if (next == 'x' || next == 'X')
         {
             pass_(2);
-            while (isxdigit(peek_())) pass_();
+            while (isxdigit(peek_()) || peek_() == '\'') pass_();
             std::string_view lexeme {start, cursor_.current - cursor_.start};
             Integer value = 0;
             for (size_t i = 2; i < lexeme.length(); i++)
             {
                 char c = lexeme[i];
+                if (c == '\'') continue;
                 value = value * 16 + (isdigit(c) ? c - '0' : tolower(c) - 'a' + 10);
             }
             addToken_(Token::TK_LIT_INT, lexeme, value);
@@ -249,7 +258,7 @@ void Lexer::lexNumber_()
     else
     {
         // 整数
-        while (isdigit(peek_())) pass_();
+        while (isdigit(peek_()) || peek_() == '\'') pass_();
         // 浮点数
         if (peek_() == '.' && isdigit(peek_(1)))
         {
@@ -283,17 +292,30 @@ void Lexer::lexNumber_()
     // ok
     const char* end = source_.data() + cursor_.current;
     std::string_view lexeme {start, cursor_.current - cursor_.start};
+    std::string cleaned;
+    cleaned.reserve(lexeme.size());
+    for (char c : lexeme)
+        if (c != '\'')
+            cleaned.push_back(c);
     if (is_float)
     {
         Float value;
-        auto [ptr, ec] = std::from_chars(start, end, value);
+        auto [ptr, ec] = std::from_chars(
+            cleaned.data(),
+            cleaned.data() + cleaned.size(),
+            value
+        );
         if (ec == std::errc()) addToken_(Token::TK_LIT_FLOAT, lexeme, value);
         else _error_reporter->report("错误的浮点数格式", cursor_.pos);
     }
     else
     {
         Integer value;
-        auto [ptr, ec] = std::from_chars(start, end, value);
+        auto [ptr, ec] = std::from_chars(
+            cleaned.data(),
+            cleaned.data() + cleaned.size(),
+            value
+        );
         if (ec == std::errc()) addToken_(Token::TK_LIT_INT, lexeme, value);
         else _error_reporter->report("错误的整数格式", cursor_.pos);
     }
