@@ -130,11 +130,9 @@ namespace rei::Token
         std::string_view lexeme;
         Value::Data literal;
         Position pos;
-
     public:
         Unit(Type t, std::string_view l, Position p) : type(t), lexeme(l), pos(p) {}
         Unit(Type t, std::string_view l, Value::Data v, Position p) : type(t), lexeme(l), literal(std::move(v)), pos(p) {}
-
     public:
         std::string toString() const;
         std::string toSymbol() const;

@@ -133,7 +133,7 @@ namespace rei
         REI_LABEL(OP_AND):
         {
             offset = readByte_();
-            if (!Value::toBoolean(pop_()))
+            if (!(pop_().toBoolean()))
             {
                 jump_(offset);
                 push_(false);
@@ -147,7 +147,7 @@ namespace rei
         REI_LABEL(OP_OR):
         {
             offset = readByte_();
-            if (Value::toBoolean(pop_()))
+            if (pop_().toBoolean())
             {
                 jump_(offset);
                 push_(true);
@@ -170,12 +170,12 @@ namespace rei
         }
         REI_LABEL(OP_PRINT):
         {
-            std::cout << Value::toString(pop_());
+            std::cout << pop_().toString();
             REI_DISPATCH;
         }
         REI_LABEL(OP_PRINTLN):
         {
-            std::cout << Value::toString(pop_()) << std::endl;
+            std::cout << pop_().toString() << std::endl;
             REI_DISPATCH;
         }
         REI_LABEL(OP_JUMP):
@@ -187,14 +187,14 @@ namespace rei
         REI_LABEL(OP_JMPT):
         {
             offset = readByte_();
-            if (Value::toBoolean(pop_()))
+            if (pop_().toBoolean())
                 jump_(offset);
             REI_DISPATCH;
         }
         REI_LABEL(OP_JMPF):
         {
             offset = readByte_();
-            if (!Value::toBoolean(pop_()))
+            if (!(pop_().toBoolean()))
                 jump_(offset);
             REI_DISPATCH;
         }
@@ -246,9 +246,9 @@ namespace rei
         {
             argc = readByte_();
             callee = peek_(argc);
-            if (Value::is<Ref<Function>>(callee))
+            if (callee.isFunction())
             {
-                func_ref = Value::as<Ref<Function>>(callee);
+                func_ref = callee.asFunction();
                 auto& call_frame = frames_.emplace_back();
                 call_frame.closure.func = func_ref;
                 call_frame.save_ip = ip_;
@@ -279,9 +279,9 @@ namespace rei
                     pop_();
                 REI_DISPATCH;
             }
-            else if (Value::is<Native>(callee))
+            else if (callee.isNative())
             {
-                native = Value::as<Native>(callee);
+                native = callee.asNative();
                 Value::Data* argv = argc == 0 ? nullptr : &stack_[stack_.size() - argc];
                 Value::Data result = native(argc, argv);
                 for (size_t i = 0; i < argc + 1; i++)
@@ -290,7 +290,7 @@ namespace rei
             }
             else
             {
-                error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::getDebugString(callee)), {0, 0});
+                error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::dump(callee)), {0, 0});
                 for (size_t argi = 0; argi < argc; argi++)
                     pop_();
             }
@@ -313,7 +313,7 @@ namespace rei
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
-            std::cout << Value::getDebugString(stack_[i]) << std::endl;
+            std::cout << Value::dump(stack_[i]) << std::endl;
         std::cout << "env: depth " << env_r_.currLocalDepth() << std::endl;
     #endif
     }

@@ -18,10 +18,10 @@ namespace rei
                 {
                     i++;
                     Bytecode ci = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::getDebugString(chunk.constants[ci]).c_str());
-                    if (Value::is<Ref<Function>>(chunk.constants[ci]))
+                    printf("%-12s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::dump(chunk.constants[ci]).c_str());
+                    if (chunk.constants[ci].isFunction())
                     {
-                        auto func_ref = Value::as<Ref<Function>>(chunk.constants[ci]);
+                        auto func_ref = chunk.constants[ci].asFunction();
                         chunk_debugPrint_(func_ref->chunk, level + 1);
                     }
                     break;

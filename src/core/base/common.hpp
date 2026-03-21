@@ -1,6 +1,6 @@
 #pragma once
 #include <cstdint>
-#include <variant>
+#include <cstring>
 #include <memory>
 #include <unordered_map>
 #include <vector>
@@ -34,7 +34,6 @@ namespace rei
     {
         struct Data;
     }
-    using Nil = std::monostate;
     using Boolean = bool;
     using Integer = int64_t;
     using Float = double;
@@ -46,66 +45,88 @@ namespace rei
 
     namespace Value
     {
-        struct Data : std::variant<
-            Nil,
-            Boolean, Integer, Float,
-            String,
-            // Ref<Array>,
-            // Ref<Map>,
-            Ref<Function>,
-            Native
-        >
+        enum Tag : uint8_t
         {
-            using variant::variant;
-            using variant::operator=;
-            Data() = default;
-            Data(const Data&) = default;
-            Data(Data&&) = default;
-            Data& operator=(const Data&) = default;
-            Data& operator=(Data&&) = default;
-            template<typename T>
-            Data(T&& value) : variant(std::forward<T>(value)) {}
+            VT_NIL,
+            VT_BOOLEAN,
+            VT_INTEGER,
+            VT_FLOAT,
+            VT_STRING,
+            VT_FUNCTION,
+            VT_NATIVE
         };
-        bool toBoolean(const Value::Data& data);
-        Integer toInteger(const Value::Data& data);
-        Float toFloat(const Value::Data& data);
-        String toString(const Value::Data& data);
-        String getDebugString(const Value::Data& data);
-        template<typename T>
-        bool is(const Value::Data& data)
+        struct Data final
         {
-            return std::holds_alternative<T>(data);
-        }
-        template<typename T>
-        T& as(Value::Data& data)
-        {
-            return std::get<T>(data);
-        }
-        template<typename T>
-        const T& as(const Value::Data& data)
-        {
-            return std::get<T>(data);
-        }
+        public:
+            Tag tag;
+            union
+            {
+                Boolean b;
+                Integer i;
+                Float f;
+                Ref<String> str;
+                Ref<Function> fn;
+                Native native;
+            };
+        public:
+            Data() : tag(VT_NIL) {}
+            Data(Boolean v) : tag(VT_BOOLEAN), b(v) {}
+            Data(Integer v) : tag(VT_INTEGER), i(v) {}
+            Data(Float v)   : tag(VT_FLOAT), f(v) {}
+            Data(const Ref<String>& s) : tag(VT_STRING), str(s) {}
+            Data(const std::string& s) : tag(VT_STRING), str(std::make_shared<String>(s)) {}
+            Data(const char* s)        : tag(VT_STRING), str(std::make_shared<String>(s)) {}
+            Data(const Ref<Function>& f) : tag(VT_FUNCTION), fn(f) {}
+            Data(Native n) : tag(VT_NATIVE), native(n) {}
+            Data(const Data& other) : tag(other.tag)
+            {
+                switch (tag)
+                {
+                case VT_STRING:     new (&str) Ref<String>(other.str); break;
+                case VT_FUNCTION:   new (&fn) Ref<Function>(other.fn); break;
+                default:            std::memcpy(this, &other, sizeof(Data)); break;
+                }
+            }
+            Data& operator=(const Data& other)
+            {
+                if (this == &other) return *this;
+                this->~Data();
+                new (this) Data(other);
+                return *this;
+            }
+            ~Data()
+            {
+                switch (tag)
+                {
+                case VT_STRING:   str.~shared_ptr(); break;
+                case VT_FUNCTION: fn.~shared_ptr(); break;
+                default: break;
+                }
+            }
+        public:
+            bool isBoolean() const { return tag == VT_BOOLEAN; }
+            bool isInteger() const { return tag == VT_INTEGER; }
+            bool isFloat() const { return tag == VT_FLOAT; }
+            bool isNumber() const { return tag == VT_INTEGER || tag == VT_FLOAT || tag == VT_BOOLEAN; }
+            bool isString() const { return tag == VT_STRING; }
+            bool isFunction() const { return tag == VT_FUNCTION; }
+            bool isNative() const { return tag == VT_NATIVE; }
+        public:
+            Boolean asBoolean() const { return b; }
+            Integer asInteger() const { return i; }
+            Float asFloat() const { return f; }
+            const String& asString() const { return *(str.get()); }
+            Ref<Function> asFunction() const { return fn; }
+            Native asNative() const { return native; }
+        public:
+            Boolean toBoolean() const;
+            Integer toInteger() const;
+            Float toFloat() const;
+            String toString() const;
+        };
+        std::string dump(const Data& data);
     }
-
-    template<typename T, typename U>
-    constexpr bool is_type = std::is_same_v<T, U>;
-    template<typename T>
-    concept IsNil = is_type<std::decay_t<T>, Nil>;
-    template<typename T>
-    concept IsInteger = is_type<std::decay_t<T>, Integer>;
-    template<typename T>
-    concept IsFloat = is_type<std::decay_t<T>, Float>;
-    template<typename T>
-    concept IsBoolean = is_type<std::decay_t<T>, Boolean>;
-    template<typename T>
-    concept IsNumber = is_type<std::decay_t<T>, Integer> || is_type<std::decay_t<T>, Float> || is_type<std::decay_t<T>, Boolean>;
-    template<typename T>
-    concept IsString = is_type<std::decay_t<T>, String>;
-    template<typename T>
-    concept IsObject = is_type<std::decay_t<T>, Ref<Function>> || is_type<std::decay_t<T>, Native>;
-    template<typename T, typename U>
-    concept IsX = is_type<std::decay_t<T>, U>;
+    using Nil = Value::Data;
 
     struct Chunk final
     {

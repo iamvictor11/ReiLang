@@ -514,7 +514,7 @@ namespace rei
         }
         Integer level = 1;
         if (match_({TK_LIT_INT}))
-            level = Value::toInteger(prev_().literal);
+            level = prev_().literal.toInteger();
         if (level <= 0 || level > loop_ctxs_.size())
         {
             reporterError_("循环层级超出范围");
@@ -539,7 +539,7 @@ namespace rei
         }
         Integer level = 1;
         if (match_({TK_LIT_INT}))
-            level = Value::toInteger(prev_().literal);
+            level = prev_().literal.toInteger();
         if (level <= 0 || level > loop_ctxs_.size())
         {
             reporterError_("循环层级超出范围");

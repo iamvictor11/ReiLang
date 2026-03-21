@@ -19,7 +19,7 @@ namespace rei
     {
         while (!isAtEnd_())
             scan_();
-        tokens_.emplace_back(Token::TK_EOF, "", 0, cursor_.pos);
+        tokens_.emplace_back(Token::TK_EOF, std::string_view{}, Nil{}, cursor_.pos);
         return tokens_;
     }
 #pragma region Scan

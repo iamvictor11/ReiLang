@@ -7,138 +7,120 @@ namespace rei
 {
     namespace Value
     {
-        Integer toInteger(const Value::Data& data)
+        Boolean Data::toBoolean() const
         {
-            return std::visit([](auto&& arg) -> Float
+            switch (tag)
             {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (is_type<T, Nil>)
-                    return Integer(0);
-                else if constexpr (is_type<T, Boolean>)
-                    return static_cast<Integer>(arg);
-                else if constexpr (is_type<T, Integer>)
-                    return arg;
-                else if constexpr (is_type<T, Float>)
-                    return static_cast<Integer>(arg);
-                else if constexpr (is_type<T, String>)
+            case VT_NIL:      return false;
+            case VT_BOOLEAN:  return b;
+            case VT_INTEGER:  return i != 0;
+            case VT_FLOAT:    return f != 0.0;
+            case VT_STRING:   return str && !str->empty();
+            case VT_FUNCTION: return fn != nullptr;
+            case VT_NATIVE:   return native != nullptr;
+            }
+            return false;
+        }
+        Integer Data::toInteger() const
+        {
+            switch (tag)
+            {
+            case VT_NIL:        return 0;
+            case VT_BOOLEAN:    return static_cast<Integer>(b);
+            case VT_INTEGER:    return i;
+            case VT_FLOAT:      return static_cast<Integer>(f);
+            case VT_STRING:
+            {
+                Integer val = 0;
+                if (str)
                 {
-                    Integer val = 0.0;
-                    auto [ptr, ec] = std::from_chars(arg.data(), arg.data() + arg.size(), val);
+                    auto& s = *str;
+                    auto [ptr, ec] = std::from_chars(
+                        s.data(),
+                        s.data() + s.size(),
+                        val
+                    );
                     if (ec == std::errc()) return val;
-                    return Integer(0);
                 }
-                else if constexpr (is_type<T, Ref<Function>>)
-                    return static_cast<Integer>(std::bit_cast<uintptr_t>(&(*arg)));
-                else if constexpr (is_type<T, Native>)
-                    return static_cast<Integer>(std::bit_cast<uintptr_t>(arg));
-                else
-                    return false;
-            }, data);
+                return 0;
+            }
+            case VT_FUNCTION:   return static_cast<Integer>(std::bit_cast<uintptr_t>(fn.get()));
+            case VT_NATIVE:     return static_cast<Integer>(std::bit_cast<uintptr_t>(native));
+            }
+            return 0;
         }
-        Float toFloat(const Value::Data& data)
+        Float Data::toFloat() const
         {
-            return std::visit([](auto&& arg) -> Float
+            switch (tag)
             {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (is_type<T, Nil>)
-                    return Float(0.0);
-                else if constexpr (is_type<T, Boolean>)
-                    return static_cast<Float>(arg);
-                else if constexpr (is_type<T, Integer>)
-                    return static_cast<Float>(arg);
-                else if constexpr (is_type<T, Float>)
-                    return arg;
-                else if constexpr (is_type<T, String>)
+            case VT_NIL:        return 0.0;
+            case VT_BOOLEAN:    return static_cast<Float>(b);
+            case VT_INTEGER:    return static_cast<Float>(i);
+            case VT_FLOAT:      return f;
+            case VT_STRING:
+            {
+                Float val = 0.0;
+                if (str)
                 {
-                    Float val = 0.0;
-                    auto [ptr, ec] = std::from_chars(arg.data(), arg.data() + arg.size(), val);
+                    auto& s = *str;
+                    auto [ptr, ec] = std::from_chars(
+                        s.data(),
+                        s.data() + s.size(),
+                        val
+                    );
                     if (ec == std::errc()) return val;
-                    return Float(0.0);
                 }
-                else if constexpr (is_type<T, Ref<Function>>)
-                    return static_cast<Float>(std::bit_cast<uintptr_t>(&(*arg)));
-                else if constexpr (is_type<T, Native>)
-                    return static_cast<Float>(std::bit_cast<uintptr_t>(arg));
-                else
-                    return false;
-            }, data);
+                return 0.0;
+            }
+            case VT_FUNCTION:   return static_cast<Float>(std::bit_cast<uintptr_t>(fn.get()));
+            case VT_NATIVE:     return static_cast<Float>(std::bit_cast<uintptr_t>(native));
+            }
+            return 0.0;
         }
-        bool toBoolean(const Value::Data& data)
+        String Data::toString() const
         {
-            return std::visit([](auto&& arg) -> Boolean
+            switch (tag)
             {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (is_type<T, Nil>)
-                    return false;
-                else if constexpr (is_type<T, Boolean>)
-                    return arg;
-                else if constexpr (is_type<T, Integer>)
-                    return static_cast<Boolean>(arg);
-                else if constexpr (is_type<T, Float>)
-                    return static_cast<Boolean>(arg);
-                else if constexpr (is_type<T, String>)
-                    return !arg.empty();
-                else if constexpr (is_type<T, Ref<Function>>)
-                    return arg != nullptr;
-                else if constexpr (is_type<T, Native>)
-                    return arg != nullptr;
-                else
-                    return false;
-            }, data);
+            case VT_NIL:        return "nil";
+            case VT_BOOLEAN:    return b ? "true" : "false";
+            case VT_INTEGER:    return std::to_string(i);
+            case VT_FLOAT:      return std::to_string(f);
+            case VT_STRING:     return str ? *str : "";
+            case VT_FUNCTION:
+                return std::format(
+                    "function: argc {}",
+                    fn ? fn->argc : 0
+                );
+            case VT_NATIVE:
+                return std::format(
+                    "native: {:x}",
+                    std::bit_cast<uintptr_t>(native)
+                );
+            }
+            return "unknown";
         }
-        std::string toString(const Value::Data& data)
+        std::string dump(const Data& data)
         {
-            return std::visit([](auto&& arg) -> std::string
+            switch (data.tag)
             {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (is_type<T, Nil>)
-                    return "nil";
-                else if constexpr (is_type<T, Boolean>)
-                    return arg ? "true" : "false";
-                else if constexpr (is_type<T, Integer>)
-                    return std::to_string(arg);
-                else if constexpr (is_type<T, Float>)
-                    return std::to_string(arg);
-                else if constexpr (is_type<T, String>)
-                    return arg;
-                else if constexpr (is_type<T, Ref<Function>>)
-                    return std::format("function: argc {}",
-                        arg->argc
-                    );
-                else if constexpr (is_type<T, Native>)
-                    return std::format("native: {:x}",
-                        std::bit_cast<uintptr_t>(arg)
-                    );
-                else
-                    return "unknown";
-            }, data);
-        }
-        std::string getDebugString(const Value::Data& data)
-        {
-            return std::visit([](auto&& arg) -> std::string
-            {
-                using T = std::decay_t<decltype(arg)>;
-                if constexpr (is_type<T, Nil>)
-                    return "nil";
-                else if constexpr (is_type<T, Boolean>)
-                    return arg ? "true" : "false";
-                else if constexpr (is_type<T, Integer>)
-                    return std::to_string(arg);
-                else if constexpr (is_type<T, Float>)
-                    return std::to_string(arg);
-                else if constexpr (is_type<T, String>)
-                    return escape(arg);
-                else if constexpr (is_type<T, Ref<Function>>)
-                    return std::format("function: argc {}",
-                        arg->argc
-                    );
-                else if constexpr (is_type<T, Native>)
-                    return std::format("native: {}",
-                        std::bit_cast<uintptr_t>(arg)
-                    );
-                else
-                    return "unknown";
-            }, data);
+            case VT_NIL:        return "nil";
+            case VT_BOOLEAN:    return data.b ? "true" : "false";
+            case VT_INTEGER:    return std::to_string(data.i);
+            case VT_FLOAT:      return std::to_string(data.f);
+            case VT_STRING:     return data.str ? "\"" + escape(*data.str) + "\"" : "\"\"";
+            case VT_FUNCTION:
+                return std::format(
+                    "function: {:x} argc {}",
+                    std::bit_cast<uintptr_t>(data.fn.get()),
+                    data.fn ? data.fn->argc : 0
+                );
+            case VT_NATIVE:
+                return std::format(
+                    "native: {:x}",
+                    std::bit_cast<uintptr_t>(data.native)
+                );
+            }
+            return "unknown";
         }
     }
 #pragma region Chunk
@@ -147,7 +129,5 @@ void Chunk::clear()
     constants.clear();
     codes.clear();
 }
-#pragma endregion
-#pragma region Function
 #pragma endregion
 }

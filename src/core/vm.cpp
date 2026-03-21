@@ -58,7 +58,7 @@ namespace rei
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
-            std::cout << Value::getDebugString(stack_[i]) << std::endl;
+            std::cout << Value::dump(stack_[i]) << std::endl;
         std::cout << "env: depth " << env_c_.currLocalDepth() << std::endl;
     #endif
         env_c_.clearCache();
