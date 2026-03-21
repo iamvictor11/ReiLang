@@ -25,7 +25,8 @@ PRIVATE
 target_sources(rei
 PRIVATE
     "src/core/base/common.cpp"
-    "src/core/base/env.cpp"
+    "src/core/base/env.complie.cpp"
+    "src/core/base/env.runtime.cpp"
     "src/core/base/string.cpp"
     "src/core/lexer/lexer.cpp"
     "src/core/lexer/token.cpp"

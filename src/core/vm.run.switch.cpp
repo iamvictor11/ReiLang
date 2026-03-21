@@ -3,6 +3,7 @@
 #include "vm.hpp"
 #include "vm.expr.hpp"
 #include <iostream>
+#include <format>
 
 namespace rei
 {
@@ -13,8 +14,8 @@ namespace rei
     #endif
         if (!error_reporter_.empty()) return;
         ip_ = chunk_.codes.data();
-        end_ = &(chunk_.codes.back());
-        while (ip_ <= end_)
+        bool runing = true;
+        while (runing)
         {
             auto instruction = static_cast<Opcode>(readByte_());
             switch (instruction)
@@ -64,6 +65,10 @@ namespace rei
                         jump_(offset);
                         push_(false);
                     }
+                    else
+                    {
+                        push_(true);
+                    }
                     break;
                 }
                 case OP_OR:
@@ -74,13 +79,17 @@ namespace rei
                         jump_(offset);
                         push_(true);
                     }
+                    else
+                    {
+                        push_(false);
+                    }
                     break;
                 }
                 case OP_BEG:
-                    env_.enter();
+                    env_r_.enter();
                     break;
                 case OP_END:
-                    env_.exit();
+                    env_r_.exit();
                     break;
                 case OP_PRINT:
                     std::cout << Value::toString(pop_());
@@ -107,19 +116,46 @@ namespace rei
                         jump_(offset);
                     break;
                 }
-                case OP_DEF_VAR:
+                case OP_GET_HOST:
                 {
-                    env_.def(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}, peek_());
+                    push_(env_r_.getHost(readByte_()));
                     break;
                 }
-                case OP_GET_VAR:
+                case OP_SET_HOST:
                 {
-                    push_(env_.get(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}));
+                    env_r_.setHost(readByte_(), peek_());
                     break;
                 }
-                case OP_SET_VAR:
+                case OP_DEF_GLOBAL:
                 {
-                    env_.set(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}, peek_());
+                    env_r_.defGlobal(peek_());
+                    break;
+                }
+                case OP_GET_GLOBAL:
+                {
+                    push_(env_r_.getGlobal(readByte_()));
+                    break;
+                }
+                case OP_SET_GLOBAL:
+                {
+                    env_r_.setGlobal(readByte_(), peek_());
+                    break;
+                }
+                case OP_DEF_LOCAL:
+                {
+                    env_r_.defLocal(peek_());
+                    break;;
+                }
+                case OP_GET_LOCAL:
+                {
+                    Bytecode t0 = readByte_(), t1 = readByte_();
+                    push_(env_r_.getLocal(t0, t1));
+                    break;
+                }
+                case OP_SET_LOCAL:
+                {
+                    Bytecode t0 = readByte_(), t1 = readByte_();
+                    env_r_.setLocal(t0, t1, peek_());
                     break;
                 }
                 case OP_CALL:
@@ -133,16 +169,14 @@ namespace rei
                         call_frame.closure.func = func_ref;
                         // call_frame.closure = ;
                         call_frame.save_ip = ip_;
-                        call_frame.save_end = end_;
                         ip_ = func_ref->chunk.codes.data();
-                        end_ = &(func_ref->chunk.codes.back());
-                        env_.enter();
+                        env_r_.enter();
                         if (argc > func_ref->argc)
                         {
                             for (size_t upi = 1; upi <= argc; upi++)
                             {
                                 if (upi <= func_ref->argc)
-                                    env_.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, peek_(argc - upi));
+                                    env_r_.defLocal(peek_(argc - upi));
                                 else
                                     break;
                             }
@@ -153,9 +187,9 @@ namespace rei
                             for (size_t upi = 1; upi <= loop_count; upi++)
                             {
                                 if (upi <= argc)
-                                    env_.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, peek_(argc - upi));
+                                    env_r_.defLocal(peek_(argc - upi));
                                 else
-                                    env_.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, Nil{});
+                                    env_r_.defLocal(Nil{});
                             }
                         }
                         for (size_t argi = 0; argi < argc+1; argi++)
@@ -172,7 +206,7 @@ namespace rei
                     }
                     else
                     {
-                        error_reporter_.report("尝试调用非函数对象", {0, 0});
+                        error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::getDebugString(callee)), {0, 0});
                         for (size_t argi = 0; argi < argc; argi++)
                             pop_();
                     }
@@ -182,11 +216,13 @@ namespace rei
                 {
                     auto& call_frame = frames_.back();
                     ip_ = call_frame.save_ip;
-                    end_ = call_frame.save_end;
                     frames_.pop_back();
-                    env_.exit();
+                    env_r_.exit();
                     break;
                 }
+                case OP_HALT:
+                    runing = false;
+                    break;
                 default: break;
             }
         }
@@ -196,7 +232,7 @@ namespace rei
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
             std::cout << Value::getDebugString(stack_[i]) << std::endl;
-        std::cout << "env: depth " << env_.currLocalDepth() << std::endl;
+        std::cout << "env: depth " << env_r_.currLocalDepth() << std::endl;
     #endif
     }
 }

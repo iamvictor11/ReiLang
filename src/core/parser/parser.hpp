@@ -1,6 +1,6 @@
 #pragma once
 #include "core/lexer/token.hpp"
-#include "core/base/env.hpp"
+#include "core/base/env.complie.hpp"
 #include "util/error.hpp"
 #include "precedence.hpp"
 
@@ -38,7 +38,7 @@ namespace rei
     private:
         Token::List tokens_;
         Chunk* chunk_;
-        Env* env_;
+        Env<PS_COMPILE>* env_;
         struct
         {
             Token::Unit* prev = nullptr;
@@ -46,7 +46,7 @@ namespace rei
         } cursor_;
         Error::Reporter* error_reporter_;
     public:
-        Parser(Token::List&& ts, Chunk* ck, Env* ev, Error::Reporter* er) : tokens_(std::move(ts)), chunk_(ck), env_(ev), error_reporter_(er) {};
+        Parser(Token::List&& ts, Chunk* ck, Env<PS_COMPILE>* ev, Error::Reporter* er) : tokens_(std::move(ts)), chunk_(ck), env_(ev), error_reporter_(er) {};
         ~Parser() = default;
     public:
         void start();

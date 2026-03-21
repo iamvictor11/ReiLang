@@ -13,9 +13,10 @@ namespace rei
     {
         bindSTL_();
     }
-    Value::Coord VM::bind(const std::string& name, const Value::Data& val)
+    Bytecode VM::bind(const std::string& name, const Value::Data& val)
     {
-        return env_.bind(name, val);
+        env_r_.defHost(val);
+        return env_c_.defHost(name);
     }
     void VM::loadSimple(const std::string& source)
     {
@@ -42,14 +43,14 @@ namespace rei
     #ifdef REI_DEBUG_ENABLE
         std::cout << "\033[1m\033[38;2;255;105;180m语法分析：\033[0m" << std::endl;
     #endif
-        Parser parser {std::move(tokens), &chunk_, &env_, &error_reporter_};
+        Parser parser {std::move(tokens), &chunk_, &env_c_, &error_reporter_};
         parser.start();
         if (!error_reporter_.empty())
         {
             chunk_.clear();
+            env_c_.clearCache();
             return;
         }
-        env_.clearCache();
     #ifdef REI_DEBUG_ENABLE
         chunk_debugPrint_(chunk_);
     #endif
@@ -58,8 +59,9 @@ namespace rei
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
             std::cout << Value::getDebugString(stack_[i]) << std::endl;
-        std::cout << "env: depth " << env_.currLocalDepth() << std::endl;
+        std::cout << "env: depth " << env_c_.currLocalDepth() << std::endl;
     #endif
+        env_c_.clearCache();
     }
 #pragma region Chunk
     Bytecode VM::readByte_()

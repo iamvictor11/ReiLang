@@ -2,7 +2,8 @@
 #include <string>
 #include <memory>
 #include "util/error.hpp"
-#include "base/env.hpp"
+#include "base/env.complie.hpp"
+#include "base/env.runtime.hpp"
 
 namespace rei
 {
@@ -11,21 +12,18 @@ namespace rei
         Ref<Function> func;
         // std::vector<Upvalue> upvalues
     };
-    
     struct CallFrame final
     {
         Closure closure;
         Bytecode* save_ip;
-        Bytecode* save_end;
     };
-    
     class VM final
     {
     private:
         Chunk chunk_;
-        Env env_;
+        Env<PS_COMPILE> env_c_;
+        Env<PS_RUNTIME> env_r_;
         Bytecode* ip_;
-        Bytecode* end_;
         std::vector<Value::Data> stack_;
         std::vector<CallFrame> frames_;
         Error::Reporter error_reporter_;
@@ -33,7 +31,7 @@ namespace rei
         VM();
         ~VM() = default;
     public:
-        Value::Coord bind(const std::string& name, const Value::Data& val);
+        Bytecode bind(const std::string& name, const Value::Data& val);
     private:
         void bindSTL_();
     public:

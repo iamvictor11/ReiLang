@@ -297,19 +297,44 @@ namespace rei
         {
             expression_();
             Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
-            emitB_(OP_SET_VAR);
-            emitB_(varc.lifecycle);
-            emitB_(varc.uplevel);
+            if (!varc.isValid())
+            {
+                reporterError_("变量未定义");
+                return;
+            }
+            switch (varc.lifetime)
+            {
+            case Value::VLT_HOST:
+                emitB_(OP_SET_HOST);
+                break;
+            case Value::VLT_GLOBAL:
+                emitB_(OP_SET_GLOBAL);
+                break;
+            case Value::VLT_LOCAL:
+                emitB_(OP_SET_LOCAL);
+                emitB_(varc.uplevel);
+                break;
+            }
             emitB_(varc.slot);
         }
         else if (match_({TK_WALRUS}))
         {
             Value::Coord varc = env_->def(std::string{vu.lexeme});
+            if (varc.slot == REI_BYTECODE_MAX)
+            {
+                reporterError_(std::format("变量 {} 重定义", std::string{vu.lexeme}));
+                return;
+            }
             expression_();
-            emitB_(OP_DEF_VAR);
-            emitB_(varc.lifecycle);
-            emitB_(varc.uplevel);
-            emitB_(varc.slot);
+            switch (varc.lifetime)
+            {
+            case Value::VLT_GLOBAL:
+                emitB_(OP_DEF_GLOBAL);
+                break;
+            case Value::VLT_LOCAL:
+                emitB_(OP_DEF_LOCAL);
+                break;
+            }
         }
         else if (match_({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
@@ -317,22 +342,62 @@ namespace rei
         }))
         {
             Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
-            emitB_(OP_GET_VAR);
-            emitB_(varc.lifecycle);
-            emitB_(varc.uplevel);
+            if (!varc.isValid())
+            {
+                reporterError_("变量未定义");
+                return;
+            }
+            switch (varc.lifetime)
+            {
+            case Value::VLT_HOST:
+                emitB_(OP_GET_HOST);
+                break;
+            case Value::VLT_GLOBAL:
+                emitB_(OP_GET_GLOBAL);
+                break;
+            case Value::VLT_LOCAL:
+                emitB_(OP_GET_LOCAL);
+                emitB_(varc.uplevel);
+                break;
+            }
             emitB_(varc.slot);
             assignExpr_();
-            emitB_(OP_SET_VAR);
-            emitB_(varc.lifecycle);
-            emitB_(varc.uplevel);
+            switch (varc.lifetime)
+            {
+            case Value::VLT_HOST:
+                emitB_(OP_SET_HOST);
+                break;
+            case Value::VLT_GLOBAL:
+                emitB_(OP_SET_GLOBAL);
+                break;
+            case Value::VLT_LOCAL:
+                emitB_(OP_SET_LOCAL);
+                emitB_(varc.uplevel);
+                break;
+            }
             emitB_(varc.slot);
         }
         else
         {
             Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
-            emitB_(OP_GET_VAR);
-            emitB_(varc.lifecycle);
-            emitB_(varc.uplevel);
+            if (!varc.isValid())
+            {
+                reporterError_("变量未定义");
+                return;
+            }
+            switch (varc.lifetime)
+            {
+            case Value::VLT_HOST:
+                emitB_(OP_GET_HOST);
+                break;
+            case Value::VLT_GLOBAL:
+                emitB_(OP_GET_GLOBAL);
+                break;
+            case Value::VLT_LOCAL:
+                emitB_(OP_GET_LOCAL);
+                emitB_(varc.uplevel);
+                break;
+            }
             emitB_(varc.slot);
         }
     }
@@ -538,10 +603,15 @@ namespace rei
             expression_();
         else
             emitB_(OP_NIL);
-        emitB_(OP_DEF_VAR);
-        emitB_(varc.lifecycle);
-        emitB_(varc.uplevel);
-        emitB_(varc.slot);
+        switch (varc.lifetime)
+        {
+        case Value::VLT_GLOBAL:
+            emitB_(OP_DEF_GLOBAL);
+            break;
+        case Value::VLT_LOCAL:
+            emitB_(OP_DEF_LOCAL);
+            break;
+        }
         emitB_(OP_POP);
         consume_(TK_SEMICOLON, "变量声明语句期望以';'结束");
     }
@@ -552,6 +622,11 @@ namespace rei
         std::string fname = std::string(prev_().lexeme);
         auto func = std::make_shared<Function>();
         Value::Coord fc = env_->def(fname);
+        if (fc.slot == REI_BYTECODE_MAX)
+        {
+            reporterError_(std::format("变量 {} 重定义", fname));
+            return;
+        }
         chunk_ = &(func->chunk);
         env_->enter();
         consume_(TK_LPAREN, "函数声明期望有'('");
@@ -587,10 +662,15 @@ namespace rei
         chunk_ = savedChunk;
         emitB_(OP_CONSTANT);
         emitC_(func);
-        emitB_(OP_DEF_VAR);
-        emitB_(fc.lifecycle);
-        emitB_(fc.uplevel);
-        emitB_(fc.slot);
+        switch (fc.lifetime)
+        {
+        case Value::VLT_GLOBAL:
+            emitB_(OP_DEF_GLOBAL);
+            break;
+        case Value::VLT_LOCAL:
+            emitB_(OP_DEF_LOCAL);
+            break;
+        }
         emitB_(OP_POP);
     }
     void Parser::structDecl_()

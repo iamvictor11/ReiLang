@@ -3,6 +3,7 @@
 #include "vm.hpp"
 #include "vm.expr.hpp"
 #include <iostream>
+#include <format>
 
 namespace rei
 {
@@ -13,7 +14,6 @@ namespace rei
     #endif
         if (!error_reporter_.empty()) return;
         ip_ = chunk_.codes.data();
-        end_ = &(chunk_.codes.back());
         #define REI_LABEL(op) REI_LABEL_##op
         static const void* dispatch_table[] =
         {
@@ -52,9 +52,14 @@ namespace rei
             &&REI_LABEL(OP_JUMP),
             &&REI_LABEL(OP_JMPT),
             &&REI_LABEL(OP_JMPF),
-            &&REI_LABEL(OP_DEF_VAR),
-            &&REI_LABEL(OP_GET_VAR),
-            &&REI_LABEL(OP_SET_VAR),
+            &&REI_LABEL(OP_GET_HOST),
+            &&REI_LABEL(OP_SET_HOST),
+            &&REI_LABEL(OP_DEF_GLOBAL),
+            &&REI_LABEL(OP_GET_GLOBAL),
+            &&REI_LABEL(OP_SET_GLOBAL),
+            &&REI_LABEL(OP_DEF_LOCAL),
+            &&REI_LABEL(OP_GET_LOCAL),
+            &&REI_LABEL(OP_SET_LOCAL),
             &&REI_LABEL(OP_CALL),
             &&REI_LABEL(OP_RETURN),
             &&REI_LABEL(OP_HALT)
@@ -62,6 +67,7 @@ namespace rei
         #define REI_DISPATCH goto *dispatch_table[readByte_()]
         #define REI_IP ip_[-1]
         Value::Data tempVal, tempL, tempR;
+        Bytecode tempB0, tempB1, tempB3;
         Value::Data callee;
         Ref<Function> func_ref;
         Native native;
@@ -132,6 +138,10 @@ namespace rei
                 jump_(offset);
                 push_(false);
             }
+            else
+            {
+                push_(true);
+            }
             REI_DISPATCH;
         }
         REI_LABEL(OP_OR):
@@ -142,16 +152,20 @@ namespace rei
                 jump_(offset);
                 push_(true);
             }
+            else
+            {
+                push_(false);
+            }
             REI_DISPATCH;
         }
         REI_LABEL(OP_BEG):
         {
-            env_.enter();
+            env_r_.enter();
             REI_DISPATCH;
         }
         REI_LABEL(OP_END):
         {
-            env_.exit();
+            env_r_.exit();
             REI_DISPATCH;
         }
         REI_LABEL(OP_PRINT):
@@ -184,19 +198,48 @@ namespace rei
                 jump_(offset);
             REI_DISPATCH;
         }
-        REI_LABEL(OP_DEF_VAR):
+        REI_LABEL(OP_GET_HOST):
         {
-            env_.def(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}, peek_());
+            push_(env_r_.getHost(readByte_()));
             REI_DISPATCH;
         }
-        REI_LABEL(OP_GET_VAR):
+        REI_LABEL(OP_SET_HOST):
         {
-            push_(env_.get(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}));
+            env_r_.setHost(readByte_(), peek_());
             REI_DISPATCH;
         }
-        REI_LABEL(OP_SET_VAR):
+        REI_LABEL(OP_DEF_GLOBAL):
         {
-            env_.set(Value::Coord{static_cast<Value::Lifecycle>(readByte_()), readByte_(), readByte_()}, peek_());
+            env_r_.defGlobal(peek_());
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_GET_GLOBAL):
+        {
+            push_(env_r_.getGlobal(readByte_()));
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_SET_GLOBAL):
+        {
+            env_r_.setGlobal(readByte_(), peek_());
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_DEF_LOCAL):
+        {
+            env_r_.defLocal(peek_());
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_GET_LOCAL):
+        {
+            tempB0 = readByte_();
+            tempB1 = readByte_();
+            push_(env_r_.getLocal(tempB0, tempB1));
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_SET_LOCAL):
+        {
+            tempB0 = readByte_();
+            tempB1 = readByte_();
+            env_r_.setLocal(tempB0, tempB1, peek_());
             REI_DISPATCH;
         }
         REI_LABEL(OP_CALL):
@@ -209,16 +252,14 @@ namespace rei
                 auto& call_frame = frames_.emplace_back();
                 call_frame.closure.func = func_ref;
                 call_frame.save_ip = ip_;
-                call_frame.save_end = end_;
                 ip_ = func_ref->chunk.codes.data();
-                end_ = &(func_ref->chunk.codes.back());
-                env_.enter();
+                env_r_.enter();
                 if (argc > func_ref->argc)
                 {
                     for (size_t upi = 1; upi <= argc; upi++)
                     {
                         if (upi <= func_ref->argc)
-                            env_.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, peek_(argc - upi));
+                            env_r_.defLocal(peek_(argc - upi));
                         else
                             break;
                     }
@@ -229,14 +270,14 @@ namespace rei
                     for (size_t upi = 1; upi <= loop_count; upi++)
                     {
                         if (upi <= argc)
-                            env_.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, peek_(argc - upi));
+                            env_r_.defLocal(peek_(argc - upi));
                         else
-                            env_.def(Value::Coord{Value::VLC_LOCAL, 0, upi - 1}, Nil{});
+                            env_r_.defLocal(Nil{});
                     }
                 }
                 for (size_t argi = 0; argi < argc + 1; argi++)
                     pop_();
-                goto *dispatch_table[func_ref->chunk.codes[0]];
+                REI_DISPATCH;
             }
             else if (Value::is<Native>(callee))
             {
@@ -249,7 +290,7 @@ namespace rei
             }
             else
             {
-                error_reporter_.report("尝试调用非函数对象", {0, 0});
+                error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::getDebugString(callee)), {0, 0});
                 for (size_t argi = 0; argi < argc; argi++)
                     pop_();
             }
@@ -259,9 +300,8 @@ namespace rei
         {
             auto& call_frame = frames_.back();
             ip_ = call_frame.save_ip;
-            end_ = call_frame.save_end;
             frames_.pop_back();
-            env_.exit();
+            env_r_.exit();
             REI_DISPATCH;
         }
         REI_LABEL(OP_HALT):
@@ -274,7 +314,7 @@ namespace rei
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
             std::cout << Value::getDebugString(stack_[i]) << std::endl;
-        std::cout << "env: depth " << env_.currLocalDepth() << std::endl;
+        std::cout << "env: depth " << env_r_.currLocalDepth() << std::endl;
     #endif
     }
 }

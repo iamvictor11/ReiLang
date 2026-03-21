@@ -8,7 +8,7 @@ namespace rei
         return String(1, digits[c >> 4]) + digits[c & 0x0F];
     }
 
-    String escape(String& s)
+    String escape(const String& s)
     {
         std::string result;
         for (char c : s)

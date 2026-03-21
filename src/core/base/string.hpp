@@ -4,5 +4,5 @@
 namespace rei
 {
     using String = std::string;
-    String escape(String& s);
+    String escape(const String& s);
 }

@@ -86,7 +86,7 @@ namespace rei
                     return false;
             }, data);
         }
-        std::string toString(Value::Data data)
+        std::string toString(const Value::Data& data)
         {
             return std::visit([](auto&& arg) -> std::string
             {
@@ -113,7 +113,7 @@ namespace rei
                     return "unknown";
             }, data);
         }
-        std::string getDebugString(Value::Data data)
+        std::string getDebugString(const Value::Data& data)
         {
             return std::visit([](auto&& arg) -> std::string
             {

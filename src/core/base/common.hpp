@@ -69,8 +69,8 @@ namespace rei
         bool toBoolean(const Value::Data& data);
         Integer toInteger(const Value::Data& data);
         Float toFloat(const Value::Data& data);
-        String toString(Value::Data data);
-        String getDebugString(Value::Data data);
+        String toString(const Value::Data& data);
+        String getDebugString(const Value::Data& data);
         template<typename T>
         bool is(const Value::Data& data)
         {
