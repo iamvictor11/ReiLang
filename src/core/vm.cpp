@@ -74,7 +74,17 @@ namespace rei
         if (frames_.empty())
             return chunk_.constants[index];
         else
-            return frames_.back().closure.func->chunk.constants[index];
+        {
+            auto& cf = frames_.back();
+            switch (cf.tag)
+            {
+            case CallFrame::CFT_FUNC:
+                return cf.func->chunk.constants[index];
+            case CallFrame::CFT_CLOS:
+                return cf.clos->func.chunk.constants[index];
+            }
+            return Nil{};
+        }
     }
     void VM::jump_(Bytecode offset)
     {

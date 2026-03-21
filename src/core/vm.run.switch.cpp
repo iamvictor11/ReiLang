@@ -166,7 +166,7 @@ namespace rei
                     {
                         auto func_ref = Value::as<Ref<Function>>(callee);
                         auto& call_frame = frames_.emplace_back();
-                        call_frame.closure.func = func_ref;
+                        call_frame.closure->func = func_ref;
                         // call_frame.closure = ;
                         call_frame.save_ip = ip_;
                         ip_ = func_ref->chunk.codes.data();

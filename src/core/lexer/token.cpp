@@ -35,6 +35,7 @@ namespace rei::Token
                 {"break", TK_BREAK},
                 {"func", TK_FUNC},
                 {"return", TK_RETURN},
+                {"clos", TK_CLOS},
                 {"struct", TK_STRUCT},
                 {"namespace", TK_NAMESPACE},
                 {"global", TK_GLOBAL},
@@ -171,6 +172,7 @@ namespace rei::Token
         REI_TOKEN_X(BREAK, "break") \
         REI_TOKEN_X(FUNC, "func") \
         REI_TOKEN_X(RETURN, "return") \
+        REI_TOKEN_X(CLOS, "clos") \
         REI_TOKEN_X(STRUCT, "struct") \
         REI_TOKEN_X(NAMESPACE, "namespace") \
         REI_TOKEN_X(GLOBAL, "global") \

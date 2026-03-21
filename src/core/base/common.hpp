@@ -41,6 +41,8 @@ namespace rei
     using Array = std::vector<struct Value::Data>;
     using Map = std::unordered_map<String, struct Value::Data>;
     struct Function;
+    struct UpVal;
+    struct Closure;
     using Native = Value::Data(*)(REI_BYTECODE_TYPE argc, Value::Data argv[]);
 
     namespace Value
@@ -53,6 +55,8 @@ namespace rei
             VT_FLOAT,
             VT_STRING,
             VT_FUNCTION,
+            VT_UPVAL,
+            VT_CLOSURE,
             VT_NATIVE
         };
         struct Data final
@@ -65,7 +69,9 @@ namespace rei
                 Integer i;
                 Float f;
                 Ref<String> str;
-                Ref<Function> fn;
+                Ref<Function> func;
+                Ref<UpVal> upval;
+                Ref<Closure> closure;
                 Native native;
             };
         public:
@@ -73,17 +79,19 @@ namespace rei
             Data(Boolean v) : tag(VT_BOOLEAN), b(v) {}
             Data(Integer v) : tag(VT_INTEGER), i(v) {}
             Data(Float v)   : tag(VT_FLOAT), f(v) {}
-            Data(const Ref<String>& s) : tag(VT_STRING), str(s) {}
-            Data(const std::string& s) : tag(VT_STRING), str(std::make_shared<String>(s)) {}
-            Data(const char* s)        : tag(VT_STRING), str(std::make_shared<String>(s)) {}
-            Data(const Ref<Function>& f) : tag(VT_FUNCTION), fn(f) {}
+            Data(const Ref<String>& s)  : tag(VT_STRING), str(s) {}
+            Data(const std::string& s)  : tag(VT_STRING), str(std::make_shared<String>(s)) {}
+            Data(const char* s)         : tag(VT_STRING), str(std::make_shared<String>(s)) {}
+            Data(const Ref<Function>& f)    : tag(VT_FUNCTION), func(f) {}
+            Data(const Ref<UpVal>& v)       : tag(VT_UPVAL), upval(v) {}
+            Data(const Ref<Closure>& c)     : tag(VT_CLOSURE), closure(c) {}
             Data(Native n) : tag(VT_NATIVE), native(n) {}
             Data(const Data& other) : tag(other.tag)
             {
                 switch (tag)
                 {
                 case VT_STRING:     new (&str) Ref<String>(other.str); break;
-                case VT_FUNCTION:   new (&fn) Ref<Function>(other.fn); break;
+                case VT_FUNCTION:   new (&func) Ref<Function>(other.func); break;
                 default:            std::memcpy(this, &other, sizeof(Data)); break;
                 }
             }
@@ -99,7 +107,7 @@ namespace rei
                 switch (tag)
                 {
                 case VT_STRING:   str.~shared_ptr(); break;
-                case VT_FUNCTION: fn.~shared_ptr(); break;
+                case VT_FUNCTION: func.~shared_ptr(); break;
                 default: break;
                 }
             }
@@ -110,13 +118,17 @@ namespace rei
             bool isNumber() const { return tag == VT_INTEGER || tag == VT_FLOAT || tag == VT_BOOLEAN; }
             bool isString() const { return tag == VT_STRING; }
             bool isFunction() const { return tag == VT_FUNCTION; }
+            bool isUpVal() const { return tag == VT_UPVAL; }
+            bool isClosure() const { return tag == VT_CLOSURE; }
             bool isNative() const { return tag == VT_NATIVE; }
         public:
             Boolean asBoolean() const { return b; }
             Integer asInteger() const { return i; }
             Float asFloat() const { return f; }
             const String& asString() const { return *(str.get()); }
-            Ref<Function> asFunction() const { return fn; }
+            Ref<Function> asFunction() const { return func; }
+            Ref<UpVal> asUpVal() const { return upval; }
+            Ref<Closure> asClosure() const { return closure; }
             Native asNative() const { return native; }
         public:
             Boolean toBoolean() const;
@@ -141,5 +153,19 @@ namespace rei
     public:
         Chunk chunk {};
         Bytecode argc = 0;
+    };
+    struct UpVal final
+    {
+    public:
+        Value::Data* val;
+        Value::Data data;
+    public:
+        void close();
+    };
+    struct Closure final
+    {
+    public:
+        Function func;
+        std::vector<UpVal> upvals;
     };
 }

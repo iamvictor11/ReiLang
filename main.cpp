@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
     if (argc > 1)
     {
         vm.loadFile(argv[1]);
-        vm.run();
+        // vm.run();
     }
     else
     {

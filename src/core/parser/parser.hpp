@@ -25,7 +25,7 @@ namespace rei
             Bytecode depth;
             std::vector<Bytecode> breaks;
         };
-        struct FuncCtx_ final
+        struct CallCtx_ final
         {
             Bytecode depth;
             std::vector<Bytecode> returns;
@@ -34,7 +34,7 @@ namespace rei
         static Rule_ rules_s_[];
     private:
         std::vector<LoopCtx_> loop_ctxs_ {};
-        std::vector<FuncCtx_> func_ctxs_ {};
+        std::vector<CallCtx_> call_ctxs_ {};
     private:
         Token::List tokens_;
         Chunk* chunk_;
@@ -76,6 +76,7 @@ namespace rei
         void declaration_();
         void varDecl_();
         void funcDecl_();
+        void closDecl_();
         void structDecl_();
         void classDecl_();
     private:

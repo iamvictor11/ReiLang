@@ -70,6 +70,7 @@ namespace rei
         Bytecode tempB0, tempB1, tempB3;
         Value::Data callee;
         Ref<Function> func_ref;
+        Ref<Closure> clos_ref;
         Native native;
         Bytecode offset, argc;
         REI_DISPATCH;
@@ -249,9 +250,7 @@ namespace rei
             if (callee.isFunction())
             {
                 func_ref = callee.asFunction();
-                auto& call_frame = frames_.emplace_back();
-                call_frame.closure.func = func_ref;
-                call_frame.save_ip = ip_;
+                auto& call_frame = frames_.emplace_back(func_ref, ip_);
                 ip_ = func_ref->chunk.codes.data();
                 env_r_.enter();
                 if (argc > func_ref->argc)
@@ -278,6 +277,12 @@ namespace rei
                 for (size_t argi = 0; argi < argc + 1; argi++)
                     pop_();
                 REI_DISPATCH;
+            }
+            else if (callee.isClosure())
+            {
+                clos_ref = callee.asClosure();
+                auto& call_frame = frames_.emplace_back(clos_ref, ip_);
+                ip_ = clos_ref->func.chunk.codes.data();
             }
             else if (callee.isNative())
             {

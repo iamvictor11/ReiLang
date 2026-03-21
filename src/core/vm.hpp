@@ -7,15 +7,45 @@
 
 namespace rei
 {
-    struct Closure final
-    {
-        Ref<Function> func;
-        // std::vector<Upvalue> upvalues
-    };
     struct CallFrame final
     {
-        Closure closure;
+        enum Tag
+        {
+            CFT_FUNC,
+            CFT_CLOS
+        };
+        Tag tag;
+        union
+        {
+            Ref<Function> func;
+            Ref<Closure> clos;
+        };
         Bytecode* save_ip;
+        CallFrame(Ref<Function> f, Bytecode* sip) : tag(CFT_FUNC), func(f), save_ip(sip) {}
+        CallFrame(Ref<Closure> c, Bytecode* sip) : tag(CFT_FUNC), clos(c), save_ip(sip) {}
+        CallFrame(const CallFrame& other) : tag(other.tag)
+        {
+            switch (tag)
+            {
+            case CFT_FUNC: new (&func) Ref<Function>(other.func); break;
+            case CFT_CLOS: new (&clos) Ref<Closure>(other.clos); break;
+            }
+        }
+        CallFrame& operator=(const CallFrame& other)
+        {
+            if (this == &other) return *this;
+            this->~CallFrame();
+            new (this) CallFrame(other);
+            return *this;
+        }
+        ~CallFrame()
+        {
+            switch (tag)
+            {
+            case CFT_FUNC:   func.~shared_ptr(); break;
+            case CFT_CLOS: clos.~shared_ptr(); break;
+            }
+        }
     };
     class VM final
     {
