@@ -66,6 +66,24 @@ namespace rei
 #pragma region Chunk
     Bytecode VM::readByte_()
     {
+        // Bytecode* base = chunk_.codes.data();
+        // if (frames_.empty())
+        //     base = chunk_.codes.data();
+        // else
+        // {
+        //     auto& cf = frames_.back();
+        //     switch (cf.tag)
+        //     {
+        //     case CallFrame::CFT_FUNC:
+        //         base = cf.func->chunk.codes.data();
+        //         break;
+        //     case CallFrame::CFT_CLOS:
+        //         base = cf.clos->func.chunk.codes.data();
+        //         break;
+        //     }
+        // }
+        // size_t index = ip_ - base;
+        // printf("debug i %zu\n", index);
         return *ip_++;
     }
     Value::Data VM::readConstant_()

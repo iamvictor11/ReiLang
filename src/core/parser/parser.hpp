@@ -29,6 +29,7 @@ namespace rei
         {
             Bytecode depth;
             std::vector<Bytecode> returns;
+            std::vector<UpVal> upVals;
         };
     private:
         static Rule_ rules_s_[];

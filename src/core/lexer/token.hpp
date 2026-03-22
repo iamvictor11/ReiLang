@@ -79,7 +79,6 @@ namespace rei::Token
         TK_BREAK,       // break
         TK_FUNC,        // func
         TK_RETURN,      // return
-        TK_CLOS,        // clos
         TK_STRUCT,      // struct
         TK_NAMESPACE,   // namespace
         TK_GLOBAL,      // global

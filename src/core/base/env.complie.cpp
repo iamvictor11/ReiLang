@@ -106,4 +106,21 @@ namespace rei
             return {Value::VLT_HOST, 0, it->second};
         return {};
     }
+    bool Env<PS_COMPILE>::isUpVal(const std::string& name, Bytecode base)
+    {
+        if (!locals_area_.empty())
+        {
+            Bytecode depth = currLocalDepth() - 1;
+            for (;;)
+            {
+                Area_& area = locals_area_.at(depth);
+                if (auto it = area.map.find(name); it != area.map.end())
+                    return depth < base;
+                if (depth == 0)
+                    break;
+                depth--;
+            }
+        }
+        return false;
+    }
 }

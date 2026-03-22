@@ -60,6 +60,9 @@ namespace rei
             &&REI_LABEL(OP_DEF_LOCAL),
             &&REI_LABEL(OP_GET_LOCAL),
             &&REI_LABEL(OP_SET_LOCAL),
+            &&REI_LABEL(OP_DEF_UPVAL),
+            &&REI_LABEL(OP_GET_UPVAL),
+            &&REI_LABEL(OP_SET_UPVAL),
             &&REI_LABEL(OP_CALL),
             &&REI_LABEL(OP_RETURN),
             &&REI_LABEL(OP_HALT)
@@ -243,11 +246,16 @@ namespace rei
             env_r_.setLocal(tempB0, tempB1, peek_());
             REI_DISPATCH;
         }
+        REI_LABEL(OP_DEF_UPVAL):
+        REI_LABEL(OP_GET_UPVAL):
+        REI_LABEL(OP_SET_UPVAL):
         REI_LABEL(OP_CALL):
         {
             argc = readByte_();
             callee = peek_(argc);
-            if (callee.isFunction())
+            switch (callee.tag)
+            {
+            case Value::VT_FUNCTION:
             {
                 func_ref = callee.asFunction();
                 auto& call_frame = frames_.emplace_back(func_ref, ip_);
@@ -255,10 +263,10 @@ namespace rei
                 env_r_.enter();
                 if (argc > func_ref->argc)
                 {
-                    for (size_t upi = 1; upi <= argc; upi++)
+                    for (size_t argi = 1; argi <= argc; argi++)
                     {
-                        if (upi <= func_ref->argc)
-                            env_r_.defLocal(peek_(argc - upi));
+                        if (argi <= func_ref->argc)
+                            env_r_.defLocal(peek_(argc - argi));
                         else
                             break;
                     }
@@ -266,25 +274,50 @@ namespace rei
                 else
                 {
                     Bytecode loop_count = func_ref->argc;
-                    for (size_t upi = 1; upi <= loop_count; upi++)
+                    for (size_t argi = 1; argi <= loop_count; argi++)
                     {
-                        if (upi <= argc)
-                            env_r_.defLocal(peek_(argc - upi));
+                        if (argi <= argc)
+                            env_r_.defLocal(peek_(argc - argi));
                         else
                             env_r_.defLocal(Nil{});
                     }
                 }
                 for (size_t argi = 0; argi < argc + 1; argi++)
                     pop_();
-                REI_DISPATCH;
+                break;
             }
-            else if (callee.isClosure())
+            case Value::VT_CLOSURE:
             {
                 clos_ref = callee.asClosure();
                 auto& call_frame = frames_.emplace_back(clos_ref, ip_);
                 ip_ = clos_ref->func.chunk.codes.data();
+                env_r_.enter();
+                if (argc > clos_ref->func.argc)
+                {
+                    for (size_t argi = 1; argi <= argc; argi++)
+                    {
+                        if (argi <= clos_ref->func.argc)
+                            env_r_.defLocal(peek_(argc - argi));
+                        else
+                            break;
+                    }
+                }
+                else
+                {
+                    Bytecode loop_count = clos_ref->func.argc;
+                    for (size_t argi = 1; argi <= loop_count; argi++)
+                    {
+                        if (argi <= argc)
+                            env_r_.defLocal(peek_(argc - argi));
+                        else
+                            env_r_.defLocal(Nil{});
+                    }
+                }
+                for (size_t argi = 0; argi < argc + 1; argi++)
+                    pop_();
+                break;
             }
-            else if (callee.isNative())
+            case Value::VT_NATIVE:
             {
                 native = callee.asNative();
                 Value::Data* argv = argc == 0 ? nullptr : &stack_[stack_.size() - argc];
@@ -292,12 +325,15 @@ namespace rei
                 for (size_t i = 0; i < argc + 1; i++)
                     pop_();
                 push_(result);
+                break;
             }
-            else
+            default:
             {
                 error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::dump(callee)), {0, 0});
                 for (size_t argi = 0; argi < argc; argi++)
                     pop_();
+                break;
+            }
             }
             REI_DISPATCH;
         }

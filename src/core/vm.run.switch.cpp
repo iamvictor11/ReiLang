@@ -60,7 +60,7 @@ namespace rei
                 case OP_AND:
                 {
                     Bytecode offset = readByte_();
-                    if (!Value::toBoolean(pop_()))
+                    if (!pop_().toBoolean())
                     {
                         jump_(offset);
                         push_(false);
@@ -74,7 +74,7 @@ namespace rei
                 case OP_OR:
                 {
                     Bytecode offset = readByte_();
-                    if (Value::toBoolean(pop_()))
+                    if (pop_().toBoolean())
                     {
                         jump_(offset);
                         push_(true);
@@ -92,10 +92,10 @@ namespace rei
                     env_r_.exit();
                     break;
                 case OP_PRINT:
-                    std::cout << Value::toString(pop_());
+                    std::cout << pop_().toString();
                     break;
                 case OP_PRINTLN:
-                    std::cout << Value::toString(pop_()) << std::endl;
+                    std::cout << pop_().toString() << std::endl;
                     break;
                 case OP_JUMP:
                 {
@@ -105,14 +105,14 @@ namespace rei
                 case OP_JMPT:
                 {
                     Bytecode offset = readByte_();
-                    if (Value::toBoolean(pop_()))
+                    if (pop_().toBoolean())
                         jump_(offset);
                     break;
                 }
                 case OP_JMPF:
                 {
                     Bytecode offset = readByte_();
-                    if (!Value::toBoolean(pop_()))
+                    if (!pop_().toBoolean())
                         jump_(offset);
                     break;
                 }
@@ -162,12 +162,11 @@ namespace rei
                 {
                     Bytecode argc = readByte_();
                     Value::Data callee = peek_(argc);
-                    if (Value::is<Ref<Function>>(callee))
+                    if (callee.isFunction())
                     {
-                        auto func_ref = Value::as<Ref<Function>>(callee);
-                        auto& call_frame = frames_.emplace_back();
-                        call_frame.closure->func = func_ref;
-                        // call_frame.closure = ;
+                        auto func_ref = callee.asFunction();
+                        auto& call_frame = frames_.emplace_back(func_ref, ip_);
+                        ip_ = func_ref->chunk.codes.data();
                         call_frame.save_ip = ip_;
                         ip_ = func_ref->chunk.codes.data();
                         env_r_.enter();
@@ -195,9 +194,39 @@ namespace rei
                         for (size_t argi = 0; argi < argc+1; argi++)
                             pop_();
                     }
-                    else if (Value::is<Native>(callee))
+                    else if (callee.isClosure())
                     {
-                        auto native = Value::as<Native>(callee);
+                        auto clos_ref = callee.asClosure();
+                        auto& call_frame = frames_.emplace_back(clos_ref, ip_);
+                        ip_ = clos_ref->func.chunk.codes.data();
+                        env_r_.enter();
+                        if (argc > clos_ref->func.argc)
+                        {
+                            for (size_t argi = 1; argi <= argc; argi++)
+                            {
+                                if (argi <= clos_ref->func.argc)
+                                    env_r_.defLocal(peek_(argc - argi));
+                                else
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            Bytecode loop_count = clos_ref->func.argc;
+                            for (size_t argi = 1; argi <= loop_count; argi++)
+                            {
+                                if (argi <= argc)
+                                    env_r_.defLocal(peek_(argc - argi));
+                                else
+                                    env_r_.defLocal(Nil{});
+                            }
+                        }
+                        for (size_t argi = 0; argi < argc + 1; argi++)
+                            pop_();
+                    }
+                    else if (callee.isNative())
+                    {
+                        auto native = callee.asNative();
                         Value::Data* argv = argc == 0 ? nullptr : &stack_[stack_.size() - argc];
                         Value::Data result = native(argc, argv);
                         for (size_t i = 0; i < argc + 1; i++)
@@ -206,7 +235,7 @@ namespace rei
                     }
                     else
                     {
-                        error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::getDebugString(callee)), {0, 0});
+                        error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::dump(callee)), {0, 0});
                         for (size_t argi = 0; argi < argc; argi++)
                             pop_();
                     }
@@ -231,7 +260,7 @@ namespace rei
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
-            std::cout << Value::getDebugString(stack_[i]) << std::endl;
+            std::cout << Value::dump(stack_[i]) << std::endl;
         std::cout << "env: depth " << env_r_.currLocalDepth() << std::endl;
     #endif
     }

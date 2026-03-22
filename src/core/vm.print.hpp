@@ -18,11 +18,24 @@ namespace rei
                 {
                     i++;
                     Bytecode ci = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::dump(chunk.constants[ci]).c_str());
-                    if (chunk.constants[ci].isFunction())
+                    Value::Data cv = chunk.constants[ci];
+                    printf("%-12s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::dump(cv).c_str());
+                    switch (cv.tag)
                     {
-                        auto func_ref = chunk.constants[ci].asFunction();
+                    case Value::VT_FUNCTION:
+                    {
+                        auto func_ref = cv.asFunction();
                         chunk_debugPrint_(func_ref->chunk, level + 1);
+                        break;
+                    }
+                    case Value::VT_CLOSURE:
+                    {
+                        auto clos_ref = cv.asClosure();
+                        chunk_debugPrint_(clos_ref->func.chunk, level + 1);
+                        break;
+                    }
+                    default:
+                        break;
                     }
                     break;
                 }

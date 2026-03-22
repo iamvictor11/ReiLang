@@ -22,8 +22,8 @@ namespace rei
         };
         Bytecode* save_ip;
         CallFrame(Ref<Function> f, Bytecode* sip) : tag(CFT_FUNC), func(f), save_ip(sip) {}
-        CallFrame(Ref<Closure> c, Bytecode* sip) : tag(CFT_FUNC), clos(c), save_ip(sip) {}
-        CallFrame(const CallFrame& other) : tag(other.tag)
+        CallFrame(Ref<Closure> c, Bytecode* sip) : tag(CFT_CLOS), clos(c), save_ip(sip) {}
+        CallFrame(const CallFrame& other) : tag(other.tag), save_ip(other.save_ip)
         {
             switch (tag)
             {
