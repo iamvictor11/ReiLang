@@ -56,7 +56,7 @@ namespace rei
     {
         Area_& area = global_area_;
         if (auto it = area.map.find(name); it != area.map.end())
-            return {Value::VLT_GLOBAL, 0, REI_BYTECODE_MAX};
+            return {Value::VLT_GLOBAL, 0, REI_BYTECODE_NULL};
         Bytecode slot = static_cast<Bytecode>(area.size);
         area.map[name] = slot;
         area.size++;
@@ -66,7 +66,7 @@ namespace rei
     {
         Area_& area = locals_area_.back();
         if (auto it = area.map.find(name); it != area.map.end())
-            return {Value::VLT_LOCAL, 0, REI_BYTECODE_MAX};
+            return {Value::VLT_LOCAL, 0, REI_BYTECODE_NULL};
         Bytecode slot = static_cast<Bytecode>(area.size);
         area.map[name] = slot;
         area.size++;
@@ -106,21 +106,27 @@ namespace rei
             return {Value::VLT_HOST, 0, it->second};
         return {};
     }
-    bool Env<PS_COMPILE>::isUpVal(const std::string& name, Bytecode base)
+    Value::Coord Env<PS_COMPILE>::toCoord(const std::string& name, Bytecode base)
     {
         if (!locals_area_.empty())
         {
             Bytecode depth = currLocalDepth() - 1;
+            Bytecode uplevel = 0;
             for (;;)
             {
                 Area_& area = locals_area_.at(depth);
                 if (auto it = area.map.find(name); it != area.map.end())
-                    return depth < base;
+                    return { depth < base ? Value::VLT_UPVALUE : Value::VLT_LOCAL , uplevel, it->second};
                 if (depth == 0)
                     break;
                 depth--;
+                uplevel++;
             }
         }
-        return false;
+        if (auto it = global_area_.map.find(name); it != global_area_.map.end())
+            return {Value::VLT_GLOBAL, 0, it->second};
+        if (auto it = host_area_.map.find(name); it != host_area_.map.end())
+            return {Value::VLT_HOST, 0, it->second};
+        return {};
     }
 }

@@ -36,6 +36,6 @@ namespace rei
         bool overlap(const std::string& name);
     public:
         Value::Coord toCoord(const std::string& name);
-        bool isUpVal(const std::string& name, Bytecode base);
+        Value::Coord toCoord(const std::string& name, Bytecode base);
     };
 }

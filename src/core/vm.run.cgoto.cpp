@@ -258,7 +258,7 @@ namespace rei
             case Value::VT_FUNCTION:
             {
                 func_ref = callee.asFunction();
-                auto& call_frame = frames_.emplace_back(func_ref, ip_);
+                auto& call_frame = frames_.emplace_back(Callee{func_ref}, ip_);
                 ip_ = func_ref->chunk.codes.data();
                 env_r_.enter();
                 if (argc > func_ref->argc)
@@ -289,7 +289,7 @@ namespace rei
             case Value::VT_CLOSURE:
             {
                 clos_ref = callee.asClosure();
-                auto& call_frame = frames_.emplace_back(clos_ref, ip_);
+                auto& call_frame = frames_.emplace_back(Callee{clos_ref}, ip_);
                 ip_ = clos_ref->func.chunk.codes.data();
                 env_r_.enter();
                 if (argc > clos_ref->func.argc)

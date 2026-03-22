@@ -94,12 +94,12 @@ namespace rei
         else
         {
             auto& cf = frames_.back();
-            switch (cf.tag)
+            switch (cf.callee.tag)
             {
-            case CallFrame::CFT_FUNC:
-                return cf.func->chunk.constants[index];
-            case CallFrame::CFT_CLOS:
-                return cf.clos->func.chunk.constants[index];
+            case Callee::CT_FUNC:
+                return cf.callee.func->chunk.constants[index];
+            case Callee::CT_CLOS:
+                return cf.callee.clos->func.chunk.constants[index];
             }
             return Nil{};
         }

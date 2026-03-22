@@ -48,14 +48,14 @@ namespace rei
         Chunk* savedChunk = chunk_;
         consume_(TK_IDENT, "函数声明期望函数名");
         std::string fname = std::string(prev_().lexeme);
-        auto func = std::make_shared<Function>();
+        auto func_ref = std::make_shared<Function>();
         Value::Coord fc = env_->def(fname);
-        if (fc.slot == REI_BYTECODE_MAX)
+        if (fc.slot == REI_BYTECODE_NULL)
         {
             reporterError_(std::format("变量 {} 重定义", fname));
             return;
         }
-        chunk_ = &(func->chunk);
+        chunk_ = &(func_ref->chunk);
         env_->enter();
         consume_(TK_LPAREN, "函数声明期望有'('");
         while (match_({TK_IDENT}))
@@ -67,8 +67,8 @@ namespace rei
                 return;
             }
             env_->def(upname);
-            func->argc++;
-            if (func->argc > REI_FUNC_UPVALUE_COUNT_MAX)
+            func_ref->argc++;
+            if (func_ref->argc > REI_FUNC_UPVALUE_COUNT_MAX)
             {
                 reporterError_(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
                 return;
@@ -79,8 +79,7 @@ namespace rei
         }
         consume_(TK_RPAREN, "函数声明期望有')'");
         {
-        auto& func_ctx = call_ctxs_.emplace_back();
-        func_ctx.depth = env_->currLocalDepth();
+        auto& func_ctx = call_ctxs_.emplace_back(env_->currLocalDepth(), Callee{func_ref});
         statement_();
         emitB_(OP_NIL);
         emitB_(OP_RETURN);
@@ -89,7 +88,7 @@ namespace rei
         env_->exit();
         chunk_ = savedChunk;
         emitB_(OP_CONSTANT);
-        emitC_(func);
+        emitC_(func_ref);
         switch (fc.lifetime)
         {
         case Value::VLT_GLOBAL:
@@ -106,14 +105,14 @@ namespace rei
         Chunk* savedChunk = chunk_;
         consume_(TK_IDENT, "闭包声明期望闭包名");
         std::string cname = std::string(prev_().lexeme);
-        auto clos = std::make_shared<Closure>();
+        auto clos_ref = std::make_shared<Closure>();
         Value::Coord cc = env_->def(cname);
-        if (cc.slot == REI_BYTECODE_MAX)
+        if (cc.slot == REI_BYTECODE_NULL)
         {
             reporterError_(std::format("变量 {} 重定义", cname));
             return;
         }
-        chunk_ = &(clos->func.chunk);
+        chunk_ = &(clos_ref->func.chunk);
         env_->enter();
         consume_(TK_LPAREN, "闭包声明期望有'('");
         while (match_({TK_IDENT}))
@@ -125,8 +124,8 @@ namespace rei
                 return;
             }
             env_->def(upname);
-            clos->func.argc++;
-            if (clos->func.argc > REI_FUNC_UPVALUE_COUNT_MAX)
+            clos_ref->func.argc++;
+            if (clos_ref->func.argc > REI_FUNC_UPVALUE_COUNT_MAX)
             {
                 reporterError_(std::format("闭包可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
                 return;
@@ -137,8 +136,7 @@ namespace rei
         }
         consume_(TK_RPAREN, "闭包声明期望有')'");
         {
-        auto& clos_ctx = call_ctxs_.emplace_back();
-        clos_ctx.depth = env_->currLocalDepth();
+        auto& clos_ctx = call_ctxs_.emplace_back(env_->currLocalDepth(), Callee{clos_ref});
         statement_();
         emitB_(OP_NIL);
         emitB_(OP_RETURN);
@@ -147,7 +145,7 @@ namespace rei
         env_->exit();
         chunk_ = savedChunk;
         emitB_(OP_CONSTANT);
-        emitC_(clos);
+        emitC_(clos_ref);
         switch (cc.lifetime)
         {
         case Value::VLT_GLOBAL:

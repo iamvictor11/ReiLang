@@ -231,11 +231,17 @@ namespace rei
 #pragma region Emit
     void Parser::emitB_(Bytecode op)
     {
+        if (chunk_->codes.size() >= REI_BYTECODE_MAX - 1)
+        {
+            reporterError_("字节码块溢出");
+            chunk_->codes.push_back(OP_HALT);
+            return;
+        }
         chunk_->codes.push_back(op);
     }
     void Parser::emitC_(Value::Data value)
     {
-        if (chunk_->constants.size() >= REI_BYTECODE_MAX)
+        if (chunk_->constants.size() >= REI_BYTECODE_MAX - 1)
         {
             reporterError_("常数块溢出");
             chunk_->codes.push_back(0);

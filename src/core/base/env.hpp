@@ -16,8 +16,8 @@ namespace rei
         {
             Lifetime lifetime = VLT_GLOBAL;
             Bytecode uplevel = 0;
-            Bytecode slot = REI_BYTECODE_MAX;
-            bool isValid() const { return slot != REI_BYTECODE_MAX; }
+            Bytecode slot = REI_BYTECODE_NULL;
+            bool isValid() const { return slot != REI_BYTECODE_NULL; }
         };
     }
     enum ProcessStage

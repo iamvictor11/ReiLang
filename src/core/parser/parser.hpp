@@ -27,9 +27,12 @@ namespace rei
         };
         struct CallCtx_ final
         {
+        public:
             Bytecode depth;
+            Callee callee;
             std::vector<Bytecode> returns;
-            std::vector<UpVal> upVals;
+        public:
+            CallCtx_(Bytecode d, const Callee& c) : depth(d), callee(c) {}
         };
     private:
         static Rule_ rules_s_[];

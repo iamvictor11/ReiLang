@@ -157,8 +157,10 @@ namespace rei
     struct UpVal final
     {
     public:
-        Value::Data* val;
-        Value::Data data;
+        Bytecode uplevel = 0;
+        Bytecode slot = REI_BYTECODE_NULL;
+        Value::Data* val = nullptr;
+        Value::Data data = Nil{};
     public:
         void close();
     };
@@ -167,5 +169,47 @@ namespace rei
     public:
         Function func;
         std::vector<UpVal> upvals;
+    };
+    struct Callee final
+    {
+    public:
+        enum Tag
+        {
+            CT_FUNC,
+            CT_CLOS
+        };
+    public:
+        Tag tag;
+        union
+        {
+            Ref<Function> func;
+            Ref<Closure> clos;
+        };
+    public:
+        Callee(Ref<Function> f) : tag(CT_FUNC), func(f) {}
+        Callee(Ref<Closure> c) : tag(CT_CLOS), clos(c) {}
+        Callee(const Callee& other) : tag(other.tag)
+        {
+            switch (tag)
+            {
+            case CT_FUNC: new (&func) Ref<Function>(other.func); break;
+            case CT_CLOS: new (&clos) Ref<Closure>(other.clos); break;
+            }
+        }
+        Callee& operator=(const Callee& other)
+        {
+            if (this == &other) return *this;
+            this->~Callee();
+            new (this) Callee(other);
+            return *this;
+        }
+        ~Callee()
+        {
+            switch (tag)
+            {
+            case CT_FUNC:   func.~shared_ptr(); break;
+            case CT_CLOS: clos.~shared_ptr(); break;
+            }
+        }
     };
 }
