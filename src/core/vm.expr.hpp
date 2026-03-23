@@ -68,7 +68,6 @@ namespace rei
         {
             Integer l = a.i;
             Integer r = b.i;
-
             switch (op)
             {
             case OP_ADD: return Integer(l + r);
