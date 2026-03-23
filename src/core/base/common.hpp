@@ -41,8 +41,6 @@ namespace rei
     using Array = std::vector<struct Value::Data>;
     using Map = std::unordered_map<String, struct Value::Data>;
     struct Function;
-    struct UpVal;
-    struct Closure;
     using Native = Value::Data(*)(REI_BYTECODE_TYPE argc, Value::Data argv[]);
 
     namespace Value
@@ -55,8 +53,6 @@ namespace rei
             VT_FLOAT,
             VT_STRING,
             VT_FUNCTION,
-            VT_UPVAL,
-            VT_CLOSURE,
             VT_NATIVE
         };
         struct Data final
@@ -70,8 +66,6 @@ namespace rei
                 Float f;
                 Ref<String> str;
                 Ref<Function> func;
-                Ref<UpVal> upval;
-                Ref<Closure> closure;
                 Native native;
             };
         public:
@@ -83,8 +77,6 @@ namespace rei
             Data(const std::string& s)  : tag(VT_STRING), str(std::make_shared<String>(s)) {}
             Data(const char* s)         : tag(VT_STRING), str(std::make_shared<String>(s)) {}
             Data(const Ref<Function>& f)    : tag(VT_FUNCTION), func(f) {}
-            Data(const Ref<UpVal>& v)       : tag(VT_UPVAL), upval(v) {}
-            Data(const Ref<Closure>& c)     : tag(VT_CLOSURE), closure(c) {}
             Data(Native n) : tag(VT_NATIVE), native(n) {}
             Data(const Data& other) : tag(other.tag)
             {
@@ -118,8 +110,6 @@ namespace rei
             bool isNumber() const { return tag == VT_INTEGER || tag == VT_FLOAT || tag == VT_BOOLEAN; }
             bool isString() const { return tag == VT_STRING; }
             bool isFunction() const { return tag == VT_FUNCTION; }
-            bool isUpVal() const { return tag == VT_UPVAL; }
-            bool isClosure() const { return tag == VT_CLOSURE; }
             bool isNative() const { return tag == VT_NATIVE; }
         public:
             Boolean asBoolean() const { return b; }
@@ -127,8 +117,6 @@ namespace rei
             Float asFloat() const { return f; }
             const String& asString() const { return *(str.get()); }
             Ref<Function> asFunction() const { return func; }
-            Ref<UpVal> asUpVal() const { return upval; }
-            Ref<Closure> asClosure() const { return closure; }
             Native asNative() const { return native; }
         public:
             Boolean toBoolean() const;
@@ -153,63 +141,5 @@ namespace rei
     public:
         Chunk chunk {};
         Bytecode argc = 0;
-    };
-    struct UpVal final
-    {
-    public:
-        Bytecode uplevel = 0;
-        Bytecode slot = REI_BYTECODE_NULL;
-        Value::Data* val = nullptr;
-        Value::Data data = Nil{};
-    public:
-        void close();
-    };
-    struct Closure final
-    {
-    public:
-        Function func;
-        std::vector<UpVal> upvals;
-    };
-    struct Callee final
-    {
-    public:
-        enum Tag
-        {
-            CT_FUNC,
-            CT_CLOS
-        };
-    public:
-        Tag tag;
-        union
-        {
-            Ref<Function> func;
-            Ref<Closure> clos;
-        };
-    public:
-        Callee(Ref<Function> f) : tag(CT_FUNC), func(f) {}
-        Callee(Ref<Closure> c) : tag(CT_CLOS), clos(c) {}
-        Callee(const Callee& other) : tag(other.tag)
-        {
-            switch (tag)
-            {
-            case CT_FUNC: new (&func) Ref<Function>(other.func); break;
-            case CT_CLOS: new (&clos) Ref<Closure>(other.clos); break;
-            }
-        }
-        Callee& operator=(const Callee& other)
-        {
-            if (this == &other) return *this;
-            this->~Callee();
-            new (this) Callee(other);
-            return *this;
-        }
-        ~Callee()
-        {
-            switch (tag)
-            {
-            case CT_FUNC:   func.~shared_ptr(); break;
-            case CT_CLOS: clos.~shared_ptr(); break;
-            }
-        }
     };
 }

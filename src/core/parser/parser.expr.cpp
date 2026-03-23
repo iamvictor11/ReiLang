@@ -180,11 +180,7 @@ namespace rei
             TK_SELF_BIT_AND, TK_SELF_BIT_OR, TK_SELF_BIT_XOR, TK_SELF_BIT_XNOR, TK_SELF_BIT_NOT, TK_SELF_BIT_SHL, TK_SELF_BIT_SHR
         }))
         {
-            Value::Coord varc;
-            if (call_ctxs_.size() <= 1)
-                varc = env_->toCoord(std::string{vu.lexeme});
-            else
-                varc = env_->toCoord(std::string{vu.lexeme}, call_ctxs_.back().depth - 1);
+            Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
             if (!varc.isValid())
             {
                 reporterError_(std::format("变量 {} 未定义", std::string{vu.lexeme}));
@@ -204,11 +200,6 @@ namespace rei
                 emitB_(OP_GET_LOCAL);
                 emitB_(varc.uplevel);
                 emitB_(varc.slot);
-                break;
-            case Value::VLT_UPVALUE:
-                emitB_(OP_GET_UPVAL);
-                // call_ctxs_.back().callee.clos->upvals.push_back({varc.uplevel, varc.slot, });
-                // emitB_();
                 break;
             }
             assignExpr_();
@@ -239,16 +230,18 @@ namespace rei
             {
             case Value::VLT_HOST:
                 emitB_(OP_GET_HOST);
+                emitB_(varc.slot);
                 break;
             case Value::VLT_GLOBAL:
                 emitB_(OP_GET_GLOBAL);
+                emitB_(varc.slot);
                 break;
             case Value::VLT_LOCAL:
                 emitB_(OP_GET_LOCAL);
                 emitB_(varc.uplevel);
+                emitB_(varc.slot);
                 break;
             }
-            emitB_(varc.slot);
         }
     }
 }

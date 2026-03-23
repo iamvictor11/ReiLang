@@ -54,9 +54,6 @@ namespace rei
         OP_DEF_LOCAL,
         OP_GET_LOCAL,
         OP_SET_LOCAL,
-        OP_DEF_UPVAL,
-        OP_GET_UPVAL,
-        OP_SET_UPVAL,
         OP_CALL,
         OP_RETURN,
         OP_HALT

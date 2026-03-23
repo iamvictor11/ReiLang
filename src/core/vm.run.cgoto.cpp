@@ -60,9 +60,6 @@ namespace rei
             &&REI_LABEL(OP_DEF_LOCAL),
             &&REI_LABEL(OP_GET_LOCAL),
             &&REI_LABEL(OP_SET_LOCAL),
-            &&REI_LABEL(OP_DEF_UPVAL),
-            &&REI_LABEL(OP_GET_UPVAL),
-            &&REI_LABEL(OP_SET_UPVAL),
             &&REI_LABEL(OP_CALL),
             &&REI_LABEL(OP_RETURN),
             &&REI_LABEL(OP_HALT)
@@ -72,8 +69,6 @@ namespace rei
         Value::Data tempVal, tempL, tempR;
         Bytecode tempB0, tempB1, tempB3;
         Value::Data callee;
-        Ref<Function> func_ref;
-        Ref<Closure> clos_ref;
         Native native;
         Bytecode offset, argc;
         REI_DISPATCH;
@@ -246,9 +241,6 @@ namespace rei
             env_r_.setLocal(tempB0, tempB1, peek_());
             REI_DISPATCH;
         }
-        REI_LABEL(OP_DEF_UPVAL):
-        REI_LABEL(OP_GET_UPVAL):
-        REI_LABEL(OP_SET_UPVAL):
         REI_LABEL(OP_CALL):
         {
             argc = readByte_();
@@ -257,8 +249,8 @@ namespace rei
             {
             case Value::VT_FUNCTION:
             {
-                func_ref = callee.asFunction();
-                auto& call_frame = frames_.emplace_back(Callee{func_ref}, ip_);
+                auto func_ref = callee.asFunction();
+                auto& call_frame = frames_.emplace_back(func_ref, ip_);
                 ip_ = func_ref->chunk.codes.data();
                 env_r_.enter();
                 if (argc > func_ref->argc)
@@ -274,37 +266,6 @@ namespace rei
                 else
                 {
                     Bytecode loop_count = func_ref->argc;
-                    for (size_t argi = 1; argi <= loop_count; argi++)
-                    {
-                        if (argi <= argc)
-                            env_r_.defLocal(peek_(argc - argi));
-                        else
-                            env_r_.defLocal(Nil{});
-                    }
-                }
-                for (size_t argi = 0; argi < argc + 1; argi++)
-                    pop_();
-                break;
-            }
-            case Value::VT_CLOSURE:
-            {
-                clos_ref = callee.asClosure();
-                auto& call_frame = frames_.emplace_back(Callee{clos_ref}, ip_);
-                ip_ = clos_ref->func.chunk.codes.data();
-                env_r_.enter();
-                if (argc > clos_ref->func.argc)
-                {
-                    for (size_t argi = 1; argi <= argc; argi++)
-                    {
-                        if (argi <= clos_ref->func.argc)
-                            env_r_.defLocal(peek_(argc - argi));
-                        else
-                            break;
-                    }
-                }
-                else
-                {
-                    Bytecode loop_count = clos_ref->func.argc;
                     for (size_t argi = 1; argi <= loop_count; argi++)
                     {
                         if (argi <= argc)

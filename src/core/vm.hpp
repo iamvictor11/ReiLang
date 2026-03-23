@@ -10,10 +10,10 @@ namespace rei
     struct CallFrame final
     {
     public:
-        Callee callee;
+        Ref<Function> func_ref;
         Bytecode* save_ip;
     public:
-        CallFrame(const Callee& c, Bytecode* sip) : callee(c), save_ip(sip) {}
+        CallFrame(Ref<Function> f, Bytecode* sip) : func_ref(f), save_ip(sip) {}
     };
     class VM final
     {

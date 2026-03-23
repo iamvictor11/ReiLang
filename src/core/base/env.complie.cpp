@@ -106,27 +106,4 @@ namespace rei
             return {Value::VLT_HOST, 0, it->second};
         return {};
     }
-    Value::Coord Env<PS_COMPILE>::toCoord(const std::string& name, Bytecode base)
-    {
-        if (!locals_area_.empty())
-        {
-            Bytecode depth = currLocalDepth() - 1;
-            Bytecode uplevel = 0;
-            for (;;)
-            {
-                Area_& area = locals_area_.at(depth);
-                if (auto it = area.map.find(name); it != area.map.end())
-                    return { depth < base ? Value::VLT_UPVALUE : Value::VLT_LOCAL , uplevel, it->second};
-                if (depth == 0)
-                    break;
-                depth--;
-                uplevel++;
-            }
-        }
-        if (auto it = global_area_.map.find(name); it != global_area_.map.end())
-            return {Value::VLT_GLOBAL, 0, it->second};
-        if (auto it = host_area_.map.find(name); it != host_area_.map.end())
-            return {Value::VLT_HOST, 0, it->second};
-        return {};
-    }
 }

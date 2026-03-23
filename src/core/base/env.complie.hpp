@@ -36,6 +36,5 @@ namespace rei
         bool overlap(const std::string& name);
     public:
         Value::Coord toCoord(const std::string& name);
-        Value::Coord toCoord(const std::string& name, Bytecode base);
     };
 }

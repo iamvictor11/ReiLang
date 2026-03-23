@@ -28,12 +28,6 @@ namespace rei
                         chunk_debugPrint_(func_ref->chunk, level + 1);
                         break;
                     }
-                    case Value::VT_CLOSURE:
-                    {
-                        auto clos_ref = cv.asClosure();
-                        chunk_debugPrint_(clos_ref->func.chunk, level + 1);
-                        break;
-                    }
                     default:
                         break;
                     }

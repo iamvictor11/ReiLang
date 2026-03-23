@@ -156,12 +156,12 @@ namespace rei
     }
     void Parser::returnStmt_()
     {
-        if (call_ctxs_.empty())
+        if (func_ctxs_.empty())
         {
             reporterError_("返回语句不在函数中");
             return;
         }
-        auto& func_ctx = call_ctxs_.back();
+        auto& func_ctx = func_ctxs_.back();
         if (match_({TK_COLON}))
             expression_();
         else

@@ -17,8 +17,6 @@ namespace rei
             case VT_FLOAT:      return f != 0.0;
             case VT_STRING:     return str && !str->empty();
             case VT_FUNCTION:   return func != nullptr;
-            case VT_UPVAL:      return upval->val != nullptr || upval->data.toBoolean();
-            case VT_CLOSURE:    return closure != nullptr;
             case VT_NATIVE:     return native != nullptr;
             }
             return false;
@@ -47,17 +45,6 @@ namespace rei
                 return 0;
             }
             case VT_FUNCTION:   return static_cast<Integer>(std::bit_cast<uintptr_t>(func.get()));
-            case VT_UPVAL:
-                if (upval)
-                {
-                    if (upval->val)
-                        return upval->val->toInteger();
-                    else
-                        return upval->data.toInteger();
-                }
-                else
-                    return 0;
-            case VT_CLOSURE:    return static_cast<Integer>(std::bit_cast<uintptr_t>(closure.get()));
             case VT_NATIVE:     return static_cast<Integer>(std::bit_cast<uintptr_t>(native));
             }
             return 0;
@@ -86,17 +73,6 @@ namespace rei
                 return 0.0;
             }
             case VT_FUNCTION:   return static_cast<Float>(std::bit_cast<uintptr_t>(func.get()));
-            case VT_UPVAL:
-                if (upval)
-                {
-                    if (upval->val)
-                        return upval->val->toFloat();
-                    else
-                        return upval->data.toFloat();
-                }
-                else
-                    return 0;
-            case VT_CLOSURE:    return static_cast<Float>(std::bit_cast<uintptr_t>(closure.get()));
             case VT_NATIVE:     return static_cast<Float>(std::bit_cast<uintptr_t>(native));
             }
             return 0.0;
@@ -114,22 +90,6 @@ namespace rei
                 return std::format(
                     "function: argc {}",
                     func ? func->argc : 0
-                );
-            case VT_UPVAL:
-                if (upval)
-                {
-                    if (upval->val)
-                        return upval->val->toString();
-                    else
-                        return upval->data.toString();
-                }
-                else
-                    return "nil";
-            case VT_CLOSURE:
-                return std::format(
-                    "closure: argc {}, upvalc {}",
-                    closure ? closure->func.argc : 0,
-                    closure ? closure->upvals.size() : 0
                 );
             case VT_NATIVE:
                 return std::format(
@@ -153,23 +113,6 @@ namespace rei
                     "function: {:x} argc {}",
                     std::bit_cast<uintptr_t>(data.func.get()),
                     data.func ? data.func->argc : 0
-                );
-            case VT_UPVAL:
-                if (data.upval)
-                {
-                    if (data.upval->val)
-                        return data.upval->val->toString();
-                    else
-                        return data.upval->data.toString();
-                }
-                else
-                    return "nil";
-            case VT_CLOSURE:
-                return std::format(
-                    "closure: {:x} argc {}, upvalc {}",
-                    std::bit_cast<uintptr_t>(data.closure.get()),
-                    data.closure ? data.closure->func.argc : 0,
-                    data.closure ? data.closure->upvals.size() : 0
                 );
             case VT_NATIVE:
                 return std::format(

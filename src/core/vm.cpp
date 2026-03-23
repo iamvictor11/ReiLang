@@ -92,17 +92,7 @@ namespace rei
         if (frames_.empty())
             return chunk_.constants[index];
         else
-        {
-            auto& cf = frames_.back();
-            switch (cf.callee.tag)
-            {
-            case Callee::CT_FUNC:
-                return cf.callee.func->chunk.constants[index];
-            case Callee::CT_CLOS:
-                return cf.callee.clos->func.chunk.constants[index];
-            }
-            return Nil{};
-        }
+            return frames_.back().func_ref->chunk.constants[index];
     }
     void VM::jump_(Bytecode offset)
     {
