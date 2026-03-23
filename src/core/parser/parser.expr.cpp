@@ -16,12 +16,22 @@ namespace rei
         {
             case TK_ASSIGN:
             {
-                reporterError_("你怎么做到的，'='的逻辑不会走这里");
+                reporterError_("你怎么做到的，'='的解析不会走这里");
                 break;
             }
             case TK_WALRUS:
             {
-                reporterError_("你怎么做到的，':='的逻辑不会走这里");
+                reporterError_("你怎么做到的，':='的解析不会走这里");
+                break;
+            }
+            case TK_CLONE:
+            {
+                reporterError_("你怎么做到的，'$='的解析不会走这里");
+                break;
+            }
+            case TK_WCLONE:
+            {
+                reporterError_("你怎么做到的，'$:='的解析不会走这里");
                 break;
             }
             case TK_SELF_ADD:   emitB_(Opcode::OP_ADD); break;
@@ -139,6 +149,19 @@ namespace rei
         }
         else if (match_(TK_WALRUS))
         {
+            expression_();
+            varDef_(std::string{vu.lexeme});
+        }
+        else if (match_(TK_CLONE))
+        {
+            expression_();
+            emitB_(Opcode::OP_CLONE);
+            varSet_(std::string{vu.lexeme});
+        }
+        else if (match_(TK_WCLONE))
+        {
+            expression_();
+            emitB_(Opcode::OP_CLONE);
             varDef_(std::string{vu.lexeme});
         }
         else if (match_({
@@ -166,7 +189,6 @@ namespace rei
             reporterError_(std::format("变量 {} 重定义", name));
             return;
         }
-        expression_();
         switch (varc.lifetime)
         {
         case Value::VLT_GLOBAL:

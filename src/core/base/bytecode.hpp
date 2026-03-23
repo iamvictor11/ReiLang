@@ -8,6 +8,7 @@ namespace rei
     enum Opcode : Bytecode
     {
         OP_CONSTANT = 0,
+        OP_CLONE,
         OP_POP,
         /* 字面量 */
         OP_NIL,   //  nil

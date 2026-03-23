@@ -18,6 +18,7 @@ namespace rei
         static const void* dispatch_table[] =
         {
             &&REI_LABEL(OP_CONSTANT),
+            &&REI_LABEL(OP_CLONE),
             &&REI_LABEL(OP_POP),
             &&REI_LABEL(OP_NIL),
             &&REI_LABEL(OP_TRUE),
@@ -76,6 +77,11 @@ namespace rei
         REI_LABEL(OP_CONSTANT):
         {
             push_(readConstant_());
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_CLONE):
+        {
+            push_(pop_().clone());
             REI_DISPATCH;
         }
         REI_LABEL(OP_POP):

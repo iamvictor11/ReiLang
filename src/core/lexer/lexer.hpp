@@ -15,9 +15,9 @@ namespace rei
             uint64_t current = 0;
             Position pos = {1, 1};
         } cursor_;
-        Error::Reporter* _error_reporter;
+        Error::Reporter* error_reporter_;
     public:
-        Lexer(std::string&& s, Error::Reporter* er) : source_(std::move(s)), _error_reporter(er) {};
+        Lexer(std::string&& s, Error::Reporter* er) : source_(std::move(s)), error_reporter_(er) {};
         ~Lexer() = default;
     public:
         [[nodiscard]] Token::List& start();

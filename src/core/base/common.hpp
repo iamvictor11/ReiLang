@@ -124,6 +124,8 @@ namespace rei
             Float toFloat() const;
             String toString() const;
         public:
+            Data clone() const;
+        public:
             std::string dump() const;
         };
     }
@@ -136,6 +138,7 @@ namespace rei
         std::vector<Bytecode> codes {};
     public:
         void clear();
+        Chunk clone() const;
     };
     struct Function final : public std::enable_shared_from_this<Function>
     {
@@ -143,5 +146,7 @@ namespace rei
         Chunk chunk {};
         Bytecode argc = 0;
         std::vector<Value::Data> onces;
+    public:
+        Ref<Function> clone() const;
     };
 }

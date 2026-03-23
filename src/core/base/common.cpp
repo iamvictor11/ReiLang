@@ -100,6 +100,22 @@ namespace rei
             }
             return "unknown";
         }
+        Data Data::clone() const
+        {
+            switch (tag)
+            {
+            case VT_STRING:
+                if (str)
+                    return Data(std::make_shared<String>(*str));
+                return Data();
+            case VT_FUNCTION:
+                if (func)
+                    return Data(func->clone());
+                return Data();
+            default:
+                return Data(*this);
+            }
+        }
         std::string Data::dump() const
         {
             switch (tag)
@@ -130,6 +146,27 @@ void Chunk::clear()
 {
     constants.clear();
     codes.clear();
+}
+Chunk Chunk::clone() const
+{
+    Chunk cloned;
+    cloned.constants.reserve(constants.size());
+    for (const auto& constant : constants)
+        cloned.constants.push_back(constant.clone());
+    cloned.codes = codes;
+    return cloned;
+}
+#pragma endregion
+#pragma region Function
+Ref<Function> Function::clone() const
+{
+    auto cloned = std::make_shared<Function>();
+    cloned->chunk = chunk.clone();
+    cloned->argc = argc;
+    cloned->onces.reserve(onces.size());
+    for (const auto& value : onces)
+        cloned->onces.push_back(value.clone());
+    return cloned;
 }
 #pragma endregion
 }

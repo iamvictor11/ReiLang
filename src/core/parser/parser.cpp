@@ -11,6 +11,8 @@ namespace rei
         /* 基础 */
         [TK_ASSIGN]    = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
         [TK_WALRUS]    = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_CLONE]     = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
+        [TK_WCLONE]    = {nullptr, &Parser::assignExpr_, nullptr, PREC_ASSIGN, 0},
         /* 标识符 */
         [TK_IDENT] = {&Parser::varExpr_, nullptr, nullptr, PREC_PRIMARY, 0},
         /* 字面量 */

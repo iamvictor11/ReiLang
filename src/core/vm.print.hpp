@@ -33,6 +33,9 @@ namespace rei
                     }
                     break;
                 }
+                case OP_CLONE:
+                    printf("%-12s\n", "CLONE");
+                    break;
                 case OP_POP:
                     printf("%-12s\n", "POP");
                     break;

@@ -12,6 +12,8 @@ namespace rei::Token
         /* 基础 */
         TK_ASSIGN, // =
         TK_WALRUS, // :=
+        TK_CLONE,  // $=
+        TK_WCLONE, // $:=
         /* 标识符 */
         TK_IDENT, // <ident>
         /* 字面量 */

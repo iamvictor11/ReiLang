@@ -104,6 +104,8 @@ namespace rei::Token
         /* 基础 */ \
         REI_TOKEN_X(ASSIGN, "=") \
         REI_TOKEN_X(WALRUS, ":=") \
+        REI_TOKEN_X(CLONE, "$=") \
+        REI_TOKEN_X(WCLONE, "$:=") \
         /* 标识符 */ \
         REI_TOKEN_X(IDENT, "<ident>") \
         /* 字面量 */ \

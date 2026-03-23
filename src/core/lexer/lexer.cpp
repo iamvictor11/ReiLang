@@ -71,6 +71,11 @@ namespace rei
             else if (match_(">>")) addToken_(Token::TK_BIT_SHR);
             else addToken_(Token::TK_GT);
             break;
+        case '$':
+            if (match_("$=")) addToken_(Token::TK_CLONE);
+            else if (match_("$:=")) addToken_(Token::TK_WCLONE);
+            else error_reporter_->report("未定义的符号组合", cursor_.pos);
+            break;
         case '"': lexString_('"'); break;
         case '\'': lexString_('\''); break;
         case 'r': if (peek_() == '\'' || peek_() == '"') lexRawString_(advance_()); else lexOther_('r'); break;
@@ -197,7 +202,7 @@ void Lexer::lexOther_(char c)
         lexIdentifier_();
         return;
     }
-    _error_reporter->report(std::format("未知的字符'{}'(HEX: 0x{:02x})", c, (unsigned char)c), cursor_.pos);
+    error_reporter_->report(std::format("未知的字符'{}'(HEX: 0x{:02x})", c, (unsigned char)c), cursor_.pos);
 }
 void Lexer::lexNumber_()
 {
@@ -283,7 +288,7 @@ void Lexer::lexNumber_()
                 }
                 else
                 {
-                    _error_reporter->report("科学计数法格式错误", cursor_.pos);
+                    error_reporter_->report("科学计数法格式错误", cursor_.pos);
                     return;
                 }
             }
@@ -306,7 +311,7 @@ void Lexer::lexNumber_()
             value
         );
         if (ec == std::errc()) addToken_(Token::TK_LIT_FLOAT, lexeme, value);
-        else _error_reporter->report("错误的浮点数格式", cursor_.pos);
+        else error_reporter_->report("错误的浮点数格式", cursor_.pos);
     }
     else
     {
@@ -317,7 +322,7 @@ void Lexer::lexNumber_()
             value
         );
         if (ec == std::errc()) addToken_(Token::TK_LIT_INT, lexeme, value);
-        else _error_reporter->report("错误的整数格式", cursor_.pos);
+        else error_reporter_->report("错误的整数格式", cursor_.pos);
     }
 }
 void Lexer::lexString_(char beg)
@@ -349,7 +354,7 @@ void Lexer::lexString_(char beg)
     }
     if (isAtEnd_())
     {
-        _error_reporter->report("字符串未闭合", cursor_.pos);
+        error_reporter_->report("字符串未闭合", cursor_.pos);
         return;
     }
     pass_();
@@ -381,7 +386,7 @@ void Lexer::lexRawString_(char beg)
     }
     if (isAtEnd_())
     {
-        _error_reporter->report("字符串未闭合", cursor_.pos);
+        error_reporter_->report("字符串未闭合", cursor_.pos);
         return;
     }
     pass_();

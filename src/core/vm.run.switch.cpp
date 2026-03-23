@@ -21,6 +21,7 @@ namespace rei
             switch (instruction)
             {
                 case OP_CONSTANT:   push_(readConstant_()); break;
+                case OP_CLONE:      push_(pop_().clone()); break;
                 case OP_POP:        pop_(); break;
                 case OP_NIL:    push_(Nil{}); break;
                 case OP_TRUE:   push_(Boolean(true)); break;
@@ -85,10 +86,10 @@ namespace rei
                     }
                     break;
                 }
-                case OP_BEG:
+                case OP_ENTER:
                     env_r_.enter();
                     break;
-                case OP_END:
+                case OP_EXIT:
                     env_r_.exit();
                     break;
                 case OP_PRINT:
@@ -217,7 +218,7 @@ namespace rei
                     }
                     default:
                     {
-                        error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::dump(callee)), {0, 0});
+                        error_reporter_.report(std::format("尝试调用非函数对象 {}", callee.dump()), {0, 0});
                         for (size_t argi = 0; argi < argc; argi++)
                             pop_();
                         break;
@@ -244,7 +245,7 @@ namespace rei
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
-            std::cout << Value::dump(stack_[i]) << std::endl;
+            std::cout << stack_[i].dump() << std::endl;
         std::cout << "env: depth " << env_r_.currLocalDepth() << std::endl;
     #endif
     }
