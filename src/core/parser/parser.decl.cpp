@@ -68,9 +68,9 @@ namespace rei
             }
             env_->def(upname);
             func_ref->argc++;
-            if (func_ref->argc > REI_FUNC_UPVALUE_COUNT_MAX)
+            if (func_ref->argc > REI_FUNC_ARG_COUNT_MAX)
             {
-                reporterError_(std::format("函数可传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+                reporterError_(std::format("函数可传参数量超过最大值 {}", REI_FUNC_ARG_COUNT_MAX));
                 return;
             }
             if (match_(TK_COMMA))
@@ -78,6 +78,25 @@ namespace rei
             break;
         }
         consume_(TK_RPAREN, "函数声明期望有')'");
+        if (match_(TK_ONCE))
+        {
+            do
+            {
+                std::string upname = std::string(prev_().lexeme);
+                if (env_->overlap(upname))
+                {
+                    reporterError_(std::format("函数保留数名重复 {}", upname));
+                    return;
+                }
+                env_->def(upname);
+                func_ref->argc++;
+                if (func_ref->argc > REI_FUNC_ONCE_COUNT_MAX)
+                {
+                    reporterError_(std::format("函数保留数数量超过最大值 {}", REI_FUNC_ONCE_COUNT_MAX));
+                    return;
+                }
+            } while (match_(TK_COMMA));
+        }
         {
         auto& func_ctx = func_ctxs_.emplace_back(env_->currLocalDepth(), func_ref);
         bodyStmt_(TK_BEG, TK_END, "函数体需要 end 封闭");

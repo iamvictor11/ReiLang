@@ -34,6 +34,7 @@ namespace rei::Token
                 {"continue", TK_CONTINUE},
                 {"break", TK_BREAK},
                 {"func", TK_FUNC},
+                {"once", TK_ONCE},
                 {"return", TK_RETURN},
                 {"struct", TK_STRUCT},
                 {"namespace", TK_NAMESPACE},
@@ -169,6 +170,7 @@ namespace rei::Token
         REI_TOKEN_X(CONTINUE, "continue") \
         REI_TOKEN_X(BREAK, "break") \
         REI_TOKEN_X(FUNC, "func") \
+        REI_TOKEN_X(ONCE, "once") \
         REI_TOKEN_X(RETURN, "return") \
         REI_TOKEN_X(STRUCT, "struct") \
         REI_TOKEN_X(NAMESPACE, "namespace") \

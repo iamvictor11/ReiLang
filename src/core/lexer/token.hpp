@@ -78,6 +78,7 @@ namespace rei::Token
         TK_CONTINUE,    // continue
         TK_BREAK,       // break
         TK_FUNC,        // func
+        TK_ONCE,        // once
         TK_RETURN,      // return
         TK_STRUCT,      // struct
         TK_NAMESPACE,   // namespace

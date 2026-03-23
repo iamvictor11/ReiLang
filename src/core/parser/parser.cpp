@@ -77,6 +77,7 @@ namespace rei
         [TK_CONTINUE]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_BREAK]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_FUNC]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_ONCE]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_RETURN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_STRUCT]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_NAMESPACE] = {nullptr, nullptr, nullptr, PREC_NONE, 0},

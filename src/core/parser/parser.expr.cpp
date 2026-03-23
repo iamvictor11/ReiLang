@@ -102,8 +102,8 @@ namespace rei
         {
             expression_();
             argc++;
-            if (argc > REI_FUNC_UPVALUE_COUNT_MAX)
-                reporterError_(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
+            if (argc > REI_FUNC_ARG_COUNT_MAX)
+                reporterError_(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_ARG_COUNT_MAX));
             if (match_(TK_COMMA))
                 continue;
             break;

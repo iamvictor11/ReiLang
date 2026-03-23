@@ -141,5 +141,6 @@ namespace rei
     public:
         Chunk chunk {};
         Bytecode argc = 0;
+        std::vector<Value::Data> onces;
     };
 }
