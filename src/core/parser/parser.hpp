@@ -31,6 +31,7 @@ namespace rei
             Bytecode depth;
             Ref<Function> func_ref;
             std::vector<Bytecode> returns;
+            std::unordered_map<std::string, Bytecode> onces;
         public:
             FuncCtx_(Bytecode d, Ref<Function> f) : depth(d), func_ref(f) {}
         };
@@ -66,6 +67,10 @@ namespace rei
         void callExpr_();
         void primaryExpr_();
         void varExpr_();
+    private:
+        void varDef_(const std::string& name);
+        void varGet_(const std::string& name);
+        void varSet_(const std::string& name);
     private:
         void statement_();
         void exprStmt_();

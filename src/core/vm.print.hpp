@@ -19,7 +19,7 @@ namespace rei
                     i++;
                     Bytecode ci = chunk.codes[i];
                     Value::Data cv = chunk.constants[ci];
-                    printf("%-12s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, Value::dump(cv).c_str());
+                    printf("%-12s\033[1m\033[32m%04zu \033[34m%s\033[0m\n", "CONSTANT", ci, cv.dump().c_str());
                     switch (cv.tag)
                     {
                     case Value::VT_FUNCTION:
@@ -110,10 +110,10 @@ namespace rei
                     i++;
                     printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "OR", chunk.codes[i]);
                     break;
-                case OP_BEG:
+                case OP_ENTER:
                     printf("%-12s\n", "BEG");
                     break;
-                case OP_END:
+                case OP_EXIT:
                     printf("%-12s\n", "END");
                     break;
                 case OP_PRINT:
@@ -180,6 +180,18 @@ namespace rei
                     i++; size_t ca = chunk.codes[i];
                     i++; size_t cb = chunk.codes[i];
                     printf("%-12s\033[1m\033[32m%04zu,%04zu\033[0m\n", "SET LOCAL", ca, cb);
+                    break;
+                }
+                case OP_GET_ONCE:
+                {
+                    i++; size_t ca = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "GET ONCE", ca);
+                    break;
+                }
+                case OP_SET_ONCE:
+                {
+                    i++; size_t ca = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "SET ONCE", ca);
                     break;
                 }
                 case OP_CALL:

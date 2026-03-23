@@ -45,8 +45,8 @@ namespace rei
             &&REI_LABEL(OP_GE),
             &&REI_LABEL(OP_AND),
             &&REI_LABEL(OP_OR),
-            &&REI_LABEL(OP_BEG),
-            &&REI_LABEL(OP_END),
+            &&REI_LABEL(OP_ENTER),
+            &&REI_LABEL(OP_EXIT),
             &&REI_LABEL(OP_PRINT),
             &&REI_LABEL(OP_PRINTLN),
             &&REI_LABEL(OP_JUMP),
@@ -60,6 +60,8 @@ namespace rei
             &&REI_LABEL(OP_DEF_LOCAL),
             &&REI_LABEL(OP_GET_LOCAL),
             &&REI_LABEL(OP_SET_LOCAL),
+            &&REI_LABEL(OP_GET_ONCE),
+            &&REI_LABEL(OP_SET_ONCE),
             &&REI_LABEL(OP_CALL),
             &&REI_LABEL(OP_RETURN),
             &&REI_LABEL(OP_HALT)
@@ -156,12 +158,12 @@ namespace rei
             }
             REI_DISPATCH;
         }
-        REI_LABEL(OP_BEG):
+        REI_LABEL(OP_ENTER):
         {
             env_r_.enter();
             REI_DISPATCH;
         }
-        REI_LABEL(OP_END):
+        REI_LABEL(OP_EXIT):
         {
             env_r_.exit();
             REI_DISPATCH;
@@ -240,6 +242,16 @@ namespace rei
             env_r_.setLocal(tempB0, tempB1, peek_());
             REI_DISPATCH;
         }
+        REI_LABEL(OP_GET_ONCE):
+        {
+            push_(frames_.back().func_ref->onces[readByte_()]);
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_SET_ONCE):
+        {
+            frames_.back().func_ref->onces[readByte_()] = peek_();
+            REI_DISPATCH;
+        }
         REI_LABEL(OP_CALL):
         {
             argc = readByte_();
@@ -289,7 +301,7 @@ namespace rei
             }
             default:
             {
-                error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::dump(callee)), {0, 0});
+                error_reporter_.report(std::format("尝试调用非函数对象 {}", callee.dump()), {0, 0});
                 for (size_t argi = 0; argi < argc; argi++)
                     pop_();
                 break;
@@ -314,7 +326,7 @@ namespace rei
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)
-            std::cout << Value::dump(stack_[i]) << std::endl;
+            std::cout << stack_[i].dump() << std::endl;
         std::cout << "env: depth " << env_r_.currLocalDepth() << std::endl;
     #endif
     }

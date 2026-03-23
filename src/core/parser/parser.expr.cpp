@@ -135,113 +135,117 @@ namespace rei
         if (match_(TK_ASSIGN))
         {
             expression_();
-            Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
-            if (!varc.isValid())
-            {
-                reporterError_("变量未定义");
-                return;
-            }
-            switch (varc.lifetime)
-            {
-            case Value::VLT_HOST:
-                emitB_(OP_SET_HOST);
-                break;
-            case Value::VLT_GLOBAL:
-                emitB_(OP_SET_GLOBAL);
-                break;
-            case Value::VLT_LOCAL:
-                emitB_(OP_SET_LOCAL);
-                emitB_(varc.uplevel);
-                break;
-            }
-            emitB_(varc.slot);
+            varSet_(std::string{vu.lexeme});
         }
         else if (match_(TK_WALRUS))
         {
-            Value::Coord varc = env_->def(std::string{vu.lexeme});
-            if (varc.slot == REI_BYTECODE_NULL)
-            {
-                reporterError_(std::format("变量 {} 重定义", std::string{vu.lexeme}));
-                return;
-            }
-            expression_();
-            switch (varc.lifetime)
-            {
-            case Value::VLT_GLOBAL:
-                emitB_(OP_DEF_GLOBAL);
-                break;
-            case Value::VLT_LOCAL:
-                emitB_(OP_DEF_LOCAL);
-                break;
-            }
+            varDef_(std::string{vu.lexeme});
         }
         else if (match_({
             TK_SELF_ADD, TK_SELF_SUB, TK_SELF_MUL, TK_SELF_DIV, TK_SELF_MOD, TK_SELF_POW,
             TK_SELF_BIT_AND, TK_SELF_BIT_OR, TK_SELF_BIT_XOR, TK_SELF_BIT_XNOR, TK_SELF_BIT_NOT, TK_SELF_BIT_SHL, TK_SELF_BIT_SHR
         }))
         {
-            Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
-            if (!varc.isValid())
-            {
-                reporterError_(std::format("变量 {} 未定义", std::string{vu.lexeme}));
-                return;
-            }
-            switch (varc.lifetime)
-            {
-            case Value::VLT_HOST:
-                emitB_(OP_GET_HOST);
-                emitB_(varc.slot);
-                break;
-            case Value::VLT_GLOBAL:
-                emitB_(OP_GET_GLOBAL);
-                emitB_(varc.slot);
-                break;
-            case Value::VLT_LOCAL:
-                emitB_(OP_GET_LOCAL);
-                emitB_(varc.uplevel);
-                emitB_(varc.slot);
-                break;
-            }
+            auto vname = std::string{vu.lexeme};
+            varGet_(vname);
             assignExpr_();
-            switch (varc.lifetime)
-            {
-            case Value::VLT_HOST:
-                emitB_(OP_SET_HOST);
-                break;
-            case Value::VLT_GLOBAL:
-                emitB_(OP_SET_GLOBAL);
-                break;
-            case Value::VLT_LOCAL:
-                emitB_(OP_SET_LOCAL);
-                emitB_(varc.uplevel);
-                break;
-            }
-            emitB_(varc.slot);
+            varSet_(vname);
         }
         else
         {
-            Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
-            if (!varc.isValid())
-            {
-                reporterError_(std::format("变量 {} 未定义", std::string{vu.lexeme}));
-                return;
-            }
-            switch (varc.lifetime)
-            {
-            case Value::VLT_HOST:
-                emitB_(OP_GET_HOST);
-                emitB_(varc.slot);
-                break;
-            case Value::VLT_GLOBAL:
-                emitB_(OP_GET_GLOBAL);
-                emitB_(varc.slot);
-                break;
-            case Value::VLT_LOCAL:
-                emitB_(OP_GET_LOCAL);
-                emitB_(varc.uplevel);
-                emitB_(varc.slot);
-                break;
-            }
+            varGet_(std::string{vu.lexeme});
         }
     }
+
+#pragma region Helper
+    void Parser::varDef_(const std::string& name)
+    {
+        Value::Coord varc = env_->def(name);
+        if (varc.slot == REI_BYTECODE_NULL)
+        {
+            reporterError_(std::format("变量 {} 重定义", name));
+            return;
+        }
+        expression_();
+        switch (varc.lifetime)
+        {
+        case Value::VLT_GLOBAL:
+            emitB_(OP_DEF_GLOBAL);
+            break;
+        case Value::VLT_LOCAL:
+            emitB_(OP_DEF_LOCAL);
+            break;
+        }
+    }
+    void Parser::varGet_(const std::string& name)
+    {
+        if (!func_ctxs_.empty())
+        {
+            auto& func_ctx = func_ctxs_.back();
+            if (auto it = func_ctx.onces.find(name); it != func_ctx.onces.end())
+            {
+                emitB_(OP_GET_ONCE);
+                emitB_(it->second);
+                return;
+            }
+        }
+        Value::Coord varc = env_->toCoord(name);
+        if (!varc.isValid())
+        {
+            reporterError_(std::format("变量 {} 未定义", name));
+            return;
+        }
+        switch (varc.lifetime)
+        {
+        case Value::VLT_HOST:
+            emitB_(OP_GET_HOST);
+            emitB_(varc.slot);
+            break;
+        case Value::VLT_GLOBAL:
+            emitB_(OP_GET_GLOBAL);
+            emitB_(varc.slot);
+            break;
+        case Value::VLT_LOCAL:
+            emitB_(OP_GET_LOCAL);
+            emitB_(varc.uplevel);
+            emitB_(varc.slot);
+            break;
+        }
+    }
+    void Parser::varSet_(const std::string& name)
+    {
+        if (!func_ctxs_.empty())
+        {
+            auto& func_ctx = func_ctxs_.back();
+            if (auto it = func_ctx.onces.find(name); it != func_ctx.onces.end())
+            {
+                emitB_(OP_SET_ONCE);
+                emitB_(it->second);
+                return;
+            }
+        }
+        Value::Coord varc = env_->toCoord(name);
+        if (!varc.isValid())
+        {
+            reporterError_(std::format("变量 {} 未定义", name));
+            return;
+        }
+        switch (varc.lifetime)
+        {
+        case Value::VLT_HOST:
+            emitB_(OP_SET_HOST);
+            emitB_(varc.slot);
+            break;
+        case Value::VLT_GLOBAL:
+            emitB_(OP_SET_GLOBAL);
+            emitB_(varc.slot);
+            break;
+        case Value::VLT_LOCAL:
+            emitB_(OP_SET_LOCAL);
+            emitB_(varc.uplevel);
+            emitB_(varc.slot);
+            break;
+        }
+    }
+#pragma endregion
 }

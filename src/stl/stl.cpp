@@ -14,7 +14,7 @@ namespace rei
         Value::Data dump(REI_BYTECODE_TYPE argc, Value::Data argv[])
         {
             for (size_t i = 0; i < argc; i++)
-                printf("\033[1m\033[32m%03zu \033[34m%s\033[0m\n", i, Value::dump(argv[i]).c_str());
+                printf("\033[1m\033[32m%03zu \033[34m%s\033[0m\n", i, argv[i].dump().c_str());
             return Nil{};
         }
         Value::Data clock(REI_BYTECODE_TYPE argc, Value::Data argv[])

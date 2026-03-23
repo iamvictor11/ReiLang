@@ -36,12 +36,12 @@ namespace rei
     void Parser::blockStmt_()
     {
         env_->enter();
-        emitB_(OP_BEG);
+        emitB_(OP_ENTER);
         while (!check_(TK_RBRACE) && !isAtEnd_())
             declaration_();
         consume_(TK_RBRACE, "语句块期望以'}'结束");
         env_->exit();
-        emitB_(OP_END);
+        emitB_(OP_EXIT);
     }
     void Parser::bodyStmt_(Token::Type beg, Token::Type end, const std::string& message)
     {
@@ -63,10 +63,10 @@ namespace rei
         emitB_(OP_JMPF);
         emitB_(0);
         env_->enter();
-        emitB_(OP_BEG);
+        emitB_(OP_ENTER);
         bodyStmt_(TK_THEN, TK_END, "条件体需要 end 封闭");
         env_->exit();
-        emitB_(OP_END);
+        emitB_(OP_EXIT);
         if (match_(TK_ELSE))
         {
             Bytecode else_jump_pos = chunk_->codes.size();
@@ -74,10 +74,10 @@ namespace rei
             emitB_(0);
             patchB_(if_jump_pos + 1, chunk_->codes.size() - (if_jump_pos + 2));
             env_->enter();
-            emitB_(OP_BEG);
+            emitB_(OP_ENTER);
             bodyStmt_(TK_THEN, TK_END, "条件体需要 end 封闭");
             env_->exit();
-            emitB_(OP_END);
+            emitB_(OP_EXIT);
             patchB_(else_jump_pos + 1, chunk_->codes.size() - (else_jump_pos + 2));
         }
         else if (match_(TK_ELIF))
@@ -106,10 +106,10 @@ namespace rei
         emitB_(0);
         loop_ctx.depth = env_->currLocalDepth();
         env_->enter();
-        emitB_(OP_BEG);
+        emitB_(OP_ENTER);
         bodyStmt_(TK_DO, TK_END, "循环体需要 end 封闭");
         env_->exit();
-        emitB_(OP_END);
+        emitB_(OP_EXIT);
         emitB_(OP_JUMP);
         emitB_(start_pos - (chunk_->codes.size() + 1));
         Bytecode end_pos = chunk_->codes.size();
@@ -136,7 +136,7 @@ namespace rei
         auto& loop_ctx = loop_ctxs_.at(loop_ctxs_.size() - level);
         Bytecode diff = env_->currLocalDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
-            emitB_(OP_END);
+            emitB_(OP_EXIT);
         Bytecode pos = chunk_->codes.size();
         emitB_(OP_JUMP);
         emitB_(0);
@@ -161,7 +161,7 @@ namespace rei
         auto& loop_ctx = loop_ctxs_.at(loop_ctxs_.size() - level);
         Bytecode diff = env_->currLocalDepth() - loop_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
-            emitB_(OP_END);
+            emitB_(OP_EXIT);
         Bytecode start = loop_ctx.start;
         emitB_(OP_JUMP);
         emitB_(start - (chunk_->codes.size() + 1));
@@ -181,7 +181,7 @@ namespace rei
             emitB_(OP_NIL);
         Bytecode diff = env_->currLocalDepth() - func_ctx.depth;
         for (Bytecode i = 0; i < diff; i++)
-            emitB_(OP_END);
+            emitB_(OP_EXIT);
         emitB_(OP_RETURN);
         consume_(TK_SEMICOLON, "返回语句期望以';'结束");
     }

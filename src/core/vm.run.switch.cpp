@@ -158,6 +158,16 @@ namespace rei
                     env_r_.setLocal(t0, t1, peek_());
                     break;
                 }
+                case OP_GET_ONCE:
+                {
+                    push_(frames_.back().func_ref->onces[readByte_()]);
+                    break;
+                }
+                case OP_SET_ONCE:
+                {
+                    frames_.back().func_ref->onces[readByte_()] = peek_();
+                    break;
+                }
                 case OP_CALL:
                 {
                     Bytecode argc = readByte_();

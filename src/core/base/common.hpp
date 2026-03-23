@@ -69,7 +69,7 @@ namespace rei
                 Native native;
             };
         public:
-            Data() : tag(VT_NIL) {}
+            Data() : tag(VT_NIL), i(0) {}
             Data(Boolean v) : tag(VT_BOOLEAN), b(v) {}
             Data(Integer v) : tag(VT_INTEGER), i(v) {}
             Data(Float v)   : tag(VT_FLOAT), f(v) {}
@@ -123,8 +123,9 @@ namespace rei
             Integer toInteger() const;
             Float toFloat() const;
             String toString() const;
+        public:
+            std::string dump() const;
         };
-        std::string dump(const Data& data);
     }
     using Nil = Value::Data;
 

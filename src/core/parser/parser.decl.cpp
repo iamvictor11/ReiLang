@@ -60,13 +60,13 @@ namespace rei
         consume_(TK_LPAREN, "函数声明期望有'('");
         while (match_(TK_IDENT))
         {
-            std::string upname = std::string(prev_().lexeme);
-            if (env_->overlap(upname))
+            std::string arg_name = std::string(prev_().lexeme);
+            if (env_->overlap(arg_name))
             {
-                reporterError_(std::format("函数参数名重复 {}", upname));
+                reporterError_(std::format("函数参数名重复 {}", arg_name));
                 return;
             }
-            env_->def(upname);
+            env_->def(arg_name);
             func_ref->argc++;
             if (func_ref->argc > REI_FUNC_ARG_COUNT_MAX)
             {
@@ -77,20 +77,41 @@ namespace rei
                 continue;
             break;
         }
+        auto& func_ctx = func_ctxs_.emplace_back(env_->currLocalDepth(), func_ref);
         consume_(TK_RPAREN, "函数声明期望有')'");
         if (match_(TK_ONCE))
         {
             do
             {
-                std::string upname = std::string(prev_().lexeme);
-                if (env_->overlap(upname))
+                consume_(TK_IDENT, "函数保留数期望有标识符声明");
+                std::string once_name = std::string(prev_().lexeme);
+                if (func_ctx.onces.contains(once_name))
                 {
-                    reporterError_(std::format("函数保留数名重复 {}", upname));
+                    reporterError_(std::format("函数保留数名重复 {}", once_name));
                     return;
                 }
-                env_->def(upname);
-                func_ref->argc++;
-                if (func_ref->argc > REI_FUNC_ONCE_COUNT_MAX)
+                func_ctx.onces[once_name] = func_ref->onces.size();
+                if (match_(TK_ASSIGN))
+                {
+                    if (match_({TK_LIT_INT, TK_LIT_FLOAT, TK_LIT_STRING}))
+                        func_ref->onces.emplace_back(prev_().literal);
+                    else if (match_(TK_NIL))
+                        func_ref->onces.emplace_back(Nil{});
+                    else if (match_(TK_TRUE))
+                        func_ref->onces.emplace_back(true);
+                    else if (match_(TK_FALSE))
+                        func_ref->onces.emplace_back(false);
+                    else
+                    {
+                        reporterError_(std::format("函数保留数 {} 必须使用字面量赋值", once_name));
+                        return;
+                    }
+                }
+                else
+                {
+                    func_ref->onces.emplace_back(Nil{});
+                }
+                if (func_ref->onces.size() > REI_FUNC_ONCE_COUNT_MAX)
                 {
                     reporterError_(std::format("函数保留数数量超过最大值 {}", REI_FUNC_ONCE_COUNT_MAX));
                     return;
@@ -98,7 +119,6 @@ namespace rei
             } while (match_(TK_COMMA));
         }
         {
-        auto& func_ctx = func_ctxs_.emplace_back(env_->currLocalDepth(), func_ref);
         bodyStmt_(TK_BEG, TK_END, "函数体需要 end 封闭");
         emitB_(OP_NIL);
         emitB_(OP_RETURN);

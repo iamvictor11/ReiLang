@@ -64,7 +64,7 @@ namespace rei
     static Value::Data _dispatchBinary(const Value::Data& a, const Value::Data& b, Opcode op)
     {
         using namespace Value;
-        if (a.tag == VT_INTEGER && b.tag == VT_INTEGER)
+        if ((a.tag == VT_NIL || a.tag == VT_INTEGER) && (b.tag == VT_NIL || b.tag == VT_INTEGER))
         {
             Integer l = a.i;
             Integer r = b.i;

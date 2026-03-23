@@ -253,7 +253,7 @@ namespace rei::Token
             res += "\t";
         res += "\033[1m\033[36m";
         if (type == TK_LIT_INT || type == TK_LIT_FLOAT || type == TK_LIT_STRING)
-            res += Value::dump(literal);
+            res += literal.dump();
         else if (type == TK_IDENT)
             res += std::string(lexeme);
         else

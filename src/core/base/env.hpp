@@ -9,8 +9,7 @@ namespace rei
         {
             VLT_HOST,
             VLT_GLOBAL,
-            VLT_LOCAL,
-            VLT_UPVALUE
+            VLT_LOCAL
         };
         struct Coord final
         {

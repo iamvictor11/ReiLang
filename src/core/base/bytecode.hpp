@@ -39,8 +39,8 @@ namespace rei
         OP_AND,      // &&
         OP_OR,       // ||
         /* 操作 */
-        OP_BEG,
-        OP_END,
+        OP_ENTER,
+        OP_EXIT,
         OP_PRINT,   // print
         OP_PRINTLN, // println
         OP_JUMP,
@@ -54,6 +54,8 @@ namespace rei
         OP_DEF_LOCAL,
         OP_GET_LOCAL,
         OP_SET_LOCAL,
+        OP_GET_ONCE,
+        OP_SET_ONCE,
         OP_CALL,
         OP_RETURN,
         OP_HALT

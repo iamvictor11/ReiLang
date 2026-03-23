@@ -88,8 +88,9 @@ namespace rei
             case VT_STRING:     return str ? *str : "";
             case VT_FUNCTION:
                 return std::format(
-                    "function: argc {}",
-                    func ? func->argc : 0
+                    "function: argc {}, once {}",
+                    func ? func->argc : 0,
+                    func ? func->onces.size() : 0
                 );
             case VT_NATIVE:
                 return std::format(
@@ -99,25 +100,26 @@ namespace rei
             }
             return "unknown";
         }
-        std::string dump(const Data& data)
+        std::string Data::dump() const
         {
-            switch (data.tag)
+            switch (tag)
             {
             case VT_NIL:        return "nil";
-            case VT_BOOLEAN:    return data.b ? "true" : "false";
-            case VT_INTEGER:    return std::to_string(data.i);
-            case VT_FLOAT:      return std::to_string(data.f);
-            case VT_STRING:     return data.str ? "\"" + escape(*data.str) + "\"" : "\"\"";
+            case VT_BOOLEAN:    return b ? "true" : "false";
+            case VT_INTEGER:    return std::to_string(i);
+            case VT_FLOAT:      return std::to_string(f);
+            case VT_STRING:     return str ? "\"" + escape(*str) + "\"" : "\"\"";
             case VT_FUNCTION:
                 return std::format(
-                    "function: {:x} argc {}",
-                    std::bit_cast<uintptr_t>(data.func.get()),
-                    data.func ? data.func->argc : 0
+                    "function: {:x} argc {}, once {}",
+                    std::bit_cast<uintptr_t>(func.get()),
+                    func ? func->argc : 0,
+                    func ? func->onces.size() : 0
                 );
             case VT_NATIVE:
                 return std::format(
                     "native: {:x}",
-                    std::bit_cast<uintptr_t>(data.native)
+                    std::bit_cast<uintptr_t>(native)
                 );
             }
             return "unknown";
