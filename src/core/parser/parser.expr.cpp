@@ -104,7 +104,7 @@ namespace rei
             argc++;
             if (argc > REI_FUNC_UPVALUE_COUNT_MAX)
                 reporterError_(std::format("调用表达式传参数量超过最大值 {}", REI_FUNC_UPVALUE_COUNT_MAX));
-            if (match_({TK_COMMA}))
+            if (match_(TK_COMMA))
                 continue;
             break;
         }
@@ -132,7 +132,7 @@ namespace rei
     void Parser::varExpr_()
     {
         Token::Unit& vu = prev_();
-        if (match_({TK_ASSIGN}))
+        if (match_(TK_ASSIGN))
         {
             expression_();
             Value::Coord varc = env_->toCoord(std::string{vu.lexeme});
@@ -156,7 +156,7 @@ namespace rei
             }
             emitB_(varc.slot);
         }
-        else if (match_({TK_WALRUS}))
+        else if (match_(TK_WALRUS))
         {
             Value::Coord varc = env_->def(std::string{vu.lexeme});
             if (varc.slot == REI_BYTECODE_NULL)

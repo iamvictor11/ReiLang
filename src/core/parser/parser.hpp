@@ -69,7 +69,8 @@ namespace rei
     private:
         void statement_();
         void exprStmt_();
-        void _blockStmt();
+        void blockStmt_();
+        void bodyStmt_(Token::Type beg, Token::Type end, const std::string& message);
         void ifStmt_();
         void loopStmt_();
         void breakStmt_();
@@ -90,6 +91,7 @@ namespace rei
         Token::Unit& peek_();
         bool check_(Token::Type type);
         bool check_(std::initializer_list<Token::Type> types);
+        bool match_(Token::Type type);
         bool match_(std::initializer_list<Token::Type> types);
         void consume_(Token::Type type, const std::string& message);
     private:

@@ -5,21 +5,21 @@ namespace rei
     using namespace Token;
     void Parser::statement_()
     {
-        if (match_({TK_LBRACE}))
-            _blockStmt();
-        else if (match_({TK_IF}))
+        if (match_(TK_LBRACE))
+            blockStmt_();
+        else if (match_(TK_IF))
             ifStmt_();
         else if (match_({TK_LOOP, TK_UNTIL}))
             loopStmt_();
-        else if (match_({TK_BREAK}))
+        else if (match_(TK_BREAK))
             breakStmt_();
-        else if (match_({TK_CONTINUE}))
+        else if (match_(TK_CONTINUE))
             continueStmt_();
-        else if (match_({TK_RETURN}))
+        else if (match_(TK_RETURN))
             returnStmt_();
         else if (match_({TK_PRINT, TK_PRINTLN}))
             printStmt_();
-        else if (match_({TK_SEMICOLON}))
+        else if (match_(TK_SEMICOLON))
         {
         }
         else
@@ -33,7 +33,7 @@ namespace rei
         consume_(TK_SEMICOLON, "表达式语句期望以';'结束");
         emitB_(OP_POP);
     }
-    void Parser::_blockStmt()
+    void Parser::blockStmt_()
     {
         env_->enter();
         emitB_(OP_BEG);
@@ -43,6 +43,19 @@ namespace rei
         env_->exit();
         emitB_(OP_END);
     }
+    void Parser::bodyStmt_(Token::Type beg, Token::Type end, const std::string& message)
+    {
+        if (match_(beg))
+        {
+            while (!check_(end) && !isAtEnd_())
+                declaration_();
+            consume_(end, message);
+        }
+        else
+        {
+            statement_();
+        }
+    }
     void Parser::ifStmt_()
     {
         expression_();
@@ -51,10 +64,10 @@ namespace rei
         emitB_(0);
         env_->enter();
         emitB_(OP_BEG);
-        statement_();
+        bodyStmt_(TK_THEN, TK_END, "条件体需要 end 封闭");
         env_->exit();
         emitB_(OP_END);
-        if (match_({TK_ELSE}))
+        if (match_(TK_ELSE))
         {
             Bytecode else_jump_pos = chunk_->codes.size();
             emitB_(OP_JUMP);
@@ -62,12 +75,12 @@ namespace rei
             patchB_(if_jump_pos + 1, chunk_->codes.size() - (if_jump_pos + 2));
             env_->enter();
             emitB_(OP_BEG);
-            statement_();
+            bodyStmt_(TK_THEN, TK_END, "条件体需要 end 封闭");
             env_->exit();
             emitB_(OP_END);
             patchB_(else_jump_pos + 1, chunk_->codes.size() - (else_jump_pos + 2));
         }
-        else if (match_({TK_ELIF}))
+        else if (match_(TK_ELIF))
         {
             Bytecode else_jump_pos = chunk_->codes.size();
             emitB_(OP_JUMP);
@@ -94,7 +107,7 @@ namespace rei
         loop_ctx.depth = env_->currLocalDepth();
         env_->enter();
         emitB_(OP_BEG);
-        statement_();
+        bodyStmt_(TK_DO, TK_END, "循环体需要 end 封闭");
         env_->exit();
         emitB_(OP_END);
         emitB_(OP_JUMP);
@@ -113,7 +126,7 @@ namespace rei
             return;
         }
         Integer level = 1;
-        if (match_({TK_LIT_INT}))
+        if (match_(TK_LIT_INT))
             level = prev_().literal.toInteger();
         if (level <= 0 || level > loop_ctxs_.size())
         {
@@ -138,7 +151,7 @@ namespace rei
             return;
         }
         Integer level = 1;
-        if (match_({TK_LIT_INT}))
+        if (match_(TK_LIT_INT))
             level = prev_().literal.toInteger();
         if (level <= 0 || level > loop_ctxs_.size())
         {
@@ -162,7 +175,7 @@ namespace rei
             return;
         }
         auto& func_ctx = func_ctxs_.back();
-        if (match_({TK_COLON}))
+        if (match_(TK_COLON))
             expression_();
         else
             emitB_(OP_NIL);

@@ -1,27 +1,10 @@
-echo "-- func 1 --";
-func A()
-{
-    var a = 1;
-    echo a;
-}
-func B()
-{
-    a := 2;
-    A();
-}
-func C(a)
-{
-    print a + ",";
-    a -= 1;
-    if (a == 0)
-        return;
-    C(a);
-}
-{
-var a = 3;
-{
-var a = 4;
-B();
-}
-}
-C(5);
+start_time := clock("ms");
+sum := 0;
+i := 0;
+loop i < 1'0000'0000
+do
+    sum += i;
+    i += 1;
+end
+end_time := clock();
+echo "执行时间 " + (end_time - start_time) + " ms.";

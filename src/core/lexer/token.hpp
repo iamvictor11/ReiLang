@@ -102,6 +102,10 @@ namespace rei::Token
         TK_PRINT,       // print
         TK_PRINTLN,     // println
         /* 区域 */
+        TK_THEN,     // then
+        TK_DO,       // do
+        TK_BEG,      // beg
+        TK_END,      // end
         TK_LPAREN,   // (
         TK_RPAREN,   // )
         TK_LBRACKET, // [

@@ -57,16 +57,15 @@ namespace rei::Token
                 {"del", TK_DEL},
                 {"print", TK_PRINT},
                 {"println", TK_PRINTLN},
+                
+                {"then", TK_THEN},
+                {"do", TK_DO},
+                {"beg", TK_BEG},
+                {"end", TK_END},
 
                 {"when", TK_IF},
                 {"while", TK_LOOP},
                 {"echo", TK_PRINTLN},
-
-                {"do", TK_LBRACE},
-                {"beg", TK_LBRACE},
-                {"then", TK_LBRACE},
-                {"end", TK_RBRACE},
-                {"done", TK_RBRACE},
 
                 {"pass", TK_SEMICOLON}
             });
@@ -194,6 +193,10 @@ namespace rei::Token
         REI_TOKEN_X(PRINT, "print") \
         REI_TOKEN_X(PRINTLN, "println") \
         /* 区域 */ \
+        REI_TOKEN_X(THEN, "then") \
+        REI_TOKEN_X(DO, "do") \
+        REI_TOKEN_X(BEG, "beg") \
+        REI_TOKEN_X(END, "end") \
         REI_TOKEN_X(LPAREN, "(") \
         REI_TOKEN_X(RPAREN, ")") \
         REI_TOKEN_X(LBRACKET, "[") \

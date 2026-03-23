@@ -101,6 +101,10 @@ namespace rei
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 区域 */
+        [TK_THEN]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_DO]        = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_BEG]       = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_END]       = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LPAREN]    = {&Parser::groupingExpr_, nullptr, &Parser::callExpr_, PREC_CALL, 1},
         [TK_RPAREN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
@@ -208,19 +212,22 @@ namespace rei
                 return true;
         return false;
     }
+    bool Parser::match_(Token::Type type)
+    {
+        if (!check_(type)) return false;
+        pass_();
+        return true;
+    }
     bool Parser::match_(std::initializer_list<Token::Type> types)
     {
         if (!check_(types)) return false;
-        advance_();
+        pass_();
         return true;
     }
     void Parser::consume_(Token::Type type, const std::string& message)
     {
-        if (check_(type))
-        {
-            pass_();
+        if (match_(type))
             return;
-        }
     #ifdef REI_OMIT_SEMICOLON_ENABLE
         if (type == TK_SEMICOLON)
             return;
