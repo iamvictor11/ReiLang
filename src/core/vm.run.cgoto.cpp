@@ -1,5 +1,5 @@
 #include "rei/config.hpp"
-#if defined(REI_COMPUTED_GOTO_OPT) && defined(__GNUC__) && !defined(__clang__)
+#if REI_COMPUTED_GOTO_OPT == 1 && defined(__GNUC__) && !defined(__clang__)
 #include "vm.hpp"
 #include "vm.expr.hpp"
 #include <iostream>
@@ -9,7 +9,7 @@ namespace rei
 {
     void VM::run()
     {
-    #ifdef REI_DEBUG_ENABLE
+    #if REI_DEBUG_ENABLE == 1
         std::cout << "\033[1m\033[38;2;255;105;180m运行结果：\033[0m" << std::endl; 
     #endif
         if (!error_reporter_.empty()) return;
@@ -69,7 +69,6 @@ namespace rei
         Value::Data tempVal, tempL, tempR;
         Bytecode tempB0, tempB1, tempB3;
         Value::Data callee;
-        Native native;
         Bytecode offset, argc;
         REI_DISPATCH;
         REI_LABEL(OP_CONSTANT):
@@ -280,7 +279,7 @@ namespace rei
             }
             case Value::VT_NATIVE:
             {
-                native = callee.asNative();
+                auto native = callee.asNative();
                 Value::Data* argv = argc == 0 ? nullptr : &stack_[stack_.size() - argc];
                 Value::Data result = native(argc, argv);
                 for (size_t i = 0; i < argc + 1; i++)
@@ -310,7 +309,7 @@ namespace rei
         #undef REI_LABEL
         #undef REI_DISPATCH
         #undef REI_IP
-    #ifdef REI_DEBUG_ENABLE
+    #if REI_DEBUG_ENABLE == 1
         std::cout << std::endl;
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;

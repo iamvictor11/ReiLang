@@ -1,5 +1,5 @@
 #include "rei/config.hpp"
-#if !(defined(REI_COMPUTED_GOTO_OPT) && defined(__GNUC__) && !defined(__clang__))
+#if !(REI_COMPUTED_GOTO_OPT == 1 && defined(__GNUC__) && !defined(__clang__))
 #include "vm.hpp"
 #include "vm.expr.hpp"
 #include <iostream>
@@ -9,7 +9,7 @@ namespace rei
 {
     void VM::run()
     {
-    #ifdef REI_DEBUG_ENABLE
+    #if REI_DEBUG_ENABLE == 1
         std::cout << "\033[1m\033[38;2;255;105;180m运行结果：\033[0m" << std::endl; 
     #endif
         if (!error_reporter_.empty()) return;
@@ -162,49 +162,19 @@ namespace rei
                 {
                     Bytecode argc = readByte_();
                     Value::Data callee = peek_(argc);
-                    if (callee.isFunction())
+                    switch (callee.tag)
+                    {
+                    case Value::VT_FUNCTION:
                     {
                         auto func_ref = callee.asFunction();
                         auto& call_frame = frames_.emplace_back(func_ref, ip_);
                         ip_ = func_ref->chunk.codes.data();
-                        call_frame.save_ip = ip_;
-                        ip_ = func_ref->chunk.codes.data();
                         env_r_.enter();
                         if (argc > func_ref->argc)
                         {
-                            for (size_t upi = 1; upi <= argc; upi++)
-                            {
-                                if (upi <= func_ref->argc)
-                                    env_r_.defLocal(peek_(argc - upi));
-                                else
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            Bytecode loop_count = func_ref->argc;
-                            for (size_t upi = 1; upi <= loop_count; upi++)
-                            {
-                                if (upi <= argc)
-                                    env_r_.defLocal(peek_(argc - upi));
-                                else
-                                    env_r_.defLocal(Nil{});
-                            }
-                        }
-                        for (size_t argi = 0; argi < argc+1; argi++)
-                            pop_();
-                    }
-                    else if (callee.isClosure())
-                    {
-                        auto clos_ref = callee.asClosure();
-                        auto& call_frame = frames_.emplace_back(clos_ref, ip_);
-                        ip_ = clos_ref->func.chunk.codes.data();
-                        env_r_.enter();
-                        if (argc > clos_ref->func.argc)
-                        {
                             for (size_t argi = 1; argi <= argc; argi++)
                             {
-                                if (argi <= clos_ref->func.argc)
+                                if (argi <= func_ref->argc)
                                     env_r_.defLocal(peek_(argc - argi));
                                 else
                                     break;
@@ -212,7 +182,7 @@ namespace rei
                         }
                         else
                         {
-                            Bytecode loop_count = clos_ref->func.argc;
+                            Bytecode loop_count = func_ref->argc;
                             for (size_t argi = 1; argi <= loop_count; argi++)
                             {
                                 if (argi <= argc)
@@ -223,8 +193,9 @@ namespace rei
                         }
                         for (size_t argi = 0; argi < argc + 1; argi++)
                             pop_();
+                        break;
                     }
-                    else if (callee.isNative())
+                    case Value::VT_NATIVE:
                     {
                         auto native = callee.asNative();
                         Value::Data* argv = argc == 0 ? nullptr : &stack_[stack_.size() - argc];
@@ -232,12 +203,15 @@ namespace rei
                         for (size_t i = 0; i < argc + 1; i++)
                             pop_();
                         push_(result);
+                        break;
                     }
-                    else
+                    default:
                     {
                         error_reporter_.report(std::format("尝试调用非函数对象 {}", Value::dump(callee)), {0, 0});
                         for (size_t argi = 0; argi < argc; argi++)
                             pop_();
+                        break;
+                    }
                     }
                     break;
                 }
@@ -255,7 +229,7 @@ namespace rei
                 default: break;
             }
         }
-    #ifdef REI_DEBUG_ENABLE
+    #if REI_DEBUG_ENABLE == 1
         std::cout << std::endl;
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;

@@ -228,7 +228,7 @@ namespace rei
     {
         if (match_(type))
             return;
-    #ifdef REI_OMIT_SEMICOLON_ENABLE
+    #if REI_OMIT_SEMICOLON_ENABLE == 1
         if (type == TK_SEMICOLON)
             return;
     #endif
