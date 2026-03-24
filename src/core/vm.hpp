@@ -44,8 +44,8 @@ namespace rei
     private:
         void push_(Value::Data value);
         Value::Data pop_();
-        Value::Data peek_();
-        Value::Data peek_(int distance);
+        Value::Data& peek_();
+        Value::Data& peek_(int distance);
     public:
         bool hasError();
         Error::Msg popError();

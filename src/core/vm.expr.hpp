@@ -5,9 +5,9 @@
 
 namespace rei
 {
-    static Value::Data _dispatchUnary(const Value::Data& v, Opcode op);
-    static Value::Data _dispatchBinary(const Value::Data& l, const Value::Data& r, Opcode op);
-    static Value::Data _dispatchUnary(const Value::Data& v, Opcode op)
+    static Value::Data dispatchUnary_(const Value::Data& v, Opcode op);
+    static Value::Data dispatchBinary_(const Value::Data& l, const Value::Data& r, Opcode op);
+    static Value::Data dispatchUnary_(const Value::Data& v, Opcode op)
     {
         using namespace Value;
         switch (v.tag)
@@ -61,7 +61,7 @@ namespace rei
             return Nil{};
         }
     }
-    static Value::Data _dispatchBinary(const Value::Data& a, const Value::Data& b, Opcode op)
+    static Value::Data dispatchBinary_(const Value::Data& a, const Value::Data& b, Opcode op)
     {
         using namespace Value;
         if ((a.tag == VT_NIL || a.tag == VT_INTEGER) && (b.tag == VT_NIL || b.tag == VT_INTEGER))
@@ -127,15 +127,15 @@ namespace rei
                 return String(a.toString() + b.toString());
             return Nil{};
         }
-        if (a.isFunction() && b.isNumber())
+        if (!a.isNumber() && b.isNumber())
         {
             Integer l = a.toInteger();
-            return _dispatchBinary(Integer(l), b, op);
+            return dispatchBinary_(Integer(l), b, op);
         }
-        if (a.isNumber() && b.isFunction())
+        if (a.isNumber() && !b.isNumber())
         {
             Integer r = b.toInteger();
-            return _dispatchBinary(a, Integer(r), op);
+            return dispatchBinary_(a, Integer(r), op);
         }
         return Nil{};
     }

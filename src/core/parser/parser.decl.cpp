@@ -29,10 +29,10 @@ namespace rei
         switch (varc.lifetime)
         {
         case Value::VLT_GLOBAL:
-            emitB_(OP_DEF_GLOBAL);
+            emitB_(OP_GLOBAL_DEF);
             break;
         case Value::VLT_LOCAL:
-            emitB_(OP_DEF_LOCAL);
+            emitB_(OP_LOCAL_DEF);
             break;
         }
         emitB_(OP_POP);
@@ -131,10 +131,10 @@ namespace rei
         switch (fc.lifetime)
         {
         case Value::VLT_GLOBAL:
-            emitB_(OP_DEF_GLOBAL);
+            emitB_(OP_GLOBAL_DEF);
             break;
         case Value::VLT_LOCAL:
-            emitB_(OP_DEF_LOCAL);
+            emitB_(OP_LOCAL_DEF);
             break;
         }
         emitB_(OP_POP);

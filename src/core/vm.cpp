@@ -110,11 +110,11 @@ namespace rei
         stack_.pop_back();
         return value;
     }
-    Value::Data VM::peek_()
+    Value::Data& VM::peek_()
     {
         return stack_.back();
     }
-    Value::Data VM::peek_(int distance)
+    Value::Data& VM::peek_(int distance)
     {
         return stack_[stack_.size() -1 - distance];
     }

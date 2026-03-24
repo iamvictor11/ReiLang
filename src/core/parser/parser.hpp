@@ -73,6 +73,7 @@ namespace rei
         void varDef_(const std::string& name);
         void varGet_(const std::string& name);
         void varSet_(const std::string& name);
+        void varSSet_(const std::string& name);
     private:
         void statement_();
         void exprStmt_();

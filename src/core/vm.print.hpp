@@ -39,6 +39,9 @@ namespace rei
                 case OP_POP:
                     printf("%-12s\n", "POP");
                     break;
+                case OP_KEEP:
+                    printf("%-12s\n", "KEEP");
+                    break;
                 case OP_NIL:
                     printf("%-12s\n", "NIL");
                     break;
@@ -141,64 +144,89 @@ namespace rei
                     i++;
                     printf("%-12s\033[1m\033[32m%04d\033[0m\n", "JMPF", chunk.codes[i]);
                     break;
-                case OP_GET_HOST:
+                case OP_HOST_GET:
                 {
                     i++; size_t ca = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "GET HOST", ca);
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "HOST GET", ca);
                     break;
                 }
-                case OP_SET_HOST:
+                case OP_HOST_SET:
                 {
                     i++; size_t ca = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "SET HOST", ca);
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "HOST SET", ca);
                     break;
                 }
-                case OP_DEF_GLOBAL:
-                {
-                    printf("%-12s\n", "DEF GLOBAL");
-                    break;
-                }
-                case OP_GET_GLOBAL:
+                case OP_HOST_SSET:
                 {
                     i++; size_t ca = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "GET GLOBAL", ca);
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "HOST SSET", ca);
                     break;
                 }
-                case OP_SET_GLOBAL:
+                case OP_GLOBAL_DEF:
+                {
+                    printf("%-12s\n", "GLOBAL DEF");
+                    break;
+                }
+                case OP_GLOBAL_GET:
                 {
                     i++; size_t ca = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "SET GLOBAL", ca);
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "GLOBAL GET", ca);
                     break;
                 }
-                case OP_DEF_LOCAL:
+                case OP_GLOBAL_SET:
                 {
-                    printf("%-12s\n", "DEF LOCAL");
+                    i++; size_t ca = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "GLOBAL SET", ca);
                     break;
                 }
-                case OP_GET_LOCAL:
+                case OP_GLOBAL_SSET:
+                {
+                    i++; size_t ca = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "GLOBAL SSET", ca);
+                    break;
+                }
+                case OP_LOCAL_DEF:
+                {
+                    printf("%-12s\n", "LOCAL DEF");
+                    break;
+                }
+                case OP_LOCAL_GET:
                 {
                     i++; size_t ca = chunk.codes[i];
                     i++; size_t cb = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu,%04zu\033[0m\n", "GET LOCAL", ca, cb);
+                    printf("%-12s\033[1m\033[32m%04zu,%04zu\033[0m\n", "LOCAL GET", ca, cb);
                     break;
                 }
-                case OP_SET_LOCAL:
+                case OP_LOCAL_SET:
                 {
                     i++; size_t ca = chunk.codes[i];
                     i++; size_t cb = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu,%04zu\033[0m\n", "SET LOCAL", ca, cb);
+                    printf("%-12s\033[1m\033[32m%04zu,%04zu\033[0m\n", "LOCAL SET", ca, cb);
                     break;
                 }
-                case OP_GET_ONCE:
+                case OP_LOCAL_SSET:
                 {
                     i++; size_t ca = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "GET ONCE", ca);
+                    i++; size_t cb = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu,%04zu\033[0m\n", "LOCAL SSET", ca, cb);
                     break;
                 }
-                case OP_SET_ONCE:
+                case OP_ONCE_GET:
                 {
                     i++; size_t ca = chunk.codes[i];
-                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "SET ONCE", ca);
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "ONCE GET", ca);
+                    break;
+                }
+                case OP_ONCE_SET:
+                {
+                    i++; size_t ca = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "ONCE SET", ca);
+                    break;
+                }
+                case OP_ONCE_SSET:
+                {
+                    i++; size_t ca = chunk.codes[i];
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "ONCE SSET", ca);
                     break;
                 }
                 case OP_CALL:
@@ -208,9 +236,14 @@ namespace rei
                 case OP_RETURN:
                     printf("%-12s\n", "RETURN");
                     break;
-                case OP_INDEX:
-                    i++;
-                    printf("%-12s\033[1m\033[32m%04d\033[0m\n", "INDEX", chunk.codes[i]);
+                case OP_INDEX_GET:
+                    printf("%-12s\n", "INDEX GET");
+                    break;
+                case OP_INDEX_SET:
+                    printf("%-12s\n", "INDEX SET");
+                    break;
+                case OP_INDEX_SSET:
+                    printf("%-12s\n", "INDEX SSET");
                     break;
                 case OP_HALT:
                     printf("%-12s\n", "HALT");

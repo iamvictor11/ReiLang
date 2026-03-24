@@ -20,6 +20,7 @@ namespace rei
             &&REI_LABEL(OP_CONSTANT),
             &&REI_LABEL(OP_CLONE),
             &&REI_LABEL(OP_POP),
+            &&REI_LABEL(OP_KEEP),
             &&REI_LABEL(OP_NIL),
             &&REI_LABEL(OP_TRUE),
             &&REI_LABEL(OP_FALSE),
@@ -54,19 +55,25 @@ namespace rei
             &&REI_LABEL(OP_JUMP),
             &&REI_LABEL(OP_JMPT),
             &&REI_LABEL(OP_JMPF),
-            &&REI_LABEL(OP_GET_HOST),
-            &&REI_LABEL(OP_SET_HOST),
-            &&REI_LABEL(OP_DEF_GLOBAL),
-            &&REI_LABEL(OP_GET_GLOBAL),
-            &&REI_LABEL(OP_SET_GLOBAL),
-            &&REI_LABEL(OP_DEF_LOCAL),
-            &&REI_LABEL(OP_GET_LOCAL),
-            &&REI_LABEL(OP_SET_LOCAL),
-            &&REI_LABEL(OP_GET_ONCE),
-            &&REI_LABEL(OP_SET_ONCE),
+            &&REI_LABEL(OP_HOST_GET),
+            &&REI_LABEL(OP_HOST_SET),
+            &&REI_LABEL(OP_HOST_SSET),
+            &&REI_LABEL(OP_GLOBAL_DEF),
+            &&REI_LABEL(OP_GLOBAL_GET),
+            &&REI_LABEL(OP_GLOBAL_SET),
+            &&REI_LABEL(OP_GLOBAL_SSET),
+            &&REI_LABEL(OP_LOCAL_DEF),
+            &&REI_LABEL(OP_LOCAL_GET),
+            &&REI_LABEL(OP_LOCAL_SET),
+            &&REI_LABEL(OP_LOCAL_SSET),
+            &&REI_LABEL(OP_ONCE_GET),
+            &&REI_LABEL(OP_ONCE_SET),
+            &&REI_LABEL(OP_ONCE_SSET),
             &&REI_LABEL(OP_CALL),
             &&REI_LABEL(OP_RETURN),
-            &&REI_LABEL(OP_INDEX),
+            &&REI_LABEL(OP_INDEX_GET),
+            &&REI_LABEL(OP_INDEX_SET),
+            &&REI_LABEL(OP_INDEX_SSET),
             &&REI_LABEL(OP_HALT)
         };
         #define REI_DISPATCH goto *dispatch_table[readByte_()]
@@ -85,6 +92,11 @@ namespace rei
         REI_LABEL(OP_POP):
         {
             pop_();
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_KEEP):
+        {
+            push_(static_cast<Integer>(readByte_()));
             REI_DISPATCH;
         }
         REI_LABEL(OP_NIL):
@@ -108,7 +120,7 @@ namespace rei
         {
         {
             Value::Data tempVal = pop_();
-            push_(_dispatchUnary(tempVal, static_cast<Opcode>(REI_IP)));
+            push_(dispatchUnary_(tempVal, static_cast<Opcode>(REI_IP)));
         }
             REI_DISPATCH;
         }
@@ -134,7 +146,7 @@ namespace rei
         {
             Value::Data tempR = pop_();
             Value::Data tempL = pop_();
-            push_(_dispatchBinary(tempL, tempR, static_cast<Opcode>(REI_IP)));
+            push_(dispatchBinary_(tempL, tempR, static_cast<Opcode>(REI_IP)));
         }
             REI_DISPATCH;
         }
@@ -227,62 +239,106 @@ namespace rei
         }
             REI_DISPATCH;
         }
-        REI_LABEL(OP_GET_HOST):
+        REI_LABEL(OP_HOST_GET):
         {
             push_(env_r_.getHost(readByte_()));
             REI_DISPATCH;
         }
-        REI_LABEL(OP_SET_HOST):
+        REI_LABEL(OP_HOST_SET):
         {
             env_r_.setHost(readByte_(), peek_());
             REI_DISPATCH;
         }
-        REI_LABEL(OP_DEF_GLOBAL):
+        REI_LABEL(OP_HOST_SSET):
+        {
+        {
+            Bytecode slot = readByte_();
+            auto op = static_cast<Opcode>(pop_().asInteger());
+            auto value = dispatchBinary_(env_r_.getHost(slot), pop_(), op);
+            env_r_.setHost(slot, value);
+            push_(value);
+        }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_GLOBAL_DEF):
         {
             env_r_.defGlobal(peek_());
             REI_DISPATCH;
         }
-        REI_LABEL(OP_GET_GLOBAL):
+        REI_LABEL(OP_GLOBAL_GET):
         {
             push_(env_r_.getGlobal(readByte_()));
             REI_DISPATCH;
         }
-        REI_LABEL(OP_SET_GLOBAL):
+        REI_LABEL(OP_GLOBAL_SET):
         {
             env_r_.setGlobal(readByte_(), peek_());
             REI_DISPATCH;
         }
-        REI_LABEL(OP_DEF_LOCAL):
+        REI_LABEL(OP_GLOBAL_SSET):
+        {
+        {
+            Bytecode slot = readByte_();
+            auto op = static_cast<Opcode>(pop_().asInteger());
+            auto value = dispatchBinary_(env_r_.getGlobal(slot), pop_(), op);
+            env_r_.setGlobal(slot, value);
+            push_(value);
+        }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_LOCAL_DEF):
         {
             env_r_.defLocal(peek_());
             REI_DISPATCH;
         }
-        REI_LABEL(OP_GET_LOCAL):
+        REI_LABEL(OP_LOCAL_GET):
         {
         {
-            Bytecode tempB0 = readByte_();
-            Bytecode tempB1 = readByte_();
-            push_(env_r_.getLocal(tempB0, tempB1));
+            Bytecode uplevel = readByte_();
+            Bytecode slot = readByte_();
+            push_(env_r_.getLocal(uplevel, slot));
         }
             REI_DISPATCH;
         }
-        REI_LABEL(OP_SET_LOCAL):
+        REI_LABEL(OP_LOCAL_SET):
         {
         {
-            Bytecode tempB0 = readByte_();
-            Bytecode tempB1 = readByte_();
-            env_r_.setLocal(tempB0, tempB1, peek_());
+            Bytecode uplevel = readByte_();
+            Bytecode slot = readByte_();
+            env_r_.setLocal(uplevel, slot, peek_());
         }
             REI_DISPATCH;
         }
-        REI_LABEL(OP_GET_ONCE):
+        REI_LABEL(OP_LOCAL_SSET):
+        {
+        {
+            Bytecode uplevel = readByte_();
+            Bytecode slot = readByte_();
+            auto op = static_cast<Opcode>(pop_().asInteger());
+            auto value = dispatchBinary_(env_r_.getLocal(uplevel, slot), pop_(), op);
+            env_r_.setLocal(uplevel, slot, value);
+            push_(value);
+        }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_ONCE_GET):
         {
             push_(frames_.back().func_ref->onces[readByte_()]);
             REI_DISPATCH;
         }
-        REI_LABEL(OP_SET_ONCE):
+        REI_LABEL(OP_ONCE_SET):
         {
             frames_.back().func_ref->onces[readByte_()] = peek_();
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_ONCE_SSET):
+        {
+        {
+            Value::Data& target = frames_.back().func_ref->onces[readByte_()];
+            auto op = static_cast<Opcode>(pop_().asInteger());
+            target = dispatchBinary_(target, pop_(), op);
+            push_(target);
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_CALL):
@@ -354,10 +410,10 @@ namespace rei
         }
             REI_DISPATCH;
         }
-        REI_LABEL(OP_INDEX):
+        REI_LABEL(OP_INDEX_GET):
         {
         {
-            Integer index = pop_().toInteger();
+            Integer index = pop_().asInteger();
             auto indexee = pop_();
             switch (indexee.tag)
             {
@@ -372,7 +428,62 @@ namespace rei
             }
             default:
             {
-                error_reporter_.report(std::format("尝试调用非可索引对象 {}", indexee.dump()), {0, 0});
+                error_reporter_.report(std::format("尝试索引非可索引对象 {}", indexee.dump()), {0, 0});
+                break;
+            }
+            }
+        }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_INDEX_SET):
+        {
+        {
+            auto value = pop_();
+            Integer index = pop_().toInteger();
+            auto indexee = pop_();
+            switch (indexee.tag)
+            {
+            case Value::VT_ARRAY:
+            {
+                auto array_ref = indexee.array;
+                if (index < array_ref->size)
+                    array_ref->data[index] = value;
+                break;
+            }
+            default:
+            {
+                error_reporter_.report(std::format("尝试索引非可索引对象 {}", indexee.dump()), {0, 0});
+                break;
+            }
+            }
+            push_(value);
+        }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_INDEX_SSET):
+        {
+        {
+            auto op = static_cast<Opcode>(pop_().toInteger());
+            auto value = pop_();
+            Integer index = pop_().toInteger();
+            auto indexee = pop_();
+            switch (indexee.tag)
+            {
+            case Value::VT_ARRAY:
+            {
+                auto array_ref = indexee.array;
+                if (index < array_ref->size)
+                {
+                    auto& target = array_ref->data[index];
+                    target = dispatchBinary_(target, value, op);
+                    push_(target);
+                }
+                break;
+            }
+            default:
+            {
+                error_reporter_.report(std::format("尝试索引非可索引对象 {}", indexee.dump()), {0, 0});
+                push_(value);
                 break;
             }
             }
