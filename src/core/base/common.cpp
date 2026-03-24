@@ -17,6 +17,7 @@ namespace rei
             case VT_FLOAT:      return f != 0.0;
             case VT_STRING:     return str && !str->empty();
             case VT_FUNCTION:   return func != nullptr;
+            case VT_ARRAY:      return array != nullptr;
             case VT_NATIVE:     return native != nullptr;
             }
             return false;
@@ -45,6 +46,7 @@ namespace rei
                 return 0;
             }
             case VT_FUNCTION:   return static_cast<Integer>(std::bit_cast<uintptr_t>(func.get()));
+            case VT_ARRAY:      return static_cast<Integer>(std::bit_cast<uintptr_t>(array.get()));
             case VT_NATIVE:     return static_cast<Integer>(std::bit_cast<uintptr_t>(native));
             }
             return 0;
@@ -73,6 +75,7 @@ namespace rei
                 return 0.0;
             }
             case VT_FUNCTION:   return static_cast<Float>(std::bit_cast<uintptr_t>(func.get()));
+            case VT_ARRAY:      return static_cast<Float>(std::bit_cast<uintptr_t>(array.get()));
             case VT_NATIVE:     return static_cast<Float>(std::bit_cast<uintptr_t>(native));
             }
             return 0.0;
@@ -92,6 +95,11 @@ namespace rei
                     func ? func->argc : 0,
                     func ? func->onces.size() : 0
                 );
+            case VT_ARRAY:
+                return std::format(
+                    "array: size {}",
+                    array ? array->size : 0
+                );
             case VT_NATIVE:
                 return std::format(
                     "native: {:x}",
@@ -107,11 +115,15 @@ namespace rei
             case VT_STRING:
                 if (str)
                     return Data(std::make_shared<String>(*str));
-                return Data();
+                return Nil{};
             case VT_FUNCTION:
                 if (func)
                     return Data(func->clone());
-                return Data();
+                return Nil{};
+            case VT_ARRAY:
+                if (array)
+                    return Data(array->clone());
+                return Nil{};
             default:
                 return Data(*this);
             }
@@ -131,6 +143,11 @@ namespace rei
                     std::bit_cast<uintptr_t>(func.get()),
                     func ? func->argc : 0,
                     func ? func->onces.size() : 0
+                );
+            case VT_ARRAY:
+                return std::format(
+                    "array: size {}",
+                    array ? array->size : 0
                 );
             case VT_NATIVE:
                 return std::format(
@@ -166,6 +183,15 @@ Ref<Function> Function::clone() const
     cloned->onces.reserve(onces.size());
     for (const auto& value : onces)
         cloned->onces.push_back(value.clone());
+    return cloned;
+}
+#pragma endregion
+#pragma region Array
+Ref<Array> Array::clone() const
+{
+    auto cloned = std::make_shared<Array>(size);
+    for (size_t i = 0; i < size; i++)
+        cloned->data[i] = data[i].clone();
     return cloned;
 }
 #pragma endregion

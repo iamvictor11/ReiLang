@@ -38,9 +38,8 @@ namespace rei
     using Integer = int64_t;
     using Float = double;
     using String = std::string;
-    using Array = std::vector<struct Value::Data>;
-    using Map = std::unordered_map<String, struct Value::Data>;
     struct Function;
+    struct Array;
     using Native = Value::Data(*)(REI_BYTECODE_TYPE argc, Value::Data argv[]);
 
     namespace Value
@@ -53,6 +52,7 @@ namespace rei
             VT_FLOAT,
             VT_STRING,
             VT_FUNCTION,
+            VT_ARRAY,
             VT_NATIVE
         };
         struct Data final
@@ -66,6 +66,7 @@ namespace rei
                 Float f;
                 Ref<String> str;
                 Ref<Function> func;
+                Ref<Array> array;
                 Native native;
             };
         public:
@@ -76,7 +77,8 @@ namespace rei
             Data(const Ref<String>& s)  : tag(VT_STRING), str(s) {}
             Data(const std::string& s)  : tag(VT_STRING), str(std::make_shared<String>(s)) {}
             Data(const char* s)         : tag(VT_STRING), str(std::make_shared<String>(s)) {}
-            Data(const Ref<Function>& f)    : tag(VT_FUNCTION), func(f) {}
+            Data(const Ref<Function>& f) : tag(VT_FUNCTION), func(f) {}
+            Data(const Ref<Array>& a)    : tag(VT_ARRAY), array(a) {}
             Data(Native n) : tag(VT_NATIVE), native(n) {}
             Data(const Data& other) : tag(other.tag)
             {
@@ -84,6 +86,7 @@ namespace rei
                 {
                 case VT_STRING:     new (&str) Ref<String>(other.str); break;
                 case VT_FUNCTION:   new (&func) Ref<Function>(other.func); break;
+                case VT_ARRAY:      new (&func) Ref<Array>(other.array); break;
                 default:            std::memcpy(this, &other, sizeof(Data)); break;
                 }
             }
@@ -98,8 +101,9 @@ namespace rei
             {
                 switch (tag)
                 {
-                case VT_STRING:   str.~shared_ptr(); break;
-                case VT_FUNCTION: func.~shared_ptr(); break;
+                case VT_STRING:     str.~shared_ptr(); break;
+                case VT_FUNCTION:   func.~shared_ptr(); break;
+                case VT_ARRAY:      array.~shared_ptr(); break;
                 default: break;
                 }
             }
@@ -110,6 +114,7 @@ namespace rei
             bool isNumber() const { return tag == VT_INTEGER || tag == VT_FLOAT || tag == VT_BOOLEAN; }
             bool isString() const { return tag == VT_STRING; }
             bool isFunction() const { return tag == VT_FUNCTION; }
+            bool isArray() const { return tag == VT_ARRAY; }
             bool isNative() const { return tag == VT_NATIVE; }
         public:
             Boolean asBoolean() const { return b; }
@@ -117,6 +122,7 @@ namespace rei
             Float asFloat() const { return f; }
             const String& asString() const { return *(str.get()); }
             Ref<Function> asFunction() const { return func; }
+            Ref<Array> asArray() const { return array; }
             Native asNative() const { return native; }
         public:
             Boolean toBoolean() const;
@@ -148,5 +154,17 @@ namespace rei
         std::vector<Value::Data> onces;
     public:
         Ref<Function> clone() const;
+    };
+    struct Array final : public std::enable_shared_from_this<Array>
+    {
+    public:
+        const size_t size;
+        const Uno<Value::Data[]> data;
+    public:
+        Array(size_t n) : size(n), data(std::make_unique<Value::Data[]>(n)) {}
+        Array(const Array&) = delete;
+        Array& operator=(const Array&) = delete;
+    public:
+        Ref<Array> clone() const;
     };
 }

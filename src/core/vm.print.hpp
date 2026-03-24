@@ -113,6 +113,10 @@ namespace rei
                     i++;
                     printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "OR", chunk.codes[i]);
                     break;
+                case OP_INIT_ARRAY:
+                    i++;
+                    printf("%-12s\033[1m\033[32m%04zu\033[0m\n", "INIT ARRAY", chunk.codes[i]);
+                    break;
                 case OP_ENTER:
                     printf("%-12s\n", "BEG");
                     break;
@@ -203,6 +207,10 @@ namespace rei
                     break;
                 case OP_RETURN:
                     printf("%-12s\n", "RETURN");
+                    break;
+                case OP_INDEX:
+                    i++;
+                    printf("%-12s\033[1m\033[32m%04d\033[0m\n", "INDEX", chunk.codes[i]);
                     break;
                 case OP_HALT:
                     printf("%-12s\n", "HALT");

@@ -39,6 +39,8 @@ namespace rei
         OP_GE,       // >=
         OP_AND,      // &&
         OP_OR,       // ||
+        /* 初始化 */
+        OP_INIT_ARRAY,
         /* 操作 */
         OP_ENTER,
         OP_EXIT,
@@ -59,6 +61,8 @@ namespace rei
         OP_SET_ONCE,
         OP_CALL,
         OP_RETURN,
+        OP_INDEX,
+        /* 休止 */
         OP_HALT
     };
 }

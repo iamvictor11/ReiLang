@@ -110,7 +110,7 @@ namespace rei
         [TK_END]       = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LPAREN]    = {&Parser::groupingExpr_, nullptr, &Parser::callExpr_, PREC_CALL, 1},
         [TK_RPAREN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
-        [TK_LBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_LBRACKET]  = {&Parser::arrayInitExpr_, nullptr, &Parser::indexExpr_, PREC_CALL, 0},
         [TK_RBRACKET]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_LBRACE]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_RBRACE]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},

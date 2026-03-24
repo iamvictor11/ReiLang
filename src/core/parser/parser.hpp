@@ -65,8 +65,10 @@ namespace rei
         void unaryExpr_();
         void binaryExpr_();
         void callExpr_();
+        void indexExpr_();
         void primaryExpr_();
         void varExpr_();
+        void arrayInitExpr_();
     private:
         void varDef_(const std::string& name);
         void varGet_(const std::string& name);

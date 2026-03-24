@@ -86,6 +86,7 @@ namespace rei
                     }
                     break;
                 }
+                case OP_INIT_ARRAY:
                 case OP_ENTER:
                     env_r_.enter();
                     break;

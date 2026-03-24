@@ -122,6 +122,17 @@ namespace rei
         emitB_(OP_CALL);
         emitB_(argc);
     }
+    void Parser::indexExpr_()
+    {
+        if (check_(TK_RBRACKET))
+        {
+            reporterError_("索引表达式期望表达式");
+            return;
+        }
+        expression_();
+        consume_(TK_RBRACKET, "调用表达式期望以']'结束");
+        emitB_(OP_INDEX);
+    }
     void Parser::primaryExpr_()
     {
         switch (prev_().type)
@@ -179,7 +190,22 @@ namespace rei
             varGet_(std::string{vu.lexeme});
         }
     }
-
+    void Parser::arrayInitExpr_()
+    {
+        Bytecode array_size = 0;
+        if (!match_(TK_RBRACKET))
+        {
+            do
+            {
+                expression_();
+                array_size++;
+            }
+            while (match_(TK_COMMA));
+            consume_(TK_RBRACKET, "数组初始化需要']'封闭");
+        }
+        emitB_(OP_INIT_ARRAY);
+        emitB_(array_size);
+    }
 #pragma region Helper
     void Parser::varDef_(const std::string& name)
     {

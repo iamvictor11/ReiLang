@@ -46,6 +46,7 @@ namespace rei
             &&REI_LABEL(OP_GE),
             &&REI_LABEL(OP_AND),
             &&REI_LABEL(OP_OR),
+            &&REI_LABEL(OP_INIT_ARRAY),
             &&REI_LABEL(OP_ENTER),
             &&REI_LABEL(OP_EXIT),
             &&REI_LABEL(OP_PRINT),
@@ -65,14 +66,11 @@ namespace rei
             &&REI_LABEL(OP_SET_ONCE),
             &&REI_LABEL(OP_CALL),
             &&REI_LABEL(OP_RETURN),
+            &&REI_LABEL(OP_INDEX),
             &&REI_LABEL(OP_HALT)
         };
         #define REI_DISPATCH goto *dispatch_table[readByte_()]
         #define REI_IP ip_[-1]
-        Value::Data tempVal, tempL, tempR;
-        Bytecode tempB0, tempB1, tempB3;
-        Value::Data callee;
-        Bytecode offset, argc;
         REI_DISPATCH;
         REI_LABEL(OP_CONSTANT):
         {
@@ -108,8 +106,10 @@ namespace rei
         REI_LABEL(OP_BIT_NOT):
         REI_LABEL(OP_NOT):
         {
-            tempVal = pop_();
+        {
+            Value::Data tempVal = pop_();
             push_(_dispatchUnary(tempVal, static_cast<Opcode>(REI_IP)));
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_ADD):
@@ -131,14 +131,17 @@ namespace rei
         REI_LABEL(OP_GT):
         REI_LABEL(OP_GE):
         {
-            tempR = pop_();
-            tempL = pop_();
+        {
+            Value::Data tempR = pop_();
+            Value::Data tempL = pop_();
             push_(_dispatchBinary(tempL, tempR, static_cast<Opcode>(REI_IP)));
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_AND):
         {
-            offset = readByte_();
+        {
+            Bytecode offset = readByte_();
             if (!(pop_().toBoolean()))
             {
                 jump_(offset);
@@ -148,11 +151,13 @@ namespace rei
             {
                 push_(true);
             }
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_OR):
         {
-            offset = readByte_();
+        {
+            Bytecode offset = readByte_();
             if (pop_().toBoolean())
             {
                 jump_(offset);
@@ -162,6 +167,20 @@ namespace rei
             {
                 push_(false);
             }
+        }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_INIT_ARRAY):
+        {
+        {
+            Bytecode elemc = readByte_();
+            auto array_ref = std::make_shared<Array>(elemc);
+            for (size_t i = 0; i < elemc; i++)
+                array_ref->data[i] = (peek_(elemc - 1 - i));
+            for (size_t i = 0; i < elemc; i++)
+                pop_();
+            push_(array_ref);
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_ENTER):
@@ -192,16 +211,20 @@ namespace rei
         
         REI_LABEL(OP_JMPT):
         {
-            offset = readByte_();
+        {
+            Bytecode offset = readByte_();
             if (pop_().toBoolean())
                 jump_(offset);
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_JMPF):
         {
-            offset = readByte_();
+        {
+            Bytecode offset = readByte_();
             if (!(pop_().toBoolean()))
                 jump_(offset);
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_GET_HOST):
@@ -236,16 +259,20 @@ namespace rei
         }
         REI_LABEL(OP_GET_LOCAL):
         {
-            tempB0 = readByte_();
-            tempB1 = readByte_();
+        {
+            Bytecode tempB0 = readByte_();
+            Bytecode tempB1 = readByte_();
             push_(env_r_.getLocal(tempB0, tempB1));
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_SET_LOCAL):
         {
-            tempB0 = readByte_();
-            tempB1 = readByte_();
+        {
+            Bytecode tempB0 = readByte_();
+            Bytecode tempB1 = readByte_();
             env_r_.setLocal(tempB0, tempB1, peek_());
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_GET_ONCE):
@@ -260,8 +287,9 @@ namespace rei
         }
         REI_LABEL(OP_CALL):
         {
-            argc = readByte_();
-            callee = peek_(argc);
+        {
+            Bytecode argc = readByte_();
+            auto callee = peek_(argc);
             switch (callee.tag)
             {
             case Value::VT_FUNCTION:
@@ -307,20 +335,48 @@ namespace rei
             }
             default:
             {
-                error_reporter_.report(std::format("尝试调用非函数对象 {}", callee.dump()), {0, 0});
+                error_reporter_.report(std::format("尝试调用非可调用对象 {}", callee.dump()), {0, 0});
                 for (size_t argi = 0; argi < argc; argi++)
                     pop_();
                 break;
             }
             }
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_RETURN):
+        {
         {
             auto& call_frame = frames_.back();
             ip_ = call_frame.save_ip;
             frames_.pop_back();
             env_r_.exit();
+        }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_INDEX):
+        {
+        {
+            Integer index = pop_().toInteger();
+            auto indexee = pop_();
+            switch (indexee.tag)
+            {
+            case Value::VT_ARRAY:
+            {
+                auto array_ref = indexee.array;
+                if (index < array_ref->size)
+                    push_(array_ref->data[index]);
+                else
+                    push_(Nil{});
+                break;
+            }
+            default:
+            {
+                error_reporter_.report(std::format("尝试调用非可索引对象 {}", indexee.dump()), {0, 0});
+                break;
+            }
+            }
+        }
             REI_DISPATCH;
         }
         REI_LABEL(OP_HALT):
