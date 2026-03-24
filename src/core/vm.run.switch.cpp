@@ -23,6 +23,7 @@ namespace rei
                 case OP_CONSTANT:   push_(readConstant_()); break;
                 case OP_CLONE:      push_(pop_().clone()); break;
                 case OP_POP:        pop_(); break;
+                case OP_KEEP:       push_(static_cast<Integer>(readByte_())); break;
                 case OP_NIL:    push_(Nil{}); break;
                 case OP_TRUE:   push_(Boolean(true)); break;
                 case OP_FALSE:  push_(Boolean(false)); break;
@@ -31,7 +32,7 @@ namespace rei
                 case OP_NOT:
                 {
                     Value::Data v = pop_();
-                    push_(_dispatchUnary(v, instruction));
+                    push_(dispatchUnary_(v, instruction));
                     break;
                 }
                 case OP_ADD:
@@ -55,7 +56,7 @@ namespace rei
                 {
                     Value::Data r = pop_();
                     Value::Data l = pop_();
-                    push_(_dispatchBinary(l, r, instruction));
+                    push_(dispatchBinary_(l, r, instruction));
                     break;
                 }
                 case OP_AND:
@@ -87,6 +88,16 @@ namespace rei
                     break;
                 }
                 case OP_INIT_ARRAY:
+                {
+                    Bytecode elemc = readByte_();
+                    auto array_ref = std::make_shared<Array>(elemc);
+                    for (size_t i = 0; i < elemc; i++)
+                        array_ref->data[i] = (peek_(elemc - 1 - i));
+                    for (size_t i = 0; i < elemc; i++)
+                        pop_();
+                    push_(array_ref);
+                    break;
+                }
                 case OP_ENTER:
                     env_r_.enter();
                     break;
@@ -118,56 +129,92 @@ namespace rei
                         jump_(offset);
                     break;
                 }
-                case OP_GET_HOST:
+                case OP_HOST_GET:
                 {
                     push_(env_r_.getHost(readByte_()));
                     break;
                 }
-                case OP_SET_HOST:
+                case OP_HOST_SET:
                 {
                     env_r_.setHost(readByte_(), peek_());
                     break;
                 }
-                case OP_DEF_GLOBAL:
+                case OP_HOST_SSET:
+                {
+                    Bytecode slot = readByte_();
+                    auto op = static_cast<Opcode>(pop_().asInteger());
+                    auto value = dispatchBinary_(env_r_.getHost(slot), pop_(), op);
+                    env_r_.setHost(slot, value);
+                    push_(value);
+                    break;
+                }
+                case OP_GLOBAL_DEF:
                 {
                     env_r_.defGlobal(peek_());
                     break;
                 }
-                case OP_GET_GLOBAL:
+                case OP_GLOBAL_GET:
                 {
                     push_(env_r_.getGlobal(readByte_()));
                     break;
                 }
-                case OP_SET_GLOBAL:
+                case OP_GLOBAL_SET:
                 {
                     env_r_.setGlobal(readByte_(), peek_());
                     break;
                 }
-                case OP_DEF_LOCAL:
+                case OP_GLOBAL_SSET:
+                {
+                    Bytecode slot = readByte_();
+                    auto op = static_cast<Opcode>(pop_().asInteger());
+                    auto value = dispatchBinary_(env_r_.getGlobal(slot), pop_(), op);
+                    env_r_.setGlobal(slot, value);
+                    push_(value);
+                    break;
+                }
+                case OP_LOCAL_DEF:
                 {
                     env_r_.defLocal(peek_());
                     break;;
                 }
-                case OP_GET_LOCAL:
+                case OP_LOCAL_GET:
                 {
-                    Bytecode t0 = readByte_(), t1 = readByte_();
-                    push_(env_r_.getLocal(t0, t1));
+                    Bytecode uplevel = readByte_(), slot = readByte_();
+                    push_(env_r_.getLocal(uplevel, slot));
                     break;
                 }
-                case OP_SET_LOCAL:
+                case OP_LOCAL_SET:
                 {
-                    Bytecode t0 = readByte_(), t1 = readByte_();
-                    env_r_.setLocal(t0, t1, peek_());
+                    Bytecode uplevel = readByte_(), slot = readByte_();
+                    env_r_.setLocal(uplevel, slot, peek_());
                     break;
                 }
-                case OP_GET_ONCE:
+                case OP_LOCAL_SSET:
+                {
+                    Bytecode uplevel = readByte_();
+                    Bytecode slot = readByte_();
+                    auto op = static_cast<Opcode>(pop_().asInteger());
+                    auto value = dispatchBinary_(env_r_.getLocal(uplevel, slot), pop_(), op);
+                    env_r_.setLocal(uplevel, slot, value);
+                    push_(value);
+                    break;
+                }
+                case OP_ONCE_GET:
                 {
                     push_(frames_.back().func_ref->onces[readByte_()]);
                     break;
                 }
-                case OP_SET_ONCE:
+                case OP_ONCE_SET:
                 {
                     frames_.back().func_ref->onces[readByte_()] = peek_();
+                    break;
+                }
+                case OP_ONCE_SSET:
+                {
+                    Value::Data& target = frames_.back().func_ref->onces[readByte_()];
+                    auto op = static_cast<Opcode>(pop_().asInteger());
+                    target = dispatchBinary_(target, pop_(), op);
+                    push_(target);
                     break;
                 }
                 case OP_CALL:
@@ -233,6 +280,80 @@ namespace rei
                     ip_ = call_frame.save_ip;
                     frames_.pop_back();
                     env_r_.exit();
+                    break;
+                }
+                case OP_INDEX_GET:
+                {
+                    Integer index = pop_().asInteger();
+                    auto indexee = pop_();
+                    switch (indexee.tag)
+                    {
+                    case Value::VT_ARRAY:
+                    {
+                        auto array_ref = indexee.array;
+                        if (index < array_ref->size)
+                            push_(array_ref->data[index]);
+                        else
+                            push_(Nil{});
+                        break;
+                    }
+                    default:
+                    {
+                        error_reporter_.report(std::format("尝试索引非可索引对象 {}", indexee.dump()), {0, 0});
+                        break;
+                    }
+                    }
+                    break;;
+                }
+                case OP_INDEX_SET:
+                {
+                    auto value = pop_();
+                    Integer index = pop_().toInteger();
+                    auto indexee = pop_();
+                    switch (indexee.tag)
+                    {
+                    case Value::VT_ARRAY:
+                    {
+                        auto array_ref = indexee.array;
+                        if (index < array_ref->size)
+                            array_ref->data[index] = value;
+                        break;
+                    }
+                    default:
+                    {
+                        error_reporter_.report(std::format("尝试索引非可索引对象 {}", indexee.dump()), {0, 0});
+                        break;
+                    }
+                    }
+                    push_(value);
+                    break;;
+                }
+                case OP_INDEX_SSET:
+                {
+                    auto op = static_cast<Opcode>(pop_().toInteger());
+                    auto value = pop_();
+                    Integer index = pop_().toInteger();
+                    auto indexee = pop_();
+                    switch (indexee.tag)
+                    {
+                    case Value::VT_ARRAY:
+                    {
+                        auto array_ref = indexee.array;
+                        if (index < array_ref->size)
+                        {
+                            auto& target = array_ref->data[index];
+                            target = dispatchBinary_(target, value, op);
+                            push_(target);
+                        }
+                        break;
+                    }
+                    default:
+                    {
+                        error_reporter_.report(std::format("尝试索引非可索引对象 {}", indexee.dump()), {0, 0});
+                        push_(value);
+                        break;
+                    }
+                    }
                     break;
                 }
                 case OP_HALT:
