@@ -36,28 +36,13 @@ namespace rei::Token
                 {"func", TK_FUNC},
                 {"once", TK_ONCE},
                 {"return", TK_RETURN},
-                {"struct", TK_STRUCT},
-                {"namespace", TK_NAMESPACE},
-                {"global", TK_GLOBAL},
-                {"local", TK_LOCAL},
-                {"interface", TK_INTERFACE},
-                {"class", TK_CLASS},
-                {"this", TK_THIS},
-                {"super", TK_SUPER},
-                {"static", TK_STATIC},
-                {"public", TK_PUBLIC},
-                {"protected", TK_PROTECTED},
-                {"private", TK_PRIVATE},
-                {"virtual", TK_VIRTUAL},
-                {"override", TK_OVERRIDE},
-                {"is", TK_IS},
-                {"entity", TK_ENTITY},
-                {"component", TK_COMPONENT},
-                {"has", TK_HAS},
-                {"new", TK_NEW},
-                {"del", TK_DEL},
                 {"print", TK_PRINT},
                 {"println", TK_PRINTLN},
+                {"program", TK_PROGRAM},
+                {"volume", TK_VOLUME},
+                {"use", TK_USE},
+                {"play", TK_PLAY},
+                {"wait", TK_WAIT},
                 
                 {"then", TK_THEN},
                 {"do", TK_DO},
@@ -174,28 +159,13 @@ namespace rei::Token
         REI_TOKEN_X(FUNC, "func") \
         REI_TOKEN_X(ONCE, "once") \
         REI_TOKEN_X(RETURN, "return") \
-        REI_TOKEN_X(STRUCT, "struct") \
-        REI_TOKEN_X(NAMESPACE, "namespace") \
-        REI_TOKEN_X(GLOBAL, "global") \
-        REI_TOKEN_X(LOCAL, "local") \
-        REI_TOKEN_X(INTERFACE, "interface") \
-        REI_TOKEN_X(CLASS, "class") \
-        REI_TOKEN_X(THIS, "this") \
-        REI_TOKEN_X(SUPER, "super") \
-        REI_TOKEN_X(STATIC, "static") \
-        REI_TOKEN_X(PUBLIC, "public") \
-        REI_TOKEN_X(PROTECTED, "protected") \
-        REI_TOKEN_X(PRIVATE, "private") \
-        REI_TOKEN_X(VIRTUAL, "virual") \
-        REI_TOKEN_X(OVERRIDE, "override") \
-        REI_TOKEN_X(IS, "is")\
-        REI_TOKEN_X(ENTITY, "entity") \
-        REI_TOKEN_X(COMPONENT, "component") \
-        REI_TOKEN_X(HAS, "has") \
-        REI_TOKEN_X(NEW, "new") \
-        REI_TOKEN_X(DEL, "del") \
         REI_TOKEN_X(PRINT, "print") \
         REI_TOKEN_X(PRINTLN, "println") \
+        REI_TOKEN_X(PROGRAM, "program") \
+        REI_TOKEN_X(VOLUME, "volume") \
+        REI_TOKEN_X(USE, "use") \
+        REI_TOKEN_X(PLAY, "play") \
+        REI_TOKEN_X(WAIT, "wait") \
         /* 区域 */ \
         REI_TOKEN_X(THEN, "then") \
         REI_TOKEN_X(DO, "do") \

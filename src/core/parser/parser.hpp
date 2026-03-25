@@ -85,12 +85,11 @@ namespace rei
         void continueStmt_();
         void returnStmt_();
         void printStmt_();
+        // void midiStmt_();
     private:
         void declaration_();
         void varDecl_();
         void funcDecl_();
-        void structDecl_();
-        void classDecl_();
     private:
         bool isAtEnd_() const;
         Token::Unit& advance_();

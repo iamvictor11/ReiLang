@@ -15,6 +15,8 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 
+add_subdirectory("vvmidi")
+
 add_executable(rei main.cpp)
 target_include_directories(rei
 PUBLIC
@@ -41,6 +43,10 @@ PRIVATE
     "src/stl/stl.cpp"
     "src/util/error.cpp"
     "src/util/file.cpp"
+)
+target_link_libraries(rei
+PUBLIC
+    vvmidi
 )
 
 target_compile_options(rei

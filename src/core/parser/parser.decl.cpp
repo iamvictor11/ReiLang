@@ -10,10 +10,6 @@ namespace rei
             varDecl_();
         else if (match_(TK_FUNC))
             funcDecl_();
-        else if (match_(TK_STRUCT))
-            structDecl_();
-        else if (match_(TK_CLASS))
-            classDecl_();
         else
             statement_();
     }
@@ -138,11 +134,5 @@ namespace rei
             break;
         }
         emitB_(OP_POP);
-    }
-    void Parser::structDecl_()
-    {
-    }
-    void Parser::classDecl_()
-    {
     }
 }

@@ -82,28 +82,13 @@ namespace rei::Token
         TK_FUNC,        // func
         TK_ONCE,        // once
         TK_RETURN,      // return
-        TK_STRUCT,      // struct
-        TK_NAMESPACE,   // namespace
-        TK_GLOBAL,      // global
-        TK_LOCAL,       // local
-        TK_INTERFACE,   // interface
-        TK_CLASS,       // class
-        TK_THIS,        // this
-        TK_SUPER,       // super
-        TK_STATIC,      // static
-        TK_PUBLIC,      // public
-        TK_PROTECTED,   // protected
-        TK_PRIVATE,     // private
-        TK_VIRTUAL,     // virtual
-        TK_OVERRIDE,    // override
-        TK_IS,          // is
-        TK_ENTITY,      // entity
-        TK_COMPONENT,   // component
-        TK_HAS,         // has
-        TK_NEW,         // new
-        TK_DEL,         // del
         TK_PRINT,       // print
         TK_PRINTLN,     // println
+        TK_PROGRAM,     // program
+        TK_VOLUME,      // volume
+        TK_USE,         // use
+        TK_PLAY,        // play
+        TK_WAIT,        // wait
         /* 区域 */
         TK_THEN,     // then
         TK_DO,       // do
