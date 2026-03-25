@@ -85,7 +85,7 @@ namespace rei
         void continueStmt_();
         void returnStmt_();
         void printStmt_();
-        // void midiStmt_();
+        void midiStmt_();
     private:
         void declaration_();
         void varDecl_();

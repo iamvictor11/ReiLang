@@ -22,7 +22,6 @@ void repl(rei::VM& vm)
 int main(int argc, char *argv[])
 {
     std::setlocale(LC_ALL, "en_US.UTF-8");
-    printf("%zu\n", sizeof(rei::Value::Data));
     rei::VM vm {};
     if (argc > 1)
     {

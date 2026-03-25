@@ -83,10 +83,12 @@ namespace rei
         [TK_RETURN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_CHANNEL]       = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PROGRAM]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_VOLUME]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
-        [TK_USE]       = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_VELOCITY]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PLAY]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_UNPLAY]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_WAIT]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         /* 区域 */
         [TK_THEN]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},

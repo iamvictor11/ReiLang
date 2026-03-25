@@ -19,6 +19,8 @@ namespace rei
             returnStmt_();
         else if (match_({TK_PRINT, TK_PRINTLN}))
             printStmt_();
+        else if (match_({TK_CHANNEL, TK_PROGRAM, TK_VOLUME, TK_PLAY, TK_UNPLAY, TK_WAIT}))
+            midiStmt_();
         else if (match_(TK_SEMICOLON))
         {
         }
@@ -191,5 +193,40 @@ namespace rei
         expression_();
         consume_(TK_SEMICOLON, "打印语句期望以';'结束");
         emitB_(type);
+    }
+    void Parser::midiStmt_()
+    {
+        switch (prev_().type)
+        {
+        case TK_CHANNEL:
+            expression_();
+            emitB_(OP_CHANNEL);
+            break;
+        case TK_PROGRAM:
+            expression_();
+            emitB_(OP_PROGRAM);
+            break;
+        case TK_VOLUME:
+            expression_();
+            emitB_(OP_VOLUME);
+            break;
+        case TK_VELOCITY:
+            expression_();
+            emitB_(OP_VELOCITY);
+            break;
+        case TK_PLAY:
+            expression_();
+            emitB_(OP_PLAY);
+            break;
+        case TK_UNPLAY:
+            expression_();
+            emitB_(OP_UNPLAY);
+            break;
+        case TK_WAIT:
+            expression_();
+            emitB_(OP_WAIT);
+            break;
+        }
+        consume_(TK_SEMICOLON, "midi语句期望以';'结束");
     }
 }

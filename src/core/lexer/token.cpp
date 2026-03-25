@@ -38,10 +38,12 @@ namespace rei::Token
                 {"return", TK_RETURN},
                 {"print", TK_PRINT},
                 {"println", TK_PRINTLN},
+                {"channel", TK_CHANNEL},
                 {"program", TK_PROGRAM},
                 {"volume", TK_VOLUME},
-                {"use", TK_USE},
+                {"velocity", TK_VELOCITY},
                 {"play", TK_PLAY},
+                {"unplay", TK_UNPLAY},
                 {"wait", TK_WAIT},
                 
                 {"then", TK_THEN},
@@ -161,10 +163,12 @@ namespace rei::Token
         REI_TOKEN_X(RETURN, "return") \
         REI_TOKEN_X(PRINT, "print") \
         REI_TOKEN_X(PRINTLN, "println") \
+        REI_TOKEN_X(CHANNEL, "channel") \
         REI_TOKEN_X(PROGRAM, "program") \
         REI_TOKEN_X(VOLUME, "volume") \
-        REI_TOKEN_X(USE, "use") \
+        REI_TOKEN_X(VELOCITY, "velocity") \
         REI_TOKEN_X(PLAY, "play") \
+        REI_TOKEN_X(UNPLAY, "unplay") \
         REI_TOKEN_X(WAIT, "wait") \
         /* 区域 */ \
         REI_TOKEN_X(THEN, "then") \

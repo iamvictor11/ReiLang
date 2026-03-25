@@ -4,6 +4,7 @@
 #include "util/error.hpp"
 #include "base/env.complie.hpp"
 #include "base/env.runtime.hpp"
+#include "vvmidi/vvmidi.hpp"
 
 namespace rei
 {
@@ -24,6 +25,13 @@ namespace rei
         Bytecode* ip_;
         std::vector<Value::Data> stack_;
         std::vector<CallFrame> frames_;
+        struct
+        {
+            vvmidi::MidiOut out {};
+            vvmidi::Channel::Index channel = vvmidi::Channel::One;
+            uint8_t velocity = 0x7F;
+            vvmidi::Tick::Val bpm = vvmidi::Tick::BPM;
+        } midi_;
         Error::Reporter error_reporter_;
     public:
         VM();

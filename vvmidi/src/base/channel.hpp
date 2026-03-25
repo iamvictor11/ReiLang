@@ -7,7 +7,8 @@ namespace vvmidi
     {
         enum Index : uint8_t
         {
-            Zero=0, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve, Thirteen, Fourteen, Fifteen
+            Zero=0, One, Two, Three, Four, Five, Six, Seven, Eight, Nine, Ten, Eleven, Twelve, Thirteen, Fourteen, Fifteen,
+            Count
         };
     }
     namespace Voice

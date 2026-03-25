@@ -69,6 +69,14 @@ namespace rei
         OP_INDEX_GET,
         OP_INDEX_SET,
         OP_INDEX_SSET,
+        /* midi */
+        OP_CHANNEL,
+        OP_PROGRAM,
+        OP_VOLUME,
+        OP_VELOCITY,
+        OP_PLAY,
+        OP_UNPLAY,
+        OP_WAIT,
         /* 休止 */
         OP_HALT
     };

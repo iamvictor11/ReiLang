@@ -4,6 +4,10 @@
 #include "vm.expr.hpp"
 #include <iostream>
 #include <format>
+#include <thread>
+#include <chrono>
+
+using namespace vvmidi;
 
 namespace rei
 {
@@ -74,6 +78,13 @@ namespace rei
             &&REI_LABEL(OP_INDEX_GET),
             &&REI_LABEL(OP_INDEX_SET),
             &&REI_LABEL(OP_INDEX_SSET),
+            &&REI_LABEL(OP_CHANNEL),
+            &&REI_LABEL(OP_PROGRAM),
+            &&REI_LABEL(OP_VOLUME),
+            &&REI_LABEL(OP_VELOCITY),
+            &&REI_LABEL(OP_PLAY),
+            &&REI_LABEL(OP_UNPLAY),
+            &&REI_LABEL(OP_WAIT),
             &&REI_LABEL(OP_HALT)
         };
         #define REI_DISPATCH goto *dispatch_table[readByte_()]
@@ -490,6 +501,51 @@ namespace rei
         }
             REI_DISPATCH;
         }
+        REI_LABEL(OP_CHANNEL):
+        {
+            midi_.channel = static_cast<Channel::Index>(pop_().toInteger());
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_PROGRAM):
+        {
+            {
+                Value::Data val = pop_();
+                Instrument::Type program;
+                if (val.isString())
+                    program = Instrument::Map::fromString(val.asString());
+                else
+                    program = static_cast<Instrument::Type>(val.toInteger());
+                midi_.out.programChange(midi_.channel, program);
+            }
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_VOLUME):
+        {
+            midi_.out.volumeControl(midi_.channel, static_cast<uint8_t>(pop_().toInteger()));
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_VELOCITY):
+        {
+            midi_.velocity = static_cast<uint8_t>(pop_().toInteger());
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_PLAY):
+        {
+            midi_.out.playNote(static_cast<Note::Val>(pop_().toInteger()), midi_.channel, true, midi_.velocity);
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_UNPLAY):
+        {
+            midi_.out.playNote(static_cast<Note::Val>(pop_().toInteger()), midi_.channel, false, midi_.velocity);
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_WAIT):
+        {
+            Integer time = pop_().toInteger();
+            auto target = std::chrono::steady_clock::now() + std::chrono::seconds(time);
+            std::this_thread::sleep_until(target);
+            REI_DISPATCH;
+        }
         REI_LABEL(OP_HALT):
         #undef REI_LABEL
         #undef REI_DISPATCH
@@ -502,6 +558,8 @@ namespace rei
             std::cout << stack_[i].dump() << std::endl;
         std::cout << "env: depth " << env_r_.currLocalDepth() << std::endl;
     #endif
+        for (uint8_t i = 0; i < static_cast<uint8_t>(Channel::Count); i++)
+            midi_.out.allNotesOffMsg(static_cast<Channel::Index>(i), true);
     }
 }
 #endif

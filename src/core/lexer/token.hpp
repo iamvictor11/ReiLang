@@ -84,10 +84,12 @@ namespace rei::Token
         TK_RETURN,      // return
         TK_PRINT,       // print
         TK_PRINTLN,     // println
+        TK_CHANNEL,     // channel
         TK_PROGRAM,     // program
         TK_VOLUME,      // volume
-        TK_USE,         // use
+        TK_VELOCITY,    // velocity
         TK_PLAY,        // play
+        TK_UNPLAY,      // unplay
         TK_WAIT,        // wait
         /* 区域 */
         TK_THEN,     // then
