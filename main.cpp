@@ -59,9 +59,9 @@ void list_()
 void repl_(rei::VM& vm)
 {
     std::cout << std::endl;
-    std::cout << "╔════════════════════════════════╗" << std::endl;
-    std::cout << "║     REI 交互式虚拟机 v1.0      ║" << std::endl;
-    std::cout << "╚════════════════════════════════╝" << std::endl;
+    std::cout << "╔═════════════════════════════════╗" << std::endl;
+    std::cout << "║      REI 交互式虚拟机 v1.0      ║" << std::endl;
+    std::cout << "╚═════════════════════════════════╝" << std::endl;
     menu_();
     std::string line;
     std::string currentFile = "";
