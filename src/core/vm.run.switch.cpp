@@ -71,10 +71,6 @@ namespace rei
                         jump_(offset);
                         push_(false);
                     }
-                    else
-                    {
-                        push_(true);
-                    }
                     break;
                 }
                 case OP_OR:
@@ -84,10 +80,6 @@ namespace rei
                     {
                         jump_(offset);
                         push_(true);
-                    }
-                    else
-                    {
-                        push_(false);
                     }
                     break;
                 }

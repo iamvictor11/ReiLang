@@ -172,10 +172,6 @@ namespace rei
                 jump_(offset);
                 push_(false);
             }
-            else
-            {
-                push_(true);
-            }
         }
             REI_DISPATCH;
         }
@@ -187,10 +183,6 @@ namespace rei
             {
                 jump_(offset);
                 push_(true);
-            }
-            else
-            {
-                push_(false);
             }
         }
             REI_DISPATCH;
