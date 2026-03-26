@@ -517,7 +517,7 @@ namespace rei
         }
         REI_LABEL(OP_CHANNEL):
         {
-            midi_.channel = static_cast<Channel::Index>(pop_().toInteger());
+            midi_.channel = static_cast<Channel::Index>(pop_().toInteger() - 1);
             REI_DISPATCH;
         }
         REI_LABEL(OP_PROGRAM):

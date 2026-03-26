@@ -19,7 +19,7 @@ namespace rei
             returnStmt_();
         else if (match_({TK_PRINT, TK_PRINTLN}))
             printStmt_();
-        else if (match_({TK_BPM, TK_BEAT, TK_CHANNEL, TK_PROGRAM, TK_VOLUME, TK_PLAY, TK_UNPLAY, TK_WAIT}))
+        else if (match_({TK_BPM, TK_BEAT, TK_CHANNEL, TK_PROGRAM, TK_VOLUME, TK_VELOCITY, TK_PLAY, TK_UNPLAY, TK_WAIT}))
             midiStmt_();
         else if (match_(TK_SEMICOLON))
         {
