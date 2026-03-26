@@ -43,8 +43,7 @@ namespace rei
     private:
         void bindSTL_();
     public:
-        void loadSimple(const std::string& source);
-        void loadFile(const std::string& path);
+        bool loadFile(const std::string& path);
     public:
         void run();
     private:

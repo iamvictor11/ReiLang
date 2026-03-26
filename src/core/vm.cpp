@@ -18,11 +18,7 @@ namespace rei
         env_r_.defHost(val);
         return env_c_.defHost(name);
     }
-    void VM::loadSimple(const std::string& source)
-    {
-        (void)source;
-    }
-    void VM::loadFile(const std::string& path)
+    bool VM::loadFile(const std::string& path)
     {
     #if REI_DEBUG_ENABLE >= 2
         std::cout << "\033[1m\033[38;2;255;105;180m词法分析：\033[0m" << std::endl;
@@ -31,11 +27,11 @@ namespace rei
         if (!util::fileToString(path, &source))
         {
             error_reporter_.report(std::format("文件 {} 打不开 或 不存在", path.c_str()), {0, 0});
-            return;
+            return false;
         }
         Lexer lexer {std::move(source), &error_reporter_};
         auto& tokens = lexer.start();
-        if (!error_reporter_.empty()) return;
+        if (!error_reporter_.empty()) return false;
     #if REI_DEBUG_ENABLE >= 2
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
@@ -49,7 +45,7 @@ namespace rei
         {
             chunk_.clear();
             env_c_.clearCache();
-            return;
+            return false;
         }
     #if REI_DEBUG_ENABLE >= 2
         chunk_debugPrint_(chunk_);
@@ -62,6 +58,7 @@ namespace rei
         std::cout << "env: depth " << env_c_.currLocalDepth() << std::endl;
     #endif
         env_c_.clearCache();
+        return true;
     }
 #pragma region Chunk
     Bytecode VM::readByte_()
