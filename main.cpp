@@ -10,7 +10,7 @@ namespace fs = std::filesystem;
 
 void menu_()
 {
-    std::cout << "load <PATH>   - 加载指定的 Lua 文件" << std::endl;
+    std::cout << "load <PATH>   - 加载指定的 .rei 文件" << std::endl;
     std::cout << "run           - 运行当前加载的脚本" << std::endl;
     std::cout << "list          - 列出当前目录下的 .rei 文件" << std::endl;
     std::cout << "clear         - 清屏" << std::endl;
