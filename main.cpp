@@ -19,11 +19,9 @@ void menu_()
 }
 void list_()
 {
-    std::cout << "\n当前目录下的脚本文件：" << std::endl;
     std::error_code ec;
     int count = 0;
-    fs::directory_iterator it(".", ec);
-    fs::directory_iterator end;
+    fs::recursive_directory_iterator it(".", ec), end;
     if (ec)
     {
         std::cout << "无法访问当前目录: " << ec.message() << std::endl;
@@ -36,24 +34,20 @@ void list_()
             std::cout << "遍历目录出错: " << ec.message() << std::endl;
             break;
         }
-
         const auto& entry = *it;
-        std::error_code ec0;
         auto path = entry.path();
+        if (!entry.is_regular_file())
+            continue;
         if (path.extension() == ".rei")
         {
+            std::error_code ec0;
+            auto clean = path.lexically_normal().generic_string();
             auto size = fs::file_size(path, ec0);
-            std::cout << std::left << std::setw(35) << path.filename().string();
+            std::cout << std::left << std::setw(50) << clean;
             if (ec0)
-            {
-                std::cout << std::right << std::setw(10) << "(未知)";
-                ec0.clear();
-            }
+                std::cout << std::right << std::setw(10) << "(未知)" << std::endl;
             else
-            {
-                std::cout << std::right << std::setw(10) << size << " byte";
-            }
-            std::cout << std::endl;
+                std::cout << std::right << std::setw(10) << size << " byte" << std::endl;
             count++;
         }
     }

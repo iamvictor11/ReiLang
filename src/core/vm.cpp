@@ -20,6 +20,7 @@ namespace rei
     }
     bool VM::loadFile(const std::string& path)
     {
+        chunk_.clear();
     #if REI_DEBUG_ENABLE >= 2
         std::cout << "\033[1m\033[38;2;255;105;180m词法分析：\033[0m" << std::endl;
     #endif
