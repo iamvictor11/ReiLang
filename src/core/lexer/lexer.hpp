@@ -45,6 +45,7 @@ namespace rei
         void lexString_(char beg);
         void lexRawString_(char beg);
         void lexIdentifier_();
+        void lexNote_(char n);
     private:
         void addToken_(Token::Type type);
         void addToken_(Token::Type type, Value::Data literal);

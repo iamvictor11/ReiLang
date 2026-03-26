@@ -1,6 +1,6 @@
 #pragma once
 #include "rei/config.hpp"
-#if REI_DEBUG_ENABLE == 1
+#if REI_DEBUG_ENABLE >= 1
 #include <string>
 #include <format>
 namespace rei

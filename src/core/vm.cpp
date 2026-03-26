@@ -24,7 +24,7 @@ namespace rei
     }
     void VM::loadFile(const std::string& path)
     {
-    #if REI_DEBUG_ENABLE == 2
+    #if REI_DEBUG_ENABLE >= 2
         std::cout << "\033[1m\033[38;2;255;105;180m词法分析：\033[0m" << std::endl;
     #endif
         std::string source {};
@@ -36,11 +36,11 @@ namespace rei
         Lexer lexer {std::move(source), &error_reporter_};
         auto& tokens = lexer.start();
         if (!error_reporter_.empty()) return;
-    #if REI_DEBUG_ENABLE == 2
+    #if REI_DEBUG_ENABLE >= 2
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
     #endif
-    #if REI_DEBUG_ENABLE == 2
+    #if REI_DEBUG_ENABLE >= 2
         std::cout << "\033[1m\033[38;2;255;105;180m语法分析：\033[0m" << std::endl;
     #endif
         Parser parser {std::move(tokens), &chunk_, &env_c_, &error_reporter_};
@@ -51,10 +51,10 @@ namespace rei
             env_c_.clearCache();
             return;
         }
-    #if REI_DEBUG_ENABLE == 2
+    #if REI_DEBUG_ENABLE >= 2
         chunk_debugPrint_(chunk_);
     #endif
-    #if REI_DEBUG_ENABLE == 1
+    #if REI_DEBUG_ENABLE >= 1
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;
         for (size_t i = 0; i < stack_.size(); i++)

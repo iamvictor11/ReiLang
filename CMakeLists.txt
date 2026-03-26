@@ -40,7 +40,9 @@ PRIVATE
     "src/core/vm.run.cgoto.cpp"
     "src/core/vm.run.switch.cpp"
     "src/debug/log.cpp"
+    "src/stl/midi.cpp"
     "src/stl/stl.cpp"
+    "src/stl/util.cpp"
     "src/util/error.cpp"
     "src/util/file.cpp"
 )

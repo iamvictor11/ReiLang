@@ -2,6 +2,9 @@
 #include <cctype>
 #include <charconv>
 #include <format>
+#include "vvmidi/vvmidi.hpp"
+
+using namespace vvmidi;
 
 namespace rei
 {
@@ -32,7 +35,12 @@ namespace rei
         {
         case '\0': break;
         case ',': addToken_(Token::TK_COMMA); break;
-        case '.': addToken_(Token::TK_DOT); break;
+        case '.':
+            if (isdigit(peek_()))
+                lexNote_(advance_());
+            else
+                addToken_(Token::TK_DOT);
+            break;
         case ':': addToken_(match_(':') ? Token::TK_DCOLON : (match_('=') ? Token::TK_WALRUS : Token::TK_COLON)); break;
         case ';': addToken_(Token::TK_SEMICOLON); break;
         case '(': addToken_(Token::TK_LPAREN); break;
@@ -400,6 +408,51 @@ void Lexer::lexIdentifier_()
     Token::Type type = Token::toTypeFromKeyword(lexeme);
     Value::Data literal = Token::toLiteralFromKeyword(type);
     addToken_(type, lexeme, literal);
+}
+void Lexer::lexNote_(char n)
+{
+    int degree = n - '0';
+    if (degree < 1 || degree > 7)
+    {
+        addToken_(Token::TK_LIT_INT, Integer(-1));
+        return;
+    }
+    int accidental = 0;
+    int octave = 4;
+    while (!isAtEnd_())
+    {
+        char c = peek_();
+        if (c == '#')
+        {
+            accidental++;
+            pass_();
+        }
+        else if (c == 'b')
+        {
+            accidental--;
+            pass_();
+        }
+        else if (c == '^')
+        {
+            octave++;
+            pass_();
+        }
+        else if (c == '_')
+        {
+            octave--;
+            pass_();
+        }
+        else
+        {
+            break;
+        }
+    }
+    Integer literal = Scale<C_Major>::make({
+        static_cast<Degree>(degree - 1),
+        static_cast<Accidental>(accidental),
+        static_cast<Octave>(octave),
+    });
+    addToken_(Token::TK_LIT_INT, literal);
 }
 #pragma endregion
 #pragma region Xie

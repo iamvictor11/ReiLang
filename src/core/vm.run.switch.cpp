@@ -13,7 +13,7 @@ namespace rei
 {
     void VM::run()
     {
-    #if REI_DEBUG_ENABLE == 1
+    #if REI_DEBUG_ENABLE >= 1
         std::cout << "\033[1m\033[38;2;255;105;180m运行结果：\033[0m" << std::endl; 
     #endif
         if (!error_reporter_.empty()) return;
@@ -451,7 +451,7 @@ namespace rei
                 default: break;
             }
         }
-    #if REI_DEBUG_ENABLE == 1
+    #if REI_DEBUG_ENABLE >= 1
         std::cout << std::endl;
         std::cout << "\033[1m\033[38;2;255;105;180m内存检查：\033[0m" << std::endl;
         std::cout << "stack: size " << stack_.size() << std::endl;
