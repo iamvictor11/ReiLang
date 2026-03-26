@@ -1,0 +1,11 @@
+echo "-- array --";
+n := [];
+a := [1, 1+3, n];
+i := 1;
+echo n;
+echo a;
+echo a[i];
+a[i] = 3;
+echo a[i];
+a[i] += 4;
+echo a[i];
