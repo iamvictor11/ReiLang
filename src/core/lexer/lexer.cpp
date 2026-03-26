@@ -56,6 +56,7 @@ namespace rei
             if (match_('/')) skipNote_();
             else addToken_(match_('=') ? Token::TK_SELF_DIV : Token::TK_DIV);
             break;
+        case '\\': break;
         case '%': addToken_(match_('=') ? Token::TK_SELF_MOD : Token::TK_MOD); break;
         case '&': addToken_(match_('=') ? Token::TK_SELF_BIT_AND : (match_('&') ? Token::TK_AND : Token::TK_BIT_AND)); break;
         case '|': addToken_(match_('=') ? Token::TK_SELF_BIT_OR : (match_('|') ? Token::TK_OR : Token::TK_BIT_OR)); break;
