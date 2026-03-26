@@ -83,7 +83,10 @@ namespace rei
         [TK_RETURN]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINT]     = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PRINTLN]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
-        [TK_CHANNEL]       = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        /* midi */
+        [TK_BPM]       = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_BEAT]      = {nullptr, nullptr, nullptr, PREC_NONE, 0},
+        [TK_CHANNEL]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_PROGRAM]   = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_VOLUME]    = {nullptr, nullptr, nullptr, PREC_NONE, 0},
         [TK_VELOCITY]  = {nullptr, nullptr, nullptr, PREC_NONE, 0},

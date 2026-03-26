@@ -78,6 +78,8 @@ namespace rei
             &&REI_LABEL(OP_INDEX_GET),
             &&REI_LABEL(OP_INDEX_SET),
             &&REI_LABEL(OP_INDEX_SSET),
+            &&REI_LABEL(OP_BPM),
+            &&REI_LABEL(OP_BEAT),
             &&REI_LABEL(OP_CHANNEL),
             &&REI_LABEL(OP_PROGRAM),
             &&REI_LABEL(OP_VOLUME),
@@ -501,6 +503,18 @@ namespace rei
         }
             REI_DISPATCH;
         }
+        REI_LABEL(OP_BPM):
+        {
+            midi_.bpm = pop_().toFloat();
+            midi_.factor = (60.0f / midi_.bpm) * midi_.beat * 1000;
+            REI_DISPATCH;
+        }
+        REI_LABEL(OP_BEAT):
+        {
+            midi_.beat = pop_().toFloat();
+            midi_.factor = (60.0f / midi_.bpm) * midi_.beat * 1000;
+            REI_DISPATCH;
+        }
         REI_LABEL(OP_CHANNEL):
         {
             midi_.channel = static_cast<Channel::Index>(pop_().toInteger());
@@ -541,9 +555,11 @@ namespace rei
         }
         REI_LABEL(OP_WAIT):
         {
-            Integer time = pop_().toInteger();
-            auto target = std::chrono::steady_clock::now() + std::chrono::seconds(time);
-            std::this_thread::sleep_until(target);
+            {
+                int64_t time = static_cast<int64_t>(pop_().toFloat() * midi_.factor);
+                auto target = std::chrono::steady_clock::now() + std::chrono::milliseconds(time);
+                std::this_thread::sleep_until(target);
+            }
             REI_DISPATCH;
         }
         REI_LABEL(OP_HALT):

@@ -4,6 +4,10 @@
 #include "vm.expr.hpp"
 #include <iostream>
 #include <format>
+#include <thread>
+#include <chrono>
+
+using namespace vvmidi;
 
 namespace rei
 {
@@ -354,6 +358,59 @@ namespace rei
                         break;
                     }
                     }
+                    break;
+                }
+                case OP_BPM:
+                    midi_.bpm = pop_().toFloat();
+                    midi_.factor = (60.0f / midi_.bpm) * midi_.beat * 1000;
+                    break;
+                case OP_BEAT:
+                {
+                    midi_.beat = pop_().toFloat();
+                    midi_.factor = (60.0f / midi_.bpm) * midi_.beat * 1000;
+                    break;
+                }
+                case OP_CHANNEL:
+                {
+                    midi_.channel = static_cast<Channel::Index>(pop_().toInteger());
+                    break;
+                }
+                case OP_PROGRAM:
+                {
+                    Value::Data val = pop_();
+                    Instrument::Type program;
+                    if (val.isString())
+                        program = Instrument::Map::fromString(val.asString());
+                    else
+                        program = static_cast<Instrument::Type>(val.toInteger());
+                    midi_.out.programChange(midi_.channel, program);
+                    break;
+                }
+                case OP_VOLUME:
+                {
+                    midi_.out.volumeControl(midi_.channel, static_cast<uint8_t>(pop_().toInteger()));
+                    break;
+                }
+                case OP_VELOCITY:
+                {
+                    midi_.velocity = static_cast<uint8_t>(pop_().toInteger());
+                    break;
+                }
+                case OP_PLAY:
+                {
+                    midi_.out.playNote(static_cast<Note::Val>(pop_().toInteger()), midi_.channel, true, midi_.velocity);
+                    break;
+                }
+                case OP_UNPLAY:
+                {
+                    midi_.out.playNote(static_cast<Note::Val>(pop_().toInteger()), midi_.channel, false, midi_.velocity);
+                    break;
+                }
+                case OP_WAIT:
+                {
+                    int64_t time = static_cast<int64_t>(pop_().toFloat() * midi_.factor);
+                    auto target = std::chrono::steady_clock::now() + std::chrono::milliseconds(time);
+                    std::this_thread::sleep_until(target);
                     break;
                 }
                 case OP_HALT:

@@ -245,6 +245,12 @@ namespace rei
                 case OP_INDEX_SSET:
                     printf("%-12s\n", "INDEX SSET");
                     break;
+                case OP_BPM:
+                    printf("%-12s\n", "BPM");
+                    break;
+                case OP_BEAT:
+                    printf("%-12s\n", "BEAT");
+                    break;
                 case OP_CHANNEL:
                     printf("%-12s\n", "CHANNEL");
                     break;

@@ -30,7 +30,9 @@ namespace rei
             vvmidi::MidiOut out {};
             vvmidi::Channel::Index channel = vvmidi::Channel::One;
             uint8_t velocity = 0x7F;
-            vvmidi::Tick::Val bpm = vvmidi::Tick::BPM;
+            float bpm = static_cast<float>(vvmidi::Tick::BPM);
+            float beat = 1;
+            float factor = (60.0f / static_cast<float>(vvmidi::Tick::BPM)) * 1 * 1000;
         } midi_;
         Error::Reporter error_reporter_;
     public:

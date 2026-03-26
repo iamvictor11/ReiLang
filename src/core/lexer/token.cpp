@@ -38,6 +38,9 @@ namespace rei::Token
                 {"return", TK_RETURN},
                 {"print", TK_PRINT},
                 {"println", TK_PRINTLN},
+
+                {"bpm", TK_BPM},
+                {"beat", TK_BEAT},
                 {"channel", TK_CHANNEL},
                 {"program", TK_PROGRAM},
                 {"volume", TK_VOLUME},
@@ -163,6 +166,8 @@ namespace rei::Token
         REI_TOKEN_X(RETURN, "return") \
         REI_TOKEN_X(PRINT, "print") \
         REI_TOKEN_X(PRINTLN, "println") \
+        REI_TOKEN_X(BPM, "bpm") \
+        REI_TOKEN_X(BEAT, "beat") \
         REI_TOKEN_X(CHANNEL, "channel") \
         REI_TOKEN_X(PROGRAM, "program") \
         REI_TOKEN_X(VOLUME, "volume") \

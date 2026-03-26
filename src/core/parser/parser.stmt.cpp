@@ -19,7 +19,7 @@ namespace rei
             returnStmt_();
         else if (match_({TK_PRINT, TK_PRINTLN}))
             printStmt_();
-        else if (match_({TK_CHANNEL, TK_PROGRAM, TK_VOLUME, TK_PLAY, TK_UNPLAY, TK_WAIT}))
+        else if (match_({TK_BPM, TK_BEAT, TK_CHANNEL, TK_PROGRAM, TK_VOLUME, TK_PLAY, TK_UNPLAY, TK_WAIT}))
             midiStmt_();
         else if (match_(TK_SEMICOLON))
         {
@@ -198,6 +198,14 @@ namespace rei
     {
         switch (prev_().type)
         {
+        case TK_BPM:
+            expression_();
+            emitB_(OP_BPM);
+            break;
+        case TK_BEAT:
+            expression_();
+            emitB_(OP_BEAT);
+            break;
         case TK_CHANNEL:
             expression_();
             emitB_(OP_CHANNEL);

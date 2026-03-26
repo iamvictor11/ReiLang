@@ -70,6 +70,8 @@ namespace rei
         OP_INDEX_SET,
         OP_INDEX_SSET,
         /* midi */
+        OP_BPM,
+        OP_BEAT,
         OP_CHANNEL,
         OP_PROGRAM,
         OP_VOLUME,

@@ -84,6 +84,9 @@ namespace rei::Token
         TK_RETURN,      // return
         TK_PRINT,       // print
         TK_PRINTLN,     // println
+        /* midi */
+        TK_BPM,         // bpm
+        TK_BEAT,        // beat
         TK_CHANNEL,     // channel
         TK_PROGRAM,     // program
         TK_VOLUME,      // volume
