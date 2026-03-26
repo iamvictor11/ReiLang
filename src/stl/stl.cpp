@@ -8,6 +8,7 @@ namespace rei
     {
         bind("dump", stl::dump);
         bind("clock", stl::clock);
+        bind("len", stl::len);
     }
     namespace stl
     {
@@ -68,6 +69,12 @@ namespace rei
                 now.time_since_epoch()
             ).count();
             return static_cast<Integer>(timestamp);
+        }
+        Value::Data len(REI_BYTECODE_TYPE argc, Value::Data argv[])
+        {
+            if (argc > 0 || argv[0].isArray())
+                return static_cast<Integer>(argv[0].asArray()->size);
+            return Nil{};
         }
     }
 }

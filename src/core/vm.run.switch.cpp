@@ -398,12 +398,44 @@ namespace rei
                 }
                 case OP_PLAY:
                 {
-                    midi_.out.playNote(static_cast<Note::Val>(pop_().toInteger()), midi_.channel, true, midi_.velocity);
+                    Value::Data val = pop_();
+                    if (val.isArray())
+                    {
+                        size_t size = val.array->size;
+                        for (size_t i = 0; i < size; i++)
+                        {
+                            Integer note = val.array->data[i].toInteger();
+                            if (note != -1)
+                                midi_.out.playNote(static_cast<Note::Val>(val.array->data[i].toInteger()), midi_.channel, true, midi_.velocity);
+                        }
+                    }
+                    else
+                    {
+                        Integer note = val.toInteger();
+                        if (note != -1)
+                            midi_.out.playNote(static_cast<Note::Val>(val.toInteger()), midi_.channel, true, midi_.velocity);
+                    }
                     break;
                 }
                 case OP_UNPLAY:
                 {
-                    midi_.out.playNote(static_cast<Note::Val>(pop_().toInteger()), midi_.channel, false, midi_.velocity);
+                    Value::Data val = pop_();
+                    if (val.isArray())
+                    {
+                        size_t size = val.array->size;
+                        for (size_t i = 0; i < size; i++)
+                        {
+                            Integer note = val.array->data[i].toInteger();
+                            if (note != -1)
+                                midi_.out.playNote(static_cast<Note::Val>(val.array->data[i].toInteger()), midi_.channel, false, midi_.velocity);
+                        }
+                    }
+                    else
+                    {
+                        Integer note = val.toInteger();
+                        if (note != -1)
+                            midi_.out.playNote(static_cast<Note::Val>(val.toInteger()), midi_.channel, false, midi_.velocity);
+                    }
                     break;
                 }
                 case OP_WAIT:

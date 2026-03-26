@@ -24,7 +24,7 @@ namespace rei
     }
     void VM::loadFile(const std::string& path)
     {
-    #if REI_DEBUG_ENABLE == 1
+    #if REI_DEBUG_ENABLE == 2
         std::cout << "\033[1m\033[38;2;255;105;180m词法分析：\033[0m" << std::endl;
     #endif
         std::string source {};
@@ -36,11 +36,11 @@ namespace rei
         Lexer lexer {std::move(source), &error_reporter_};
         auto& tokens = lexer.start();
         if (!error_reporter_.empty()) return;
-    #if REI_DEBUG_ENABLE == 1
+    #if REI_DEBUG_ENABLE == 2
         for (const auto& token : tokens)
             std::cout << token.toString() << std::endl;
     #endif
-    #if REI_DEBUG_ENABLE == 1
+    #if REI_DEBUG_ENABLE == 2
         std::cout << "\033[1m\033[38;2;255;105;180m语法分析：\033[0m" << std::endl;
     #endif
         Parser parser {std::move(tokens), &chunk_, &env_c_, &error_reporter_};
@@ -51,7 +51,7 @@ namespace rei
             env_c_.clearCache();
             return;
         }
-    #if REI_DEBUG_ENABLE == 1
+    #if REI_DEBUG_ENABLE == 2
         chunk_debugPrint_(chunk_);
     #endif
     #if REI_DEBUG_ENABLE == 1
@@ -66,24 +66,6 @@ namespace rei
 #pragma region Chunk
     Bytecode VM::readByte_()
     {
-        // Bytecode* base = chunk_.codes.data();
-        // if (frames_.empty())
-        //     base = chunk_.codes.data();
-        // else
-        // {
-        //     auto& cf = frames_.back();
-        //     switch (cf.tag)
-        //     {
-        //     case CallFrame::CFT_FUNC:
-        //         base = cf.func->chunk.codes.data();
-        //         break;
-        //     case CallFrame::CFT_CLOS:
-        //         base = cf.clos->func.chunk.codes.data();
-        //         break;
-        //     }
-        // }
-        // size_t index = ip_ - base;
-        // printf("debug i %zu\n", index);
         return *ip_++;
     }
     Value::Data VM::readConstant_()
