@@ -10,12 +10,19 @@ namespace fs = std::filesystem;
 
 void menu_()
 {
-    std::cout << "load <PATH>   - 加载指定的 .rei 文件" << std::endl;
-    std::cout << "run           - 运行当前加载的脚本" << std::endl;
-    std::cout << "list          - 列出当前目录下的 .rei 文件" << std::endl;
-    std::cout << "clear         - 清屏" << std::endl;
-    std::cout << "help          - 显示此帮助信息" << std::endl;
-    std::cout << "quit          - 退出解释器" << std::endl;
+    std::cout << std::endl;
+    std::cout << "╔═════════════════════════════════╗" << std::endl;
+    std::cout << "║      REI 交互式虚拟机 v1.0      ║" << std::endl;
+    std::cout << "╚═════════════════════════════════╝" << std::endl;
+}
+void help_()
+{
+    std::cout << "load <PATH>       -            加载" << std::endl;
+    std::cout << "run               -            运行" << std::endl;
+    std::cout << "list              -            目录" << std::endl;
+    std::cout << "clear             -            清屏" << std::endl;
+    std::cout << "help              -            帮助" << std::endl;
+    std::cout << "quit              -            退出" << std::endl;
 }
 void list_()
 {
@@ -45,7 +52,7 @@ void list_()
             auto size = fs::file_size(path, ec0);
             std::cout << std::left << std::setw(50) << clean;
             if (ec0)
-                std::cout << std::right << std::setw(10) << "(未知)" << std::endl;
+                std::cout << std::right << std::setw(10) << "[未知]" << std::endl;
             else
                 std::cout << std::right << std::setw(10) << size << " byte" << std::endl;
             count++;
@@ -58,11 +65,8 @@ void list_()
 }
 void repl_(rei::VM& vm)
 {
-    std::cout << std::endl;
-    std::cout << "╔═════════════════════════════════╗" << std::endl;
-    std::cout << "║      REI 交互式虚拟机 v1.0      ║" << std::endl;
-    std::cout << "╚═════════════════════════════════╝" << std::endl;
     menu_();
+    help_();
     std::string line;
     std::string currentFile = "";
     while (true)
@@ -86,7 +90,7 @@ void repl_(rei::VM& vm)
         }
         else if (cmd == "help")
         {
-            menu_();
+            help_();
         }
         else if (cmd == "load")
         {
@@ -140,10 +144,11 @@ void repl_(rei::VM& vm)
                 system("clear");
             #endif
             menu_();
+            help_();
         }
         else
         {
-            std::cout << "未知命令: " << cmd << "，输入 'help' 查看可用命令" << std::endl;
+            std::cout << "未知命令: " << cmd << "，输入 help 查看可用命令" << std::endl;
         }
     }
 }
