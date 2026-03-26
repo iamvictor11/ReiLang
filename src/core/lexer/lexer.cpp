@@ -260,37 +260,34 @@ void Lexer::lexNumber_()
             return;
         }
     }
-    else
+    // 整数
+    while (isdigit(peek_()) || peek_() == '\'') pass_();
+    // 浮点数
+    if (peek_() == '.' && isdigit(peek_(1)))
     {
-        // 整数
-        while (isdigit(peek_()) || peek_() == '\'') pass_();
-        // 浮点数
-        if (peek_() == '.' && isdigit(peek_(1)))
+        is_float = true;
+        pass_();
+        while (isdigit(peek_())) pass_();
+    }
+    // 科学计数法
+    if (peek_() == 'e' || peek_() == 'E')
+    {
+        char next = peek_(1);
+        if (isdigit(next) || next == '+' || next == '-')
         {
             is_float = true;
             pass_();
-            while (isdigit(peek_())) pass_();
-        }
-        // 科学计数法
-        if (peek_() == 'e' || peek_() == 'E')
-        {
-            char next = peek_(1);
-            if (isdigit(next) || next == '+' || next == '-')
-            {
-                is_float = true;
+            if (peek_() == '+' || peek_() == '-')
                 pass_();
-                if (peek_() == '+' || peek_() == '-')
-                    pass_();
-                if (isdigit(peek_()))
-                {
-                    pass_();
-                    while (isdigit(peek_())) pass_();
-                }
-                else
-                {
-                    error_reporter_->report("科学计数法格式错误", cursor_.pos);
-                    return;
-                }
+            if (isdigit(peek_()))
+            {
+                pass_();
+                while (isdigit(peek_())) pass_();
+            }
+            else
+            {
+                error_reporter_->report("科学计数法格式错误", cursor_.pos);
+                return;
             }
         }
     }
