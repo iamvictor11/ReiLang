@@ -372,7 +372,7 @@ namespace rei
                 }
                 case OP_CHANNEL:
                 {
-                    midi_.channel = static_cast<Channel::Index>(pop_().toInteger());
+                    midi_.channel = static_cast<Channel::Index>(pop_().toInteger() - 1);
                     break;
                 }
                 case OP_PROGRAM:
