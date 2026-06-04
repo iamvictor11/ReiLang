@@ -1,0 +1,12 @@
+#ifndef REI_COMMON_COMMON_H
+#define REI_COMMON_COMMON_H
+
+typedef enum ReiLifeCycle
+{
+    REI_LIFE_CYCLE_EDEN,
+    REI_LIFE_CYCLE_YOUNG,
+    REI_LIFE_CYCLE_OLD,
+    REI_LIFE_CYCLE_PERMANENT
+} ReiLifeCycle;
+
+#endif

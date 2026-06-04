@@ -38,6 +38,9 @@ endfunction()
 setup_target(rei REI)
 target_sources(rei
 PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/obj.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/type/str.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/type.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/value.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/allocatr.c"
 )
