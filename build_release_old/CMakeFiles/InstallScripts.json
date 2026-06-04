@@ -1,0 +1,8 @@
+{
+	"InstallScripts" : 
+	[
+		"D:/MyCode/CppWork/ReiLang/build_release/cmake_install.cmake",
+		"D:/MyCode/CppWork/ReiLang/build_release/vvmidi/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

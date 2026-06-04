@@ -1,0 +1,6 @@
+D:/MyCode/CppWork/ReiLang/build_release/CMakeFiles/rei.dir
+D:/MyCode/CppWork/ReiLang/build_release/CMakeFiles/edit_cache.dir
+D:/MyCode/CppWork/ReiLang/build_release/CMakeFiles/rebuild_cache.dir
+D:/MyCode/CppWork/ReiLang/build_release/vvmidi/CMakeFiles/vvmidi.dir
+D:/MyCode/CppWork/ReiLang/build_release/vvmidi/CMakeFiles/edit_cache.dir
+D:/MyCode/CppWork/ReiLang/build_release/vvmidi/CMakeFiles/rebuild_cache.dir

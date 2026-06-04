@@ -8,4 +8,3 @@ do
 end
 end_time := clock();
 echo "执行时间 " + (end_time - start_time) + " ms.";
-echo "sum: " + sum + " i: " + i;

@@ -1,0 +1,2 @@
+"C:/msys64/ucrt64/bin/gcc-ar.exe" qc ..\lib\libvvmidi.a CMakeFiles/vvmidi.dir/src/midiOut.cpp.obj CMakeFiles/vvmidi.dir/src/msg.cpp.obj
+"C:/msys64/ucrt64/bin/gcc-ranlib.exe" ..\lib\libvvmidi.a
