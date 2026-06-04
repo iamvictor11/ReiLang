@@ -453,13 +453,13 @@
     }
 #pragma endregion
 #pragma region Sugar
-#define C_TEMPLATE_VECTOR_FOREACH(TYPE, CONTAINER, ELEM_PTR_NAME) \
+#define C_TEMPLATE_VECTOR_FOREACH(TYPE, ELEM_PTR_NAME, CONTAINER) \
     for ( \
         TYPE* ELEM_PTR_NAME = (CONTAINER)->data; \
         ELEM_PTR_NAME != NULL && (size_t)(ELEM_PTR_NAME - (CONTAINER)->data) < (CONTAINER)->size; \
         ELEM_PTR_NAME++ \
     )
-#define C_TEMPLATE_VECTOR_RFOREACH(TYPE, CONTAINER, ELEM_PTR_NAME) \
+#define C_TEMPLATE_VECTOR_RFOREACH(TYPE, ELEM_PTR_NAME, CONTAINER) \
     for ( \
         TYPE* ELEM_PTR_NAME = ((CONTAINER)->size > 0 ? &((CONTAINER)->data[(CONTAINER)->size - 1]) : NULL); \
         ELEM_PTR_NAME != NULL; \
