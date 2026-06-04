@@ -40,22 +40,7 @@ endfunction()
 setup_target(rei REI)
 target_sources(rei
 PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/common.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/env.complie.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/env.runtime.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/string.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/lexer/lexer.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/lexer/token.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.decl.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.expr.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.stmt.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/vm.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/vm.run.cgoto.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/vm.run.switch.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/chunk.cpp"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/debug/log.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/stl/stl.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/stl/util.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/util/error.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/util/file.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/value.cpp"
 )
