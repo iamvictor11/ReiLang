@@ -40,7 +40,7 @@ namespace rei
         LeftArrow, RightArrow,
         Pound, At,
 
-        Const, Static,
+        Const, Static, Runtime,
 
         If, Elif, Else,
         While, Until, Continue, Break, Do,
@@ -50,13 +50,19 @@ namespace rei
 
         Enum, Flag,
         Struct,
-        Class, Public, Protected, Private, Super, This, Is,
+        Class, Own, Our,
+        Public, Protected, Private,
+        Super, This,
+        Is,
         Abstract, Sealed,
         Virtual, Override,
         New, Del,
         Interface, Trait, Has,
         Generics, Where,
         Attribute,
+
+        INCULDE,
+        IMPORT, USE, AS,
 
         Nil,
         True, False,
