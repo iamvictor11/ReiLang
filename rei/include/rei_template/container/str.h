@@ -10,9 +10,10 @@
 #define C_TEMPLATE_DECL_STRING(ATTR, SPREFIX, LPREFIX, NAME) \
     C_TEMPLATE_DECL_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char) \
     /* 创建 */ \
+    ATTR bool SPREFIX##NAME##InitFromCstr(LPREFIX##NAME me, const char* cstr); \
+    ATTR bool SPREFIX##NAME##InitFromFormat(LPREFIX##NAME me, const char* format, ...); \
     ATTR LPREFIX##NAME SPREFIX##NAME##CreateFromCstr(const char* cstr); \
     ATTR LPREFIX##NAME SPREFIX##NAME##CreateFromFormat(const char* format, ...); \
-    ATTR LPREFIX##NAME SPREFIX##NAME##CreateFromVFormat(const char* format, va_list args); \
     /* 属性 */ \
     ATTR size_t SPREFIX##NAME##Length(LPREFIX##NAME me); \
     /* 写入 */ \
@@ -37,7 +38,33 @@
 #pragma region Impl
 #define C_TEMPLATE_IMPL_STRING(ATTR, SPREFIX, LPREFIX, NAME, ALLOCATOR) \
     C_TEMPLATE_IMPL_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char, ALLOCATOR) \
+    /* 私有 */ \
+    ATTR LPREFIX##NAME SPREFIX##NAME##_CreateFromVFormat(const char* format, va_list args) \
+    { \
+        LPREFIX##NAME me = SPREFIX##NAME##Create(NULL); \
+        SPREFIX##NAME##AssignFromVFormat(me, format, args); \
+        return me; \
+    } \
+    ATTR bool SPREFIX##NAME##_InitFromVFormat(LPREFIX##NAME me, const char* format, va_list args) \
+    { \
+        if (!SPREFIX##NAME##Init(me, NULL)) return false; \
+        SPREFIX##NAME##AssignFromVFormat(me, format, args); \
+        return true; \
+    } \
     /* 创建 */ \
+    ATTR bool SPREFIX##NAME##InitFromFormat(LPREFIX##NAME me, const char* format, ...) \
+    { \
+        va_list args; va_start(args, format); \
+        bool res = SPREFIX##NAME##_InitFromVFormat(me, format, args); \
+        va_end(args); \
+        return res; \
+    } \
+    ATTR bool SPREFIX##NAME##InitFromCstr(LPREFIX##NAME me, const char* cstr) \
+    { \
+        if (!SPREFIX##NAME##Init(me, NULL)) return false; \
+        if (cstr != NULL) SPREFIX##NAME##AssignFromCstr(me, cstr); \
+        return true; \
+    } \
     ATTR LPREFIX##NAME SPREFIX##NAME##CreateFromCstr(const char* cstr) \
     { \
         LPREFIX##NAME me = SPREFIX##NAME##Create(NULL); \
@@ -49,14 +76,8 @@
     { \
         va_list args; \
         va_start(args, format); \
-        LPREFIX##NAME me = SPREFIX##NAME##CreateFromVFormat(format, args); \
+        LPREFIX##NAME me = SPREFIX##NAME##_CreateFromVFormat(format, args); \
         va_end(args); \
-        return me; \
-    } \
-    ATTR LPREFIX##NAME SPREFIX##NAME##CreateFromVFormat(const char* format, va_list args) \
-    { \
-        LPREFIX##NAME me = SPREFIX##NAME##Create(NULL); \
-        SPREFIX##NAME##AssignFromVFormat(me, format, args); \
         return me; \
     } \
     /* 属性 */ \

@@ -18,7 +18,13 @@
     typedef struct LPREFIX##NAME##Def LPREFIX##NAME##Def; \
     static inline LPREFIX##NAME##Def SPREFIX##Null##NAME##Def(void); \
     /* 创建销毁 */ \
+    ATTR bool SPREFIX##NAME##Init(LPREFIX##NAME me, const LPREFIX##NAME##Def* def); \
     ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def); \
+    ATTR LPREFIX##NAME SPREFIX##NAME##Copy(const LPREFIX##NAME src); \
+    ATTR void SPREFIX##NAME##CopyTo(LPREFIX##NAME me, const LPREFIX##NAME src); \
+    ATTR LPREFIX##NAME SPREFIX##NAME##Move(const LPREFIX##NAME src); \
+    ATTR void SPREFIX##NAME##MoveTo(LPREFIX##NAME me, const LPREFIX##NAME src); \
+    ATTR void SPREFIX##NAME##Free(LPREFIX##NAME me); \
     ATTR void SPREFIX##NAME##Destroy(LPREFIX##NAME me); \
     /* 访问 */ \
     ATTR TYPE* SPREFIX##NAME##Front(LPREFIX##NAME me); \
@@ -70,18 +76,70 @@
     /* 私有 */ \
     ATTR LPREFIX##NAME##Node* SPREFIX##NAME##_GetNode(TYPE* e) { return &((e)->NODE_NAME); } \
     /* 创建销毁 */ \
-    ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def) \
+    ATTR bool SPREFIX##NAME##Init(LPREFIX##NAME me, const LPREFIX##NAME##Def* def) \
     { \
-        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
-        if (me == NULL) return NULL; \
+        if (me == NULL) return false; \
         me->head = NULL; \
         me->tail = NULL; \
         me->size = 0; \
+        return true; \
+    } \
+    ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def) \
+    { \
+        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
+        if (!SPREFIX##NAME##Init(me, def)) return NULL; \
         return me; \
+    } \
+    ATTR LPREFIX##NAME SPREFIX##NAME##Copy(const LPREFIX##NAME src) \
+    { \
+        if (src == NULL) return NULL; \
+        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
+        if (me == NULL) return NULL; \
+        SPREFIX##NAME##Init(me, NULL); \
+        for (TYPE* it = src->head; it != NULL; it = SPREFIX##NAME##_GetNode(it)->next) \
+            SPREFIX##NAME##PushBack(me, it); \
+        return me; \
+    } \
+    ATTR void SPREFIX##NAME##CopyTo(LPREFIX##NAME me, const LPREFIX##NAME src) \
+    { \
+        if (src == NULL || me == src) return; \
+        SPREFIX##NAME##Clear(me); \
+        for (TYPE* it = src->head; it != NULL; it = SPREFIX##NAME##_GetNode(it)->next) \
+            SPREFIX##NAME##PushBack(me, it); \
+    } \
+    ATTR LPREFIX##NAME SPREFIX##NAME##Move(const LPREFIX##NAME src) \
+    { \
+        if (src == NULL) return NULL; \
+        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
+        if (me == NULL) return NULL; \
+        me->head = src->head; \
+        me->tail = src->tail; \
+        me->size = src->size; \
+        src->head = NULL; \
+        src->tail = NULL; \
+        src->size = 0; \
+        return me; \
+    } \
+    ATTR void SPREFIX##NAME##MoveTo(LPREFIX##NAME me, const LPREFIX##NAME src) \
+    { \
+        if (src == NULL || me == src) return; \
+        SPREFIX##NAME##Free(me); \
+        me->head = src->head; \
+        me->tail = src->tail; \
+        me->size = src->size; \
+        src->head = NULL; \
+        src->tail = NULL; \
+        src->size = 0; \
+    } \
+    ATTR void SPREFIX##NAME##Free(LPREFIX##NAME me) \
+    { \
+        if (me == NULL) return; \
+        SPREFIX##NAME##Clear(me); \
     } \
     ATTR void SPREFIX##NAME##Destroy(LPREFIX##NAME me) \
     { \
-        SPREFIX##NAME##Clear(me); \
+        if (me == NULL) return; \
+        SPREFIX##NAME##Free(me); \
         (ALLOCATOR)->free((ALLOCATOR)->context, me); \
     } \
     /* 访问 */ \

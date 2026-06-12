@@ -16,7 +16,9 @@
     typedef struct LPREFIX##NAME##Def LPREFIX##NAME##Def; \
     static inline LPREFIX##NAME##Def SPREFIX##Null##NAME##Def(void); \
     /* 创建销毁 */ \
+    ATTR bool SPREFIX##NAME##Init(LPREFIX##NAME me, const LPREFIX##NAME##Def* def); \
     ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def); \
+    ATTR void SPREFIX##NAME##Free(LPREFIX##NAME me); \
     ATTR void SPREFIX##NAME##Destroy(LPREFIX##NAME me); \
     /* 属性 */ \
     ATTR NUM_TYPE SPREFIX##NAME##Seed(LPREFIX##NAME me); \
@@ -25,7 +27,9 @@
     ATTR NUM_TYPE SPREFIX##NAME##Next(LPREFIX##NAME me); \
     ATTR NUM_TYPE SPREFIX##NAME##NextRange(LPREFIX##NAME me, NUM_TYPE min, NUM_TYPE max); \
     ATTR void SPREFIX##NAME##NextBulk(LPREFIX##NAME me, size_t count, NUM_TYPE* out); \
-    ATTR void SPREFIX##NAME##NextRangetBulk(LPREFIX##NAME me, NUM_TYPE min, NUM_TYPE max, size_t count, NUM_TYPE* out);
+    ATTR void SPREFIX##NAME##NextRangetBulk(LPREFIX##NAME me, NUM_TYPE min, NUM_TYPE max, size_t count, NUM_TYPE* out); \
+    /* 状态 */ \
+    ATTR void SPREFIX##NAME##Reset(LPREFIX##NAME me);
 #pragma endregion
 #pragma region Def
 #define C_TEMPLATE_DEFN_RANDOM_GEN(ATTR, SPREFIX, LPREFIX, NAME, NUM_TYPE) \
@@ -58,10 +62,9 @@
         return me->state; \
     } \
     /* 创建销毁 */ \
-    ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def) \
+    ATTR bool SPREFIX##NAME##Init(LPREFIX##NAME me, const LPREFIX##NAME##Def* def) \
     { \
-        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
-        if (me == NULL) return NULL; \
+        if (me == NULL) return false; \
         if (def) \
         { \
             me->seed = def->seed; \
@@ -71,15 +74,24 @@
         } \
         else \
         { \
-            memset(&me->seed, 0, sizeof(me->seed)); \
-            memset(&me->state, 0, sizeof(me->state)); \
+            SPREFIX##NAME##Reset(me); \
             me->generator = NULL; \
             me->clampor = NULL; \
         } \
+        return true; \
+    } \
+    ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def) \
+    { \
+        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
+        if (!SPREFIX##NAME##Init(me, def)) return NULL; \
         return me; \
+    } \
+    ATTR void SPREFIX##NAME##Free(LPREFIX##NAME me) \
+    { \
     } \
     ATTR void SPREFIX##NAME##Destroy(LPREFIX##NAME me) \
     { \
+		if (me == NULL) return; \
         (ALLOCATOR)->free((ALLOCATOR)->context, me); \
     } \
     /* 属性 */ \
@@ -124,6 +136,12 @@
         if (me->clampor) \
             for (size_t i = 0; i < count; i++) \
                 me->clampor(&out[i], min, max); \
+    } \
+    /* 状态 */ \
+    ATTR void SPREFIX##NAME##Reset(LPREFIX##NAME me) \
+    { \
+        memset(&me->seed, 0, sizeof(me->seed)); \
+        memset(&me->state, 0, sizeof(me->state)); \
     }
 #pragma endregion
 

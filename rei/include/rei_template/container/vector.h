@@ -21,11 +21,13 @@
     typedef struct LPREFIX##NAME##Def LPREFIX##NAME##Def; \
     static inline LPREFIX##NAME##Def SPREFIX##Null##NAME##Def(void); \
     /* 创建销毁 */ \
+    ATTR bool SPREFIX##NAME##Init(LPREFIX##NAME me, const LPREFIX##NAME##Def* def); \
     ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def); \
     ATTR LPREFIX##NAME SPREFIX##NAME##Copy(const LPREFIX##NAME src); \
     ATTR void SPREFIX##NAME##CopyTo(LPREFIX##NAME me, const LPREFIX##NAME src); \
     ATTR LPREFIX##NAME SPREFIX##NAME##Move(const LPREFIX##NAME src); \
     ATTR void SPREFIX##NAME##MoveTo(LPREFIX##NAME me, const LPREFIX##NAME src); \
+    ATTR void SPREFIX##NAME##Free(LPREFIX##NAME me); \
     ATTR void SPREFIX##NAME##Destroy(LPREFIX##NAME me); \
     /* 属性 */ \
     ATTR TYPE* SPREFIX##NAME##Data(LPREFIX##NAME me); \
@@ -91,10 +93,9 @@
 #pragma region Impl
 #define C_TEMPLATE_IMPL_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, TYPE, ALLOCATOR) \
     /* 创建销毁 */ \
-    ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def) \
+    ATTR bool SPREFIX##NAME##Init(LPREFIX##NAME me, const LPREFIX##NAME##Def* def) \
     { \
-        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
-        if (me == NULL) return NULL; \
+        if (me == NULL) return false; \
         me->data = NULL; \
         me->size = 0; \
         me->capacity = 0; \
@@ -106,6 +107,12 @@
                 me->data[i] = def->initial; \
             me->size = def->size; \
         } \
+        return true; \
+    } \
+    ATTR LPREFIX##NAME SPREFIX##NAME##Create(const LPREFIX##NAME##Def* def) \
+    { \
+        LPREFIX##NAME me = (LPREFIX##NAME)(ALLOCATOR)->malloc((ALLOCATOR)->context, sizeof(LPREFIX##NAME##_T)); \
+        if (!SPREFIX##NAME##Init(me, def)) return NULL; \
         return me; \
     } \
     ATTR LPREFIX##NAME SPREFIX##NAME##Copy(const LPREFIX##NAME src) \
@@ -151,7 +158,7 @@
     ATTR void SPREFIX##NAME##MoveTo(LPREFIX##NAME me, const LPREFIX##NAME src) \
     { \
         if (src == NULL || me == src) return; \
-        SPREFIX##NAME##Destroy(me); \
+        SPREFIX##NAME##Free(me); \
         me->data = src->data; \
         me->size = src->size; \
         me->capacity = src->capacity; \
@@ -159,8 +166,9 @@
         src->size = 0; \
         src->capacity = 0; \
     } \
-    ATTR void SPREFIX##NAME##Destroy(LPREFIX##NAME me) \
+    ATTR void SPREFIX##NAME##Free(LPREFIX##NAME me) \
     { \
+        if (me == NULL) return; \
         if (me->data != NULL) \
         { \
             (ALLOCATOR)->free((ALLOCATOR)->context, me->data); \
@@ -168,6 +176,18 @@
         } \
         me->size = 0; \
         me->capacity = 0; \
+    } \
+    ATTR void SPREFIX##NAME##Destroy(LPREFIX##NAME me) \
+    { \
+        if (me == NULL) return; \
+        if (me->data != NULL) \
+        { \
+            (ALLOCATOR)->free((ALLOCATOR)->context, me->data); \
+            me->data = NULL; \
+        } \
+        me->size = 0; \
+        me->capacity = 0; \
+        (ALLOCATOR)->free((ALLOCATOR)->context, me); \
     } \
     /* 属性 */ \
     ATTR TYPE* SPREFIX##NAME##Data(LPREFIX##NAME me) \
