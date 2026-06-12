@@ -3,8 +3,15 @@
 #include "../rei/src/lexer/rei_lexer.h"
 #include REI_C_TEMPLATE_LIB_PLATFORM_CONSOLE_H
 
+#define TAB4 "    "
+
 static const char* script =
-"val := 12e-3;"
+"val := -12e+3;\n"
+"'hajimi'\n"
+"while (true)\n"
+"{\n"
+TAB4 "break;\n"
+"}"
 ;
 
 ReiAllocator reiAllocator_g;

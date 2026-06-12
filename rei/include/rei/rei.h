@@ -12,8 +12,9 @@
 #define REI_C_TEMPLATE_LIB_ALLOCATOR_H              "c_template/allocator.h"
 #define REI_C_TEMPLATE_LIB_VERSION_H                "c_template/version.h"
 
-#define REI_MAX_IDENTIFIER_NAME_LEN 255
 #define REI_NOT_USE_UPPERCASE
+
+#define REI_MAX_IDENTIFIER_NAME_LEN 255
 
 #include "stdint.h"
 #include "stdbool.h"

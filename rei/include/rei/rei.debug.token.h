@@ -5,6 +5,8 @@
 #include <string.h>
 #include <inttypes.h>
 
+#define REI_TOKEN_TYPE_NAME_WIDTH 24
+
 static const char* reiTokenTypeToCstr(ReiTokenType type);
 static char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len);
 static void reiPrintToken(const ReiToken* token);
@@ -69,7 +71,7 @@ static char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
     case REI_TOKEN_TYPE_INT:
         snprintf(
             buff, len,
-            "%s:\t%" PRId16,
+            "%s%" PRId16,
             reiTokenTypeNames_g[me->type],
             REI_AS_INT(me->literal)
         );
@@ -77,7 +79,7 @@ static char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
     case REI_TOKEN_TYPE_FLOAT:
         snprintf(
             buff, len,
-            "%s:\t%g",
+            "%s%g",
             reiTokenTypeNames_g[me->type],
             REI_AS_FLOAT(me->literal)
         );
@@ -188,7 +190,7 @@ static char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
     case REI_TOKEN_TYPE_EOF:
         snprintf(
             buff, len,
-            "%s:\t%.*s",
+            "%s%.*s",
             reiTokenTypeNames_g[me->type],
             me->lexeme.length, me->lexeme.start
         );
@@ -198,27 +200,29 @@ static char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
 }
 static void reiPrintToken(const ReiToken* token)
 {
+    const char* typeName = reiTokenTypeNames_g[token->type];
     switch (token->type)
     {
     case REI_TOKEN_TYPE_NIL:
     case REI_TOKEN_TYPE_TRUE:
     case REI_TOKEN_TYPE_FALSE:
         printf(
-            "%s",
-            reiTokenTypeNames_g[token->type]
+            "%-*s%.*s",
+            REI_TOKEN_TYPE_NAME_WIDTH, typeName,
+            token->lexeme.length, token->lexeme.start
         );
         break;
     case REI_TOKEN_TYPE_INT:
         printf(
-            "%s:\t%" PRId16,
-            reiTokenTypeNames_g[token->type],
+            "%-*s%" PRId16,
+            REI_TOKEN_TYPE_NAME_WIDTH, typeName,
             REI_AS_INT(token->literal)
         );
         break;
     case REI_TOKEN_TYPE_FLOAT:
         printf(
-            "%s:\t%g",
-            reiTokenTypeNames_g[token->type],
+            "%-*s%g",
+            REI_TOKEN_TYPE_NAME_WIDTH, typeName,
             REI_AS_FLOAT(token->literal)
         );
         break;
@@ -327,8 +331,8 @@ static void reiPrintToken(const ReiToken* token)
     case REI_TOKEN_TYPE_DUNDER_OPER:
     case REI_TOKEN_TYPE_EOF:
         printf(
-            "%s:\t%.*s",
-            reiTokenTypeNames_g[token->type],
+            "%-*s%.*s",
+            REI_TOKEN_TYPE_NAME_WIDTH, typeName,
             token->lexeme.length, token->lexeme.start
         );
         break;
