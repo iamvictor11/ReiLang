@@ -37,7 +37,7 @@ static const char* wordCloud_[REI_TOKEN_TYPE_EOF + 1] =
     "VIRTUAL", "OVERRIDE",
     "NEW", "DEL",
     "IS", "HAS",
-    "INCLUDE", "IMPORT", "AS",
+    "IMPORT", "AS",
     "RENAME",
     "__MAIN__",
     "__INIT__", "__FREE__", "__CALL__", "__OPER__",
