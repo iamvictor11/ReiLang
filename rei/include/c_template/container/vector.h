@@ -185,8 +185,6 @@
             (ALLOCATOR)->free((ALLOCATOR)->context, me->data); \
             me->data = NULL; \
         } \
-        me->size = 0; \
-        me->capacity = 0; \
         (ALLOCATOR)->free((ALLOCATOR)->context, me); \
     } \
     /* 属性 */ \
