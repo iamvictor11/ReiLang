@@ -1,8 +1,18 @@
 #pragma once
-#include <cstdint>
+#include "../type/value.hxx"
+#include <string>
+#include <string_view>
 
 namespace rei
 {
+    struct Location final
+    {
+    public:
+        uint64_t line = 1, column = 1;
+    public:
+        std::string toString() const { return "[" + std::to_string(line) + ":" + std::to_string(column) + "]"; }
+    };
+
     /*
     ( [ {
     ) ] }
@@ -23,6 +33,11 @@ namespace rei
     */
     enum class TokenSymbol : uint8_t
     {
+        Nil,
+        True, False,
+        Int, Float,
+        String,
+
         LeftParen,  LeftBracket,    LeftBrace,
         RightParen, RightBracket,   RightBrace,
         Comma, Question,    Dot,        Colon,      Semicolon,
@@ -43,7 +58,8 @@ namespace rei
         Const, Static, Runtime,
 
         If, Elif, Else,
-        While, Until, Continue, Break, Do,
+        While, Until, Continue, Break,
+        Do,
         Switch, Case, Pass, Default,
         Func, Return,
         Namespace, External, Internal,
@@ -61,14 +77,21 @@ namespace rei
         Generics, Where,
         Attribute,
 
-        INCULDE,
-        IMPORT, USE, AS,
+        Include,
+        Import, Use, As,
 
-        Nil,
-        True, False,
-        Int, Float,
-        String,
-
-        EOF
+        Eof
     };
+    std::string toString(TokenSymbol symbol);
+    struct Token final
+    {
+    public:
+        TokenSymbol symbol;
+        std::string_view lexeme;
+        Value literal;
+        Location location;
+    public:
+        std::string toString() const;
+    };
+    using TokenArray = std::vector<Token>;
 }

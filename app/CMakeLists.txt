@@ -1,4 +1,4 @@
-add_executable(rei_vm "main.cpp")
+add_executable(rei_vm "main.cxx")
 
 function(setup_target TARGET_NAME)
     target_compile_definitions(${TARGET_NAME}

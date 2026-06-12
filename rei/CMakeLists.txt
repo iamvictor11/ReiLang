@@ -40,7 +40,7 @@ endfunction()
 setup_target(rei REI)
 target_sources(rei
 PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/chunk.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/debug/log.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/value.cpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/chunk.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/debug/log.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/value.cxx"
 )

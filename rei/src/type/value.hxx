@@ -6,7 +6,7 @@ namespace rei
 {
     struct Obj;
 
-    enum class ValueType
+    enum class ValueType : uint8_t
     {
         Nil,
         Bool,
