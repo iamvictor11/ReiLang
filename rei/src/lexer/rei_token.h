@@ -17,12 +17,12 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_LEFT_PAREN,              // (
     REI_TOKEN_TYPE_RIGHT_PAREN,             // )
     REI_TOKEN_TYPE_LEFT_BRACKET,            // [
-    REI_TOKEN_TYPE_LEFT_BRACKET_BRACKET,    // [[
     REI_TOKEN_TYPE_RIGHT_BRACKET,           // ]
-    REI_TOKEN_TYPE_RIGHT_BRACKET_BRACKET,   // ]]
     REI_TOKEN_TYPE_LEFT_BRACE,              // {
     REI_TOKEN_TYPE_RIGHT_BRACE,             // }
 
+    REI_TOKEN_TYPE_LEFT_BRACKET_BRACKET,    // [[
+    REI_TOKEN_TYPE_RIGHT_BRACKET_BRACKET,   // ]]
 
     REI_TOKEN_TYPE_COMMA,       // ,
     REI_TOKEN_TYPE_QUESTION,    // ?
@@ -39,24 +39,26 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_MODULO,      // %
     REI_TOKEN_TYPE_STAR_STAR,   // **
 
-    REI_TOKEN_TYPE_AND,         // &
-    REI_TOKEN_TYPE_AND_AND,     // &&
-    REI_TOKEN_TYPE_PIPE,        // |
-    REI_TOKEN_TYPE_PIPE_PIPE,   // ||
-    REI_TOKEN_TYPE_WAVE,        // ~
-    REI_TOKEN_TYPE_BANG,        // !
-    
-    REI_TOKEN_TYPE_LESS,            // <
-    REI_TOKEN_TYPE_GREATER,         // >
+    REI_TOKEN_TYPE_AND,             // &
+    REI_TOKEN_TYPE_PIPE,            // |
+    REI_TOKEN_TYPE_WAVE,            // ~
     REI_TOKEN_TYPE_LESS_LESS,       // <<
     REI_TOKEN_TYPE_GREATER_GREATER, // >>
 
+    REI_TOKEN_TYPE_AND_AND,         // &&
+    REI_TOKEN_TYPE_PIPE_PIPE,       // ||
+    REI_TOKEN_TYPE_BANG,            // !
+    
+    REI_TOKEN_TYPE_LESS,                    // <
+    REI_TOKEN_TYPE_GREATER,                 // >
+    REI_TOKEN_TYPE_COMPARE,                 // <=>
     REI_TOKEN_TYPE_EQUAL,                   // =
     REI_TOKEN_TYPE_EQUAL_EQUAL,             // ==
     REI_TOKEN_TYPE_BANG_EQUAL,              // !=
     REI_TOKEN_TYPE_LESS_EQUAL,              // <=
     REI_TOKEN_TYPE_GREATER_EQUAL,           // >=
     REI_TOKEN_TYPE_COLON_EQUAL,             // :=
+    REI_TOKEN_TYPE_MONEY_EQUAL,             // $=
     REI_TOKEN_TYPE_PLUS_EQUAL,              // +=
     REI_TOKEN_TYPE_MINUS_EQUAL,             // -=
     REI_TOKEN_TYPE_STAR_EQUAL,              // *=
@@ -130,12 +132,24 @@ typedef enum ReiTokenType
 
     REI_TOKEN_TYPE_RENAME,
 
+    REI_TOKEN_TYPE_DUNDER_MAIN,
+
+    REI_TOKEN_TYPE_DUNDER_INIT,
+    REI_TOKEN_TYPE_DUNDER_FREE,
+    REI_TOKEN_TYPE_DUNDER_CALL,
+    REI_TOKEN_TYPE_DUNDER_INDX,
+    REI_TOKEN_TYPE_DUNDER_OPER,
+
     REI_TOKEN_TYPE_EOF
 } ReiTokenType;
 typedef struct ReiToken
 {
     ReiTokenType type;
-    ReiStringView lexeme;
+    struct
+    {
+    const char* start;
+    int length;
+    } lexeme;
     ReiValue literal;
     uint32_t line;
 } ReiToken;

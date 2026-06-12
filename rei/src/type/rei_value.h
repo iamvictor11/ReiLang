@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "rei/rei.h"
-#include "rei_template/container/str.h"
+#include REI_C_TEMPLATE_LIB_CONTAINER_STR_H
 
 typedef struct ReiObj ReiObj;
 
@@ -43,18 +43,17 @@ typedef struct ReiValue
 #define REI_AS_NUMBER(value)    ((value).as.vFloat)
 #define REI_AS_OBJ(value)       ((value).as.pObj)
 
-#define REI_MK_NIL          ((Value){VAL_NIL,   {.vBool = false}})
-#define REI_MK_BOOL(v)      ((Value){VAL_BOOL,  {.vBool = v}})
-#define REI_MK_INT(v)       ((Value){VAL_INT,   {.vInt = v}})
-#define REI_MK_FLOAT(v)     ((Value){VAL_FLOAT, {.vFloat = v}})
-#define REI_MK_NUMBER(v)    ((Value){VAL_FLOAT, {.vFloat = v}})
-#define REI_MK_OBJ(v)       ((Value){VAL_OBJ,   {.pObj = (Obj*)v}})
+#define REI_MK_NIL          ((Value){REI_VALUE_TYPE_NIL,    {.vBool = false}})
+#define REI_MK_BOOL(v)      ((Value){REI_VALUE_TYPE_BOOL,   {.vBool = v}})
+#define REI_MK_INT(v)       ((Value){REI_VALUE_TYPE_INT,    {.vInt = v}})
+#define REI_MK_FLOAT(v)     ((Value){REI_VALUE_TYPE_FLOAT,  {.vFloat = v}})
+#define REI_MK_NUMBER(v)    ((Value){REI_VALUE_TYPE_FLOAT,  {.vFloat = v}})
+#define REI_MK_OBJ(p)       ((Value){REI_VALUE_TYPE_OBJ,    {.pObj = (ReiObj*)p}})
 
 C_TEMPLATE_DECL_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
 C_TEMPLATE_DEFN_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
 
 char* reiValueToCstr(ReiValue value);
-
 
 typedef enum ReiObjType
 {
@@ -72,12 +71,6 @@ typedef struct ReiObj
 
 C_TEMPLATE_DECL_STRING(, rei, Rei, String)
 C_TEMPLATE_DEFN_STRING(, rei, Rei, String)
-typedef struct ReiStringView
-{
-    ReiString data;
-    uint32_t offset;
-    uint32_t length;
-} ReiStringView;
 typedef struct ReiObjString
 {
     ReiObj obj;

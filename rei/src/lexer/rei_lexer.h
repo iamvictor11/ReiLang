@@ -5,9 +5,10 @@
 
 typedef struct ReiLexer
 {
-    ReiString_T script;
+    const char* source;
     ReiTokenBuffer tokens;
 } ReiLexer;
-
+void reiLexerInit(ReiLexer* me, const char* source);
+void reiLexerFree(ReiLexer* me);
 
 #endif
