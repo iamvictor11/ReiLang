@@ -13,8 +13,6 @@ PUBLIC
 )
 target_compile_options(${TARGET_SNAME}
 PRIVATE
-    -fno-exceptions
-    -fno-rtti
     $<$<CONFIG:Debug>:
         -O0
         -g
@@ -40,7 +38,7 @@ endfunction()
 setup_target(rei REI)
 target_sources(rei
 PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/chunk.cxx"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/debug/log.cxx"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/value.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/rei_obj.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/type/rei_value.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/rei_allocatr.c"
 )
