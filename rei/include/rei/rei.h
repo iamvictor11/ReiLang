@@ -1,16 +1,16 @@
 #ifndef REI_REI_H
 #define REI_REI_H
 
-#define REI_C_TEMPLATE_LIB_CONTAINER_LIST_DOUBLY_H  "rei_template/container/list.doubly.h"
-#define REI_C_TEMPLATE_LIB_CONTAINER_LIST_SINGLY_H  "rei_template/container/list.singly.h"
-#define REI_C_TEMPLATE_LIB_CONTAINER_STR_H          "rei_template/container/str.h"
-#define REI_C_TEMPLATE_LIB_CONTAINER_VECTOR_H       "rei_template/container/vector.h"
-#define REI_C_TEMPLATE_LIB_PLATFORM_CONSOLE_H       "rei_template/platform/console.h"
-#define REI_C_TEMPLATE_LIB_PLATFORM_KUA_H           "rei_template/platform/kua.h"
-#define REI_C_TEMPLATE_LIB_TYPE_UUID_H              "rei_template/type/uuid.h"
-#define REI_C_TEMPLATE_LIB_UTILS_RANDOM_GEN_H       "rei_template/utils/random_gen.h"
-#define REI_C_TEMPLATE_LIB_ALLOCATOR_H              "rei_template/allocator.h"
-#define REI_C_TEMPLATE_LIB_VERSION_H                "rei_template/version.h"
+#define REI_C_TEMPLATE_LIB_CONTAINER_LIST_DOUBLY_H  "c_template/container/list.doubly.h"
+#define REI_C_TEMPLATE_LIB_CONTAINER_LIST_SINGLY_H  "c_template/container/list.singly.h"
+#define REI_C_TEMPLATE_LIB_CONTAINER_STR_H          "c_template/container/str.h"
+#define REI_C_TEMPLATE_LIB_CONTAINER_VECTOR_H       "c_template/container/vector.h"
+#define REI_C_TEMPLATE_LIB_PLATFORM_CONSOLE_H       "c_template/platform/console.h"
+#define REI_C_TEMPLATE_LIB_PLATFORM_KUA_H           "c_template/platform/kua.h"
+#define REI_C_TEMPLATE_LIB_TYPE_UUID_H              "c_template/type/uuid.h"
+#define REI_C_TEMPLATE_LIB_UTILS_RANDOM_GEN_H       "c_template/utils/random_gen.h"
+#define REI_C_TEMPLATE_LIB_ALLOCATOR_H              "c_template/allocator.h"
+#define REI_C_TEMPLATE_LIB_VERSION_H                "c_template/version.h"
 
 #define REI_NOT_USE_UPPERCASE
 

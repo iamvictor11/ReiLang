@@ -86,3 +86,6 @@ void reiLexerFree(ReiLexer* me)
 {
     reiTokenBufferDestroy(me->tokens);
 }
+void reiLexerStart(ReiLexer* me)
+{
+}

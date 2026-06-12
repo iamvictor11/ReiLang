@@ -5,6 +5,7 @@ ReiStatus reiVMCompileModule(ReiVM me, const char* source)
 {
     ReiLexer lexer;
     reiLexerInit(&lexer, source);
+    
     reiLexerFree(&lexer);
 }
 ReiStatus reiVMLoadModule(ReiVM me, const ReiBytecode* code)
