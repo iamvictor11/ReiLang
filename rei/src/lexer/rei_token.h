@@ -29,7 +29,7 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_DOT,         // .
     REI_TOKEN_TYPE_DOT_DOT_DOT, // ...
     REI_TOKEN_TYPE_COLON,       // :
-    REI_TOKEN_TYPE_COLONCOLON,  // ::
+    REI_TOKEN_TYPE_COLON_COLON,  // ::
     REI_TOKEN_TYPE_SEMICOLON,   // ;
     
     REI_TOKEN_TYPE_PLUS,        // +
@@ -57,8 +57,9 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_BANG_EQUAL,              // !=
     REI_TOKEN_TYPE_LESS_EQUAL,              // <=
     REI_TOKEN_TYPE_GREATER_EQUAL,           // >=
+
     REI_TOKEN_TYPE_COLON_EQUAL,             // :=
-    REI_TOKEN_TYPE_MONEY_EQUAL,             // $=
+
     REI_TOKEN_TYPE_PLUS_EQUAL,              // +=
     REI_TOKEN_TYPE_MINUS_EQUAL,             // -=
     REI_TOKEN_TYPE_STAR_EQUAL,              // *=
@@ -111,7 +112,6 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_TRAIT,
     REI_TOKEN_TYPE_ATTRIBUTE,
 
-    REI_TOKEN_TYPE_ANY,
     REI_TOKEN_TYPE_PUBLIC,
     REI_TOKEN_TYPE_PROTECTED,
     REI_TOKEN_TYPE_PRIVATE,
@@ -137,7 +137,6 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_DUNDER_INIT,
     REI_TOKEN_TYPE_DUNDER_FREE,
     REI_TOKEN_TYPE_DUNDER_CALL,
-    REI_TOKEN_TYPE_DUNDER_INDX,
     REI_TOKEN_TYPE_DUNDER_OPER,
 
     REI_TOKEN_TYPE_EOF

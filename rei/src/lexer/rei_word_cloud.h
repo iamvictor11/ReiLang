@@ -1,0 +1,87 @@
+#ifndef REI_LEXER_WORD_CLOUD_H
+#define REI_LEXER_WORD_CLOUD_H
+
+#include "rei_token.h"
+
+static const char* wordCloud_[REI_TOKEN_TYPE_EOF + 1] =
+#ifndef REI_NOT_USE_UPPERCASE
+{
+    "NIL", "TRUE", "FALSE",
+    "$INT", "$FLOAT", "$STRING",
+    "$IDENTIFIER",
+    "(", ")", "[", "]", "{", "}",
+    "[[", "]]",
+    ",", "?", ".", "...", ":", "::", ";",
+    "+", "-", "*", "/", "%", "**",
+    "&", "|", "~", "<<", ">>",
+    "&&", "||", "!",
+    "<", ">", "<=>",
+    "=", "==", "!=", "<=", ">=",
+    ":=",
+    "+=", "-=", "*=", "/=", "%=", "**=",
+    "&=", "|=", "~=", "<<=", ">>=",
+    "<-", "->",
+    "#", "@",
+    "CONST", "STATIC",
+    "IF", "ELIF", "ELSE",
+    "WHILE", "UNTIL", "CONTINUE", "BREAK",
+    "DO",
+    "SWITCH", "CASE", "PASS", "DEFAULT",
+    "FUNC", "RETURN",
+    "NAMESPACE", "EXTERNAL", "INTERNAL",
+    "ENUM", "FLAG",
+    "STRUCT", "CLASS", "INTERFACE", "TRAIT", "ATTRIBUTE",
+    "PUBLIC", "PROTECTED", "PRIVATE",
+    "SUPER", "THIS",
+    "ABSTRACT", "SEALED", "FINAL",
+    "VIRTUAL", "OVERRIDE",
+    "NEW", "DEL",
+    "IS", "HAS",
+    "INCLUDE", "IMPORT", "AS",
+    "RENAME",
+    "__MAIN__",
+    "__INIT__", "__FREE__", "__CALL__", "__OPER__",
+    "#EOF"
+};
+#else
+{
+    "nil", "true", "false",
+    "$int", "$float", "$string",
+    "$identifier",
+    "(", ")", "[", "]", "{", "}",
+    "[[", "]]",
+    ",", "?", ".", "...", ":", "::", ";",
+    "+", "-", "*", "/", "%", "**",
+    "&", "|", "~", "<<", ">>",
+    "&&", "||", "!",
+    "<", ">", "<=>",
+    "=", "==", "!=", "<=", ">=",
+    ":=",
+    "+=", "-=", "*=", "/=", "%=", "**=",
+    "&=", "|=", "~=", "<<=", ">>=",
+    "<-", "->",
+    "#", "@",
+    "const", "static",
+    "if", "elif", "else",
+    "while", "until", "continue", "break",
+    "do",
+    "switch", "case", "pass", "default",
+    "func", "return",
+    "namespace", "external", "internal",
+    "enum", "flag",
+    "struct", "class", "interface", "trait", "attribute",
+    "public", "protected", "private",
+    "super", "this",
+    "abstract", "sealed", "final",
+    "virtual", "override",
+    "new", "del",
+    "is", "has",
+    "import", "as",
+    "rename",
+    "__main__",
+    "__init__", "__free__", "__call__", "__oper__",
+    "#eof"
+};
+#endif
+
+#endif

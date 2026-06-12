@@ -6,50 +6,6 @@
 #include "rei/rei.h"
 #include REI_C_TEMPLATE_LIB_CONTAINER_STR_H
 
-typedef struct ReiObj ReiObj;
-
-typedef enum ReiValueType
-{
-    REI_VALUE_TYPE_NIL,
-    REI_VALUE_TYPE_BOOL,
-    REI_VALUE_TYPE_INT,
-    REI_VALUE_TYPE_FLOAT,
-    REI_VALUE_TYPE_OBJ,
-    REI_VALUE_TYPE_UNDEFINED
-} ReiValueType;
-typedef struct ReiValue
-{
-    ReiValueType type;
-    union
-    {
-        bool vBool;
-        int64_t vInt;
-        double vFloat;
-        ReiObj* pObj;
-    } as;
-} ReiValue;
-
-#define REI_IS_NIL(value)       ((value).type == REI_VALUE_TYPE_NIL)
-#define REI_IS_BOOL(value)      ((value).type == REI_VALUE_TYPE_BOOL)
-#define REI_IS_INT(value)       ((value).type == REI_VALUE_TYPE_INT)
-#define REI_IS_FLOAT(value)     ((value).type == REI_VALUE_TYPE_FLOAT)
-#define REI_IS_NUMBER(value)    ((value).type == REI_VALUE_TYPE_INT || (value).type == REI_VALUE_TYPE_FLOAT)
-#define REI_IS_OBJ(value)       ((value).type == REI_VALUE_TYPE_OBJ)
-#define REI_IS_UNDEFINED(value) ((value).type == REI_VALUE_TYPE_UNDEFINED)
-
-#define REI_AS_BOOL(value)      ((value).as.vBool)
-#define REI_AS_INT(value)       ((value).as.vInt)
-#define REI_AS_FLOAT(value)     ((value).as.vFloat)
-#define REI_AS_NUMBER(value)    ((value).as.vFloat)
-#define REI_AS_OBJ(value)       ((value).as.pObj)
-
-#define REI_MK_NIL          ((Value){REI_VALUE_TYPE_NIL,    {.vBool = false}})
-#define REI_MK_BOOL(v)      ((Value){REI_VALUE_TYPE_BOOL,   {.vBool = v}})
-#define REI_MK_INT(v)       ((Value){REI_VALUE_TYPE_INT,    {.vInt = v}})
-#define REI_MK_FLOAT(v)     ((Value){REI_VALUE_TYPE_FLOAT,  {.vFloat = v}})
-#define REI_MK_NUMBER(v)    ((Value){REI_VALUE_TYPE_FLOAT,  {.vFloat = v}})
-#define REI_MK_OBJ(p)       ((Value){REI_VALUE_TYPE_OBJ,    {.pObj = (ReiObj*)p}})
-
 C_TEMPLATE_DECL_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
 C_TEMPLATE_DEFN_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
 
@@ -84,13 +40,6 @@ typedef struct ReiObjUpvalue
     ReiValue closed;
     struct ReiObjUpvalue* next;
 } ReiObjUpvalue;
-typedef struct ReiResult
-{
-    ReiStatus status;
-    ReiValue value;
-} ReiResult;
-typedef ReiResult(*ReiNativeFunc)(ReiVM vm, int argc, ReiValue* args);
-
 
 #define IS_STRING(value)    {REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_STRING};
 #define IS_FUNC(value)      {REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_FUNC};
@@ -98,10 +47,10 @@ typedef ReiResult(*ReiNativeFunc)(ReiVM vm, int argc, ReiValue* args);
 #define IS_CLOSURE(value)   {REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_CLOSURE};
 #define IS_CLASS(value)     {REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_CLASS};
 
-#define AS_STRING(value)    {(ObjString*)REI_AS_OBJ(value)};
-#define AS_FUNC(value)      {(ObjFunc*)REI_AS_OBJ(value)};
-#define AS_UPVALUE(value)   {(ObjUpvalue*)REI_AS_OBJ(value)};
-#define AS_CLOSURE(value)   {(ObjClosure*)REI_AS_OBJ(value)};
-#define AS_CLASS(value)     {(ObjClass*)REI_AS_OBJ(value)};
+#define AS_STRING(value)    {(ReiObjString*)REI_AS_OBJ(value)};
+// #define AS_FUNC(value)      {(ReiObjFunc*)REI_AS_OBJ(value)};
+#define AS_UPVALUE(value)   {(ReiObjUpvalue*)REI_AS_OBJ(value)};
+// #define AS_CLOSURE(value)   {(ReiObjClosure*)REI_AS_OBJ(value)};
+// #define AS_CLASS(value)     {(ReiObjClass*)REI_AS_OBJ(value)};
 
 #endif

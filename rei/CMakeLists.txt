@@ -9,6 +9,7 @@ PRIVATE
 target_include_directories(${TARGET_SNAME}
 PUBLIC
     "include"
+PRIVATE
     "src"
 )
 target_compile_options(${TARGET_SNAME}
