@@ -1,25 +1,9 @@
 #ifndef REI_LEXER_TOKEN_H
 #define REI_LEXER_TOKEN_H
 
-/*
-( [ {
-) ] }
-, ? .   :  ;
-    ... ::
-+ - * / %
-&  |  ~
-&& || !
-<  >
-<< >>
-=  != <= >= :=
-==
-+= -= *= /= %=
-&= |= ~=
-<<= >>=
-<- ->
-# @
-*/
-enum ReiTokenType
+#include "../type/rei_value.h"
+
+typedef enum ReiTokenType
 {
     REI_TOKEN_TYPE_NIL,     // NIL
     REI_TOKEN_TYPE_TRUE,    // TRUE
@@ -88,7 +72,7 @@ enum ReiTokenType
     REI_TOKEN_TYPE_LEFT_ARROW,  // <-
     REI_TOKEN_TYPE_RIGHT_ARROW, // ->
 
-    REI_TOKEN_TYPE_POUND,   // #
+    REI_TOKEN_TYPE_POUND,   // \#
     REI_TOKEN_TYPE_AT,      // @
 
     REI_TOKEN_TYPE_CONST,
@@ -119,42 +103,44 @@ enum ReiTokenType
 
     REI_TOKEN_TYPE_ENUM,
     REI_TOKEN_TYPE_FLAG,
-
     REI_TOKEN_TYPE_STRUCT,
     REI_TOKEN_TYPE_CLASS,
+    REI_TOKEN_TYPE_INTERFACE,
+    REI_TOKEN_TYPE_TRAIT,
+    REI_TOKEN_TYPE_ATTRIBUTE,
+
+    REI_TOKEN_TYPE_ANY,
     REI_TOKEN_TYPE_PUBLIC,
     REI_TOKEN_TYPE_PROTECTED,
     REI_TOKEN_TYPE_PRIVATE,
     REI_TOKEN_TYPE_SUPER,
     REI_TOKEN_TYPE_THIS,
-    REI_TOKEN_TYPE_IS,
     REI_TOKEN_TYPE_ABSTRACT,
     REI_TOKEN_TYPE_SEALED,
+    REI_TOKEN_TYPE_FINAL,
     REI_TOKEN_TYPE_VIRTUAL,
     REI_TOKEN_TYPE_OVERRIDE,
     REI_TOKEN_TYPE_NEW,
     REI_TOKEN_TYPE_DEL,
-    REI_TOKEN_TYPE_INTERFACE,
-    REI_TOKEN_TYPE_TRAIT,
+    REI_TOKEN_TYPE_IS,
     REI_TOKEN_TYPE_HAS,
-    REI_TOKEN_TYPE_WHERE,
-    REI_TOKEN_TYPE_ATTRIBUTE,
 
-    REI_TOKEN_TYPE_INCLUDE,
     REI_TOKEN_TYPE_IMPORT,
     REI_TOKEN_TYPE_AS,
 
     REI_TOKEN_TYPE_RENAME,
 
     REI_TOKEN_TYPE_EOF
-};
-// std::string toString(TokenSymbol symbol);
-// struct Token final
-// {
-//     TokenSymbol symbol;
-//     std::string_view lexeme;
-//     Value literal;
-//     uint32_t line;
-// };
+} ReiTokenType;
+typedef struct ReiToken
+{
+    ReiTokenType type;
+    ReiStringView lexeme;
+    ReiValue literal;
+    uint32_t line;
+} ReiToken;
+
+C_TEMPLATE_DECL_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
+C_TEMPLATE_DEFN_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
 
 #endif
