@@ -1,7 +1,7 @@
 #include "rei_lexer.h"
 #include <ctype.h>
 #include <string.h>
-#include "rei_word_cloud.i"
+#include "rei_token.word_cloud.i"
 #include "utils/rei_str.h"
 #include "../rei_debug.h"
 
@@ -198,7 +198,7 @@ static ReiTokenType identifierType_(void)
     memcpy(buffer, lexerState_.start, length);
     for (int i = 0; wordCloud_[i] != NULL; i++)
         if (strcmp(buffer, wordCloud_[i]) == 0)
-            return (ReiTokenType)(REI_TOKEN_TYPE_NIL + i);
+            return (ReiTokenType)(i);
     return REI_TOKEN_TYPE_IDENTIFIER;
 }
 static ReiToken scanString_(char quote)

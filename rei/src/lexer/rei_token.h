@@ -5,15 +5,6 @@
 
 typedef enum ReiTokenType
 {
-    REI_TOKEN_TYPE_NIL,     // NIL
-    REI_TOKEN_TYPE_TRUE,    // TRUE
-    REI_TOKEN_TYPE_FALSE,   // FALSE
-    REI_TOKEN_TYPE_INT,     // INT
-    REI_TOKEN_TYPE_FLOAT,   // FLOAT
-    REI_TOKEN_TYPE_STRING,  // STRING
-
-    REI_TOKEN_TYPE_IDENTIFIER,
-
     REI_TOKEN_TYPE_LEFT_PAREN,              // (
     REI_TOKEN_TYPE_RIGHT_PAREN,             // )
     REI_TOKEN_TYPE_LEFT_BRACKET,            // [
@@ -21,6 +12,7 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_LEFT_BRACE,              // {
     REI_TOKEN_TYPE_RIGHT_BRACE,             // }
 
+    REI_TOKEN_TYPE_LEFT_RIGHT_BRACKET,      // []
     REI_TOKEN_TYPE_LEFT_BRACKET_BRACKET,    // [[
     REI_TOKEN_TYPE_RIGHT_BRACKET_BRACKET,   // ]]
 
@@ -78,6 +70,15 @@ typedef enum ReiTokenType
 
     REI_TOKEN_TYPE_POUND,   // \#
     REI_TOKEN_TYPE_AT,      // @
+
+    REI_TOKEN_TYPE_NIL,     // NIL
+    REI_TOKEN_TYPE_TRUE,    // TRUE
+    REI_TOKEN_TYPE_FALSE,   // FALSE
+    REI_TOKEN_TYPE_INT,     // INT
+    REI_TOKEN_TYPE_FLOAT,   // FLOAT
+    REI_TOKEN_TYPE_STRING,  // STRING
+
+    REI_TOKEN_TYPE_IDENTIFIER,
 
     REI_TOKEN_TYPE_CONST,
     REI_TOKEN_TYPE_STATIC,

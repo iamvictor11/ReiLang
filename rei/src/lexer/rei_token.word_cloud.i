@@ -4,13 +4,9 @@
 #include "rei_token.h"
 
 static const char* wordCloud_[REI_TOKEN_TYPE_MAX_COUNT] =
-#if REI_USE_UPPERCASE
 {
-    "NIL", "TRUE", "FALSE",
-    "$INT", "$FLOAT", "$STRING",
-    "$IDENTIFIER",
     "(", ")", "[", "]", "{", "}",
-    "[[", "]]",
+    "[]", "[[", "]]",
     ",", "?", ".", "..","...", ":", "::", ";",
     "+", "-", "*", "/", "%", "**",
     "&", "|", "~", "<<", ">>",
@@ -22,6 +18,10 @@ static const char* wordCloud_[REI_TOKEN_TYPE_MAX_COUNT] =
     "&=", "|=", "~=", "<<=", ">>=",
     "<-", "->",
     "#", "@",
+#if REI_USE_UPPERCASE
+    "NIL", "TRUE", "FALSE",
+    "$INT", "$FLOAT", "$STRING",
+    "$IDENTIFIER",
     "CONST", "STATIC",
     "IF", "ELIF", "ELSE",
     "WHILE", "UNTIL", "CONTINUE", "BREAK",
@@ -42,25 +42,10 @@ static const char* wordCloud_[REI_TOKEN_TYPE_MAX_COUNT] =
     "__MAIN__",
     "__INIT__", "__FREE__", "__CALL__", "__OPER__",
     "#EOF"
-};
 #else
-{
     "nil", "true", "false",
     "$int", "$float", "$string",
     "$identifier",
-    "(", ")", "[", "]", "{", "}",
-    "[[", "]]",
-    ",", "?", ".", "..","...", ":", "::", ";",
-    "+", "-", "*", "/", "%", "**",
-    "&", "|", "~", "<<", ">>",
-    "&&", "||", "!",
-    "<", ">", "<=>",
-    "=", "==", "!=", "<=", ">=",
-    ":=",
-    "+=", "-=", "*=", "/=", "%=", "**=",
-    "&=", "|=", "~=", "<<=", ">>=",
-    "<-", "->",
-    "#", "@",
     "const", "static",
     "if", "elif", "else",
     "while", "until", "continue", "break",
@@ -81,7 +66,7 @@ static const char* wordCloud_[REI_TOKEN_TYPE_MAX_COUNT] =
     "__main__",
     "__init__", "__free__", "__call__", "__oper__",
     "#eof"
-};
 #endif
+};
 
 #endif
