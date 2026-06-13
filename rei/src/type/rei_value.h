@@ -7,16 +7,18 @@
 #include REI_C_TEMPLATE_LIB_CONTAINER_STR_H
 
 typedef struct ReiObject        ReiObject;
-typedef struct ReiObjString     ReiObjString;   // "" ''
-typedef struct ReiObjArray      ReiObjArray;    // []
-typedef struct ReiObjRange      ReiObjRange;    // i..n
-typedef struct ReiObjModule     ReiObjModule;
-typedef struct ReiObjFunction   ReiObjFunction;
-typedef struct ReiObjClosure    ReiObjClosure;
-typedef struct ReiObjUpvalue    ReiObjUpvalue;
-typedef struct ReiObjMethod     ReiObjMethod;
-typedef struct ReiObjClass      ReiObjClass;
-typedef struct ReiObjInstance   ReiObjInstance;
+#define REI_DECL_OBJECT(NAME) typedef struct ReiObj##NAME ReiObj##NAME;
+REI_DECL_OBJECT(String)     // "" ''
+REI_DECL_OBJECT(Array)      // []
+REI_DECL_OBJECT(Rang)       // i..n
+REI_DECL_OBJECT(Module)
+REI_DECL_OBJECT(Function)
+REI_DECL_OBJECT(Closure)
+REI_DECL_OBJECT(Upvalue)
+REI_DECL_OBJECT(Method)
+REI_DECL_OBJECT(Class)
+REI_DECL_OBJECT(Instance)
+#undef REI_DECL_OBJECT
 
 typedef enum ReiValueType
 {
