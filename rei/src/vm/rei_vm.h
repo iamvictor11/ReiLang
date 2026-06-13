@@ -1,7 +1,7 @@
 #ifndef REI_VM_VM_H
 #define REI_VM_VM_H
 
-#include "rei/rei.h"
+#include "rei_internal.h"
 
 typedef struct ReiVM_T
 {

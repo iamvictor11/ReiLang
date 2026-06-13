@@ -1,4 +1,10 @@
-add_library(rei STATIC)
+# add_library(rei STATIC)
+add_library(rei SHARED)
+set_target_properties(rei
+PROPERTIES 
+    PREFIX ""
+    OUTPUT_NAME "REI"
+)
 
 function(setup_target TARGET_SNAME TARGET_LNAME)
 target_compile_definitions(${TARGET_SNAME}

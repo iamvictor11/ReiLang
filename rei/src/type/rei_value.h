@@ -1,9 +1,9 @@
 #ifndef REI_TYPE_VALUE_H
 #define REI_TYPE_VALUE_H
 
+#include "rei_internal.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include "rei/rei.h"
 #include REI_C_TEMPLATE_LIB_CONTAINER_STR_H
 
 C_TEMPLATE_DECL_VECTOR(, rei, Rei, ValueBuffer, ReiValue)

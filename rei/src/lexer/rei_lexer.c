@@ -75,9 +75,9 @@ ReiResult reiLexerStart(ReiLexer* me)
     if (lexerState_.res.status == REI_STATUS_SUCCESS)
     {
         printf("tokens: %zu\n", me->tokens->size);
-        char buff[255] = {0};
+        char buff[REI_MAX_BUFFER_SIZE] = {0};
         C_TEMPLATE_VECTOR_FOREACH(ReiToken, token, me->tokens)
-            REI_DEBUG_LOG_TRACE(reiTokenToCstr(token, buff, 255));
+            REI_DEBUG_LOG_TRACE(reiTokenToCstr(token, buff, REI_MAX_BUFFER_SIZE));
     }
 #endif
     return lexerState_.res;

@@ -1,3 +1,4 @@
+add_executable(test_allocator "main.allocator.c")
 add_executable(test_compile "main.compile.c")
 
 function(setup_target TARGET_NAME)
@@ -45,4 +46,5 @@ function(setup_target TARGET_NAME)
     )
 endfunction()
 
+setup_target(test_allocator)
 setup_target(test_compile)

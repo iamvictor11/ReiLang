@@ -1,29 +1,7 @@
 #ifndef REI_REI_H
 #define REI_REI_H
 
-#if defined(_WIN32) || defined(_WIN64)
-    #ifdef REI_BUILD_DLL
-        #define REI_API __declspec(dllexport)
-    #else
-        #ifdef REI_USE_DLL
-            #define REI_API __declspec(dllimport)
-        #else
-            #define REI_API
-        #endif
-    #endif
-#elif defined(__linux__) || defined(__APPLE__)
-    #ifdef REI_BUILD_DLL
-        #define REI_API __attribute__((visibility("default")))
-    #else
-        #define REI_API
-    #endif
-#else
-    #define REI_API
-#endif
-#ifdef REI_STATIC_BUILD
-    #undef REI_API
-    #define REI_API
-#endif
+#define REI_STATIC_BUILD 0
 // 第三方库
 #define REI_C_TEMPLATE_LIB_CONTAINER_LIST_DOUBLY_H  "c_template/container/list.doubly.h"
 #define REI_C_TEMPLATE_LIB_CONTAINER_LIST_SINGLY_H  "c_template/container/list.singly.h"
@@ -44,8 +22,43 @@
 #define REI_DEBUG_LEVEL_INFO 4
 #define REI_DEBUG_LEVEL_TRACE 5
 #define REI_ENABLE_DEBUG REI_DEBUG_LEVEL_TRACE
+// 极值
+#define REI_MAX_BUFFER_SIZE 256
+#define REI_MAX_IDENTIFIER_NAME_LEN REI_MAX_BUFFER_SIZE
 
-#define REI_MAX_IDENTIFIER_NAME_LEN 255
+#if defined(_WIN32) || defined(_WIN64)
+    #if REI_STATIC_BUILD
+        #define REI_API
+        #define REI_API_CALL
+    #else
+        #ifdef REI_LIB_INTERNAL
+            #define REI_API __declspec(dllexport)
+        #else
+            #define REI_API __declspec(dllimport)
+        #endif
+        #ifdef _MSC_VER
+            #define REI_API_CALL __cdecl
+        #elif defined(__GNUC__) || defined(__clang__)
+            #define REI_API_CALL __attribute__((cdecl))
+        #else
+            #define REI_API_CALL
+        #endif
+    #endif
+#elif defined(__linux__) || defined(__APPLE__)
+    #if REI_STATIC_BUILD
+        #define REI_API
+    #else
+        #ifdef REI_LIB_INTERNAL
+            #define REI_API __attribute__((visibility("default")))
+        #else
+            #define REI_API
+        #endif
+    #endif
+    #define REI_API_CALL
+#else
+    #define REI_API
+    #define REI_API_CALL
+#endif
 
 #include "stdint.h"
 #include "stdbool.h"
@@ -67,8 +80,8 @@ C_TEMPLATE_VERSION_STRUCT(,rei, Rei)
 #define REI_UINT_TO_MINOR(VERSION) C_TEMPLATE_UINT_TO_MINOR(VERSION)
 #define REI_UINT_TO_PATCH(VERSION) C_TEMPLATE_UINT_TO_PATCH(VERSION)
 
-C_TEMPLATE_DECL_ALLOCATOR(, rei, Rei)
-C_TEMPLATE_DEFN_ALLOCATOR(, rei, Rei)
+C_TEMPLATE_DECL_ALLOCATOR(REI_API, rei, Rei)
+C_TEMPLATE_DEFN_ALLOCATOR(REI_API, rei, Rei, REI_API_CALL)
 
 typedef int8_t ReiBytecode;
 typedef struct ReiVM_T* ReiVM;
@@ -137,7 +150,7 @@ typedef ReiResult(*ReiNativeFunc)(ReiVM vm, int argc, ReiValue* args);
 typedef struct ReiCallbacks
 {
     void* context;
-    bool (*debug)(void* ctx, ReiResult res);
+    bool (REI_API_CALL *debug)(void* ctx, ReiResult res);
 } ReiCallbacks;
 
 REI_API ReiVM reiVMCreate(void);
