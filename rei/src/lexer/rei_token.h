@@ -139,7 +139,9 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_DUNDER_CALL,
     REI_TOKEN_TYPE_DUNDER_OPER,
 
-    REI_TOKEN_TYPE_EOF
+    REI_TOKEN_TYPE_EOF,
+
+    REI_TOKEN_TYPE_MAX_COUNT
 } ReiTokenType;
 typedef struct ReiToken
 {
@@ -155,5 +157,7 @@ typedef struct ReiToken
 
 C_TEMPLATE_DECL_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
 C_TEMPLATE_DEFN_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
+
+#include "rei_token.debug.i"
 
 #endif

@@ -1,4 +1,4 @@
-add_executable(lexer "main.lexer.c")
+add_executable(test_compile "main.compile.c")
 
 function(setup_target TARGET_NAME)
     target_compile_definitions(${TARGET_NAME}
@@ -45,4 +45,4 @@ function(setup_target TARGET_NAME)
     )
 endfunction()
 
-setup_target(lexer)
+setup_target(test_compile)

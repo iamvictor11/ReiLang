@@ -1,10 +1,10 @@
-#ifndef REI_LEXER_WORD_CLOUD_H
-#define REI_LEXER_WORD_CLOUD_H
+#ifndef REI_LEXER_WORD_CLOUD_I
+#define REI_LEXER_WORD_CLOUD_I
 
 #include "rei_token.h"
 
-static const char* wordCloud_[REI_TOKEN_TYPE_EOF + 1] =
-#ifndef REI_NOT_USE_UPPERCASE
+static const char* wordCloud_[REI_TOKEN_TYPE_MAX_COUNT] =
+#if REI_USE_UPPERCASE
 {
     "NIL", "TRUE", "FALSE",
     "$INT", "$FLOAT", "$STRING",

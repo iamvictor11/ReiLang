@@ -1,7 +1,9 @@
 #include "rei_lexer.h"
 #include <ctype.h>
 #include <string.h>
+#include "rei_word_cloud.i"
 #include "utils/rei_str.h"
+#include "../rei_debug.h"
 
 typedef struct Rei_LexerState
 {
@@ -13,7 +15,6 @@ typedef struct Rei_LexerState
 } Rei_LexerState;
 
 static Rei_LexerState lexerState_ = {0};
-#include "rei_word_cloud.h"
 
 #pragma region Private
 static char peekPrev_(void);
@@ -70,6 +71,15 @@ ReiResult reiLexerStart(ReiLexer* me)
         eof.literal = REI_MK_NIL;
         reiTokenBufferPush(me->tokens, &eof);
     }
+#if REI_ENABLE_DEBUG >= REI_DEBUG_LEVEL_TRACE
+    if (lexerState_.res.status == REI_STATUS_SUCCESS)
+    {
+        printf("tokens: %zu\n", me->tokens->size);
+        char buff[255] = {0};
+        C_TEMPLATE_VECTOR_FOREACH(ReiToken, token, me->tokens)
+            REI_DEBUG_LOG_TRACE(reiTokenToCstr(token, buff, 255));
+    }
+#endif
     return lexerState_.res;
 }
 #pragma endregion

@@ -19,14 +19,14 @@ void reiVMDestroy(ReiVM me)
 
 ReiResult reiVMCompileModule(ReiVM me, const char* source)
 {
+    ReiResult res;
     ReiLexer lexer;
     printf("source: %s\n", source);
     reiLexerInit(&lexer, source);
-    reiLexerStart(&lexer);
-
-
-
+    res = reiLexerStart(&lexer);
+    if (res.status != REI_STATUS_SUCCESS) return res;
     reiLexerFree(&lexer);
+    return res;
 }
 ReiResult reiVMLoadModule(ReiVM me, const ReiBytecode* code)
 {

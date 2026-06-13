@@ -24,7 +24,7 @@
     #undef REI_API
     #define REI_API
 #endif
-
+// 第三方库
 #define REI_C_TEMPLATE_LIB_CONTAINER_LIST_DOUBLY_H  "c_template/container/list.doubly.h"
 #define REI_C_TEMPLATE_LIB_CONTAINER_LIST_SINGLY_H  "c_template/container/list.singly.h"
 #define REI_C_TEMPLATE_LIB_CONTAINER_STR_H          "c_template/container/str.h"
@@ -35,8 +35,15 @@
 #define REI_C_TEMPLATE_LIB_UTILS_RANDOM_GEN_H       "c_template/utils/random_gen.h"
 #define REI_C_TEMPLATE_LIB_ALLOCATOR_H              "c_template/allocator.h"
 #define REI_C_TEMPLATE_LIB_VERSION_H                "c_template/version.h"
-
-#define REI_NOT_USE_UPPERCASE
+// 风格
+#define REI_USE_UPPERCASE 1
+// 调试
+#define REI_DEBUG_LEVEL_FATAL 1
+#define REI_DEBUG_LEVEL_ERROR 2
+#define REI_DEBUG_LEVEL_WARNING 3
+#define REI_DEBUG_LEVEL_INFO 4
+#define REI_DEBUG_LEVEL_TRACE 5
+#define REI_ENABLE_DEBUG REI_DEBUG_LEVEL_TRACE
 
 #define REI_MAX_IDENTIFIER_NAME_LEN 255
 
@@ -60,7 +67,7 @@ typedef enum ReiStatus
     REI_STATUS_SEMANTIC_ERROR,
     REI_STATUS_CODEGEN_ERROR,
     REI_STATUS_RUNTIME_ERROR,
-    REI_STATUS_UNDEFINED
+    REI_STATUS_MAX_COUNT
 } ReiStatus;
 
 typedef enum ReiValueType
@@ -70,7 +77,7 @@ typedef enum ReiValueType
     REI_VALUE_TYPE_INT,
     REI_VALUE_TYPE_FLOAT,
     REI_VALUE_TYPE_OBJ,
-    REI_VALUE_TYPE_UNDEFINED
+    REI_VALUE_TYPE_MAX_COUNT
 } ReiValueType;
 typedef struct ReiValue
 {
