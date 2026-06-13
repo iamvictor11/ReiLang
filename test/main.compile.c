@@ -11,6 +11,7 @@ static const char* script =
 "{\n"
 TAB4 "break;\n"
 "}"
+"rename val vaal;"
 ;
 
 int main()

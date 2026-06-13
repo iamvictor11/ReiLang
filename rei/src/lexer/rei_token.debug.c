@@ -35,12 +35,13 @@ static const char* tokenTypeNames_[REI_TOKEN_TYPE_MAX_COUNT] =
     "SUPER", "THIS",
     "ABSTRACT", "SEALED", "FINAL",
     "VIRTUAL", "OVERRIDE",
+    "_GET_", "_SET_",
     "NEW", "DEL",
     "IS", "HAS",
     "IMPORT", "AS",
     "RENAME",
     "__MAIN__",
-    "__INIT__", "__FREE__", "__CALL__", "__OPER__",
+    "__INIT__", "__FREE__", "__ATIX__", "__CALL__", "__OPER__",
     "EOF"
 };
 
