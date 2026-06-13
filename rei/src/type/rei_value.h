@@ -8,6 +8,7 @@
 
 typedef struct ReiObject        ReiObject;
 typedef struct ReiObjString     ReiObjString;   // "" ''
+typedef struct ReiObjArray      ReiObjArray;    // []
 typedef struct ReiObjRange      ReiObjRange;    // i..n
 typedef struct ReiObjModule     ReiObjModule;
 typedef struct ReiObjFunction   ReiObjFunction;
