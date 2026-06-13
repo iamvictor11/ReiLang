@@ -3,7 +3,7 @@
 
 #include "rei_token.h"
 
-const char* reiTokenTypeToCstr(ReiTokenType type);
+const char* reiTokenKindToCstr(ReiTokenKind type);
 char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len);
 
 #endif

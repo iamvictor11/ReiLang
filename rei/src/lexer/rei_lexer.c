@@ -28,9 +28,9 @@ static bool isCDigit_(char ch);
 static bool isAlpha_(char ch);
 static bool isAlphaDigit_(char ch);
 static void skipWhitespace_(void);
-static ReiToken makeToken_(ReiTokenType type);
+static ReiToken makeToken_(ReiTokenKind type);
 static ReiToken makeErrorToken_(void);
-static ReiTokenType identifierType_(void);
+static ReiTokenKind identifierType_(void);
 static ReiToken scanString_(char quote);
 static ReiToken scanNumber_(void);
 static ReiToken scanIdentifier_(void);
@@ -58,13 +58,13 @@ ReiResult reiLexerStart(ReiLexer* me)
     {
         ReiToken token = scanToken_();
         reiTokenBufferPush(me->tokens, &token);
-        if (token.type == REI_TOKEN_TYPE_EOF) break;
+        if (token.type == REI_TOKEN_KIND_EOF) break;
     }
     ReiToken* lastToken = reiTokenBufferBack(me->tokens);
-    if (reiTokenBufferEmpty(me->tokens) || lastToken->type != REI_TOKEN_TYPE_EOF)
+    if (reiTokenBufferEmpty(me->tokens) || lastToken->type != REI_TOKEN_KIND_EOF)
     {
         ReiToken eof;
-        eof.type = REI_TOKEN_TYPE_EOF;
+        eof.type = REI_TOKEN_KIND_EOF;
         eof.lexeme.start = "";
         eof.lexeme.length = 0;
         eof.line = lexerState_.line;
@@ -169,7 +169,7 @@ static void skipWhitespace_(void)
         }
     }
 }
-static ReiToken makeToken_(ReiTokenType type)
+static ReiToken makeToken_(ReiTokenKind type)
 {
     ReiToken token;
     token.type = type;
@@ -183,23 +183,23 @@ static ReiToken makeErrorToken_(void)
 {
     lexerState_.res = REI_RESULT_LEXER_ERROR;
     ReiToken token;
-    token.type = REI_TOKEN_TYPE_EOF;
+    token.type = REI_TOKEN_KIND_EOF;
     token.lexeme.start = lexerState_.start;
     token.lexeme.length = (int)(lexerState_.curr - lexerState_.start);
     token.line = lexerState_.line;
     token.literal = REI_MK_NIL;
     return token;
 }
-static ReiTokenType identifierType_(void)
+static ReiTokenKind identifierType_(void)
 {
     int length = lexerState_.curr - lexerState_.start;
     char buffer[REI_MAX_IDENTIFIER_NAME_LEN] = {0};
-    if (length >= (int)sizeof(buffer)) return REI_TOKEN_TYPE_IDENTIFIER;
+    if (length >= (int)sizeof(buffer)) return REI_TOKEN_KIND_IDENTIFIER;
     memcpy(buffer, lexerState_.start, length);
     for (int i = 0; wordCloud_[i] != NULL; i++)
         if (strcmp(buffer, wordCloud_[i]) == 0)
-            return (ReiTokenType)(i);
-    return REI_TOKEN_TYPE_IDENTIFIER;
+            return (ReiTokenKind)(i);
+    return REI_TOKEN_KIND_IDENTIFIER;
 }
 static ReiToken scanString_(char quote)
 {
@@ -222,7 +222,7 @@ static ReiToken scanString_(char quote)
         return makeErrorToken_();
     }
     advance_();
-    ReiToken token = makeToken_(REI_TOKEN_TYPE_STRING);
+    ReiToken token = makeToken_(REI_TOKEN_KIND_STRING);
     token.literal = REI_MK_NIL;
     
     return token;
@@ -231,7 +231,7 @@ static ReiToken scanNumber_(void)
 {
     lexerState_.start = lexerState_.curr - 1;
     while (isCDigit_(peek_())) advance_();
-    ReiTokenType type = REI_TOKEN_TYPE_INT;
+    ReiTokenKind type = REI_TOKEN_KIND_INT;
     if ((peek_() == 'b' || peek_() == 'B' ||
         peek_() == 'o' || peek_() == 'O' ||
         peek_() == 'x' || peek_() == 'X') &&
@@ -242,7 +242,7 @@ static ReiToken scanNumber_(void)
     }
     else if (peek_() == '.' && isCDigit_(peekNext_()))
     {
-        type = REI_TOKEN_TYPE_FLOAT;
+        type = REI_TOKEN_KIND_FLOAT;
         advance_();
         while (isCDigit_(peek_())) advance_();
     }
@@ -250,7 +250,7 @@ static ReiToken scanNumber_(void)
         (peekNext_() == '+' || peekNext_() == '-') &&
         isCDigit_(peekNextNext_()))
     {
-        type = REI_TOKEN_TYPE_FLOAT;
+        type = REI_TOKEN_KIND_FLOAT;
         advance_();
         advance_();
         while (isCDigit_(peek_())) advance_();
@@ -260,9 +260,9 @@ static ReiToken scanNumber_(void)
     char buffer[length];
     memset(buffer, 0, length);
     memcpy(buffer, lexerState_.start, length);
-    if (type == REI_TOKEN_TYPE_INT)
+    if (type == REI_TOKEN_KIND_INT)
         token.literal = REI_MK_INT(reiCstrToInt(buffer));
-    else if (type == REI_TOKEN_TYPE_FLOAT)
+    else if (type == REI_TOKEN_KIND_FLOAT)
         token.literal = REI_MK_FLOAT(reiCharsToFloat(buffer));
     return token;
 }
@@ -270,7 +270,7 @@ static ReiToken scanIdentifier_(void)
 {
     lexerState_.start = lexerState_.curr - 1;
     while (isAlphaDigit_(peek_())) advance_();
-    ReiTokenType type = identifierType_();
+    ReiTokenKind type = identifierType_();
     return makeToken_(type);
 }
 static ReiToken scanOperator_(void)
@@ -279,95 +279,95 @@ static ReiToken scanOperator_(void)
     char ch = lexerState_.start[0];
     switch (ch)
     {
-        case '(': return makeToken_(REI_TOKEN_TYPE_LEFT_PAREN);
-        case ')': return makeToken_(REI_TOKEN_TYPE_RIGHT_PAREN);
+        case '(': return makeToken_(REI_TOKEN_KIND_LEFT_PAREN);
+        case ')': return makeToken_(REI_TOKEN_KIND_RIGHT_PAREN);
         case '[':
-            if (peek_() == '[') { advance_(); return makeToken_(REI_TOKEN_TYPE_LEFT_BRACKET_BRACKET); }
-            return makeToken_(REI_TOKEN_TYPE_LEFT_BRACKET);
+            if (peek_() == '[') { advance_(); return makeToken_(REI_TOKEN_KIND_LEFT_BRACKET_BRACKET); }
+            return makeToken_(REI_TOKEN_KIND_LEFT_BRACKET);
         case ']':
-            if (peek_() == ']') { advance_(); return makeToken_(REI_TOKEN_TYPE_RIGHT_BRACKET_BRACKET); }
-            return makeToken_(REI_TOKEN_TYPE_RIGHT_BRACKET);
-        case '{': return makeToken_(REI_TOKEN_TYPE_LEFT_BRACE);
-        case '}': return makeToken_(REI_TOKEN_TYPE_RIGHT_BRACE);
-        case ',': return makeToken_(REI_TOKEN_TYPE_COMMA);
-        case '?': return makeToken_(REI_TOKEN_TYPE_QUESTION);
-        case ';': return makeToken_(REI_TOKEN_TYPE_SEMICOLON);
-        case '#': return makeToken_(REI_TOKEN_TYPE_POUND);
-        case '@': return makeToken_(REI_TOKEN_TYPE_AT);
+            if (peek_() == ']') { advance_(); return makeToken_(REI_TOKEN_KIND_RIGHT_BRACKET_BRACKET); }
+            return makeToken_(REI_TOKEN_KIND_RIGHT_BRACKET);
+        case '{': return makeToken_(REI_TOKEN_KIND_LEFT_BRACE);
+        case '}': return makeToken_(REI_TOKEN_KIND_RIGHT_BRACE);
+        case ',': return makeToken_(REI_TOKEN_KIND_COMMA);
+        case '?': return makeToken_(REI_TOKEN_KIND_QUESTION);
+        case ';': return makeToken_(REI_TOKEN_KIND_SEMICOLON);
+        case '#': return makeToken_(REI_TOKEN_KIND_POUND);
+        case '@': return makeToken_(REI_TOKEN_KIND_AT);
         case '.':
             if (peek_() == '.' && lexerState_.curr[1] == '.')
             {
                 advance_(); advance_();
-                return makeToken_(REI_TOKEN_TYPE_DOT_DOT_DOT);
+                return makeToken_(REI_TOKEN_KIND_DOT_DOT_DOT);
             }
-            return makeToken_(REI_TOKEN_TYPE_DOT);
+            return makeToken_(REI_TOKEN_KIND_DOT);
         case ':':
-            if (peek_() == ':') { advance_(); return makeToken_(REI_TOKEN_TYPE_COLON_COLON); }
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_COLON_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_COLON);
+            if (peek_() == ':') { advance_(); return makeToken_(REI_TOKEN_KIND_COLON_COLON); }
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_COLON_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_COLON);
         case '+':
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_PLUS_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_PLUS);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_PLUS_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_PLUS);
         case '-':
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_MINUS_EQUAL); }
-            if (peek_() == '>') { advance_(); return makeToken_(REI_TOKEN_TYPE_RIGHT_ARROW); }
-            return makeToken_(REI_TOKEN_TYPE_MINUS);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_MINUS_EQUAL); }
+            if (peek_() == '>') { advance_(); return makeToken_(REI_TOKEN_KIND_RIGHT_ARROW); }
+            return makeToken_(REI_TOKEN_KIND_MINUS);
         case '*':
             if (peek_() == '*')
             {
                 advance_();
-                if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_STAR_STAR_EQUAL); }
-                return makeToken_(REI_TOKEN_TYPE_STAR_STAR);
+                if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_STAR_STAR_EQUAL); }
+                return makeToken_(REI_TOKEN_KIND_STAR_STAR);
             }
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_STAR_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_STAR);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_STAR_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_STAR);
         case '/':
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_SLASH_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_SLASH);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_SLASH_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_SLASH);
         case '%':
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_MODULO_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_MODULO);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_MODULO_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_MODULO);
         case '&':
-            if (peek_() == '&') { advance_(); return makeToken_(REI_TOKEN_TYPE_AND_AND); }
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_AND_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_AND);
+            if (peek_() == '&') { advance_(); return makeToken_(REI_TOKEN_KIND_AND_AND); }
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_AND_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_AND);
         case '|':
-            if (peek_() == '|') { advance_(); return makeToken_(REI_TOKEN_TYPE_PIPE_PIPE); }
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_PIPE_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_PIPE);
+            if (peek_() == '|') { advance_(); return makeToken_(REI_TOKEN_KIND_PIPE_PIPE); }
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_PIPE_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_PIPE);
         case '~':
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_WAVE_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_WAVE);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_WAVE_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_WAVE);
         case '!':
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_BANG_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_BANG);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_BANG_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_BANG);
         case '<':
             if (peek_() == '<')
             {
                 advance_();
-                if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_LESS_LESS_EQUAL); }
-                return makeToken_(REI_TOKEN_TYPE_LESS_LESS);
+                if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_LESS_LESS_EQUAL); }
+                return makeToken_(REI_TOKEN_KIND_LESS_LESS);
             }
             if (peek_() == '=')
             {
                 advance_();
-                if (peek_() == '>') { advance_(); return makeToken_(REI_TOKEN_TYPE_COMPARE); }
-                return makeToken_(REI_TOKEN_TYPE_LESS_EQUAL);
+                if (peek_() == '>') { advance_(); return makeToken_(REI_TOKEN_KIND_COMPARE); }
+                return makeToken_(REI_TOKEN_KIND_LESS_EQUAL);
             }
-            if (peek_() == '-') { advance_(); return makeToken_(REI_TOKEN_TYPE_LEFT_ARROW); }
-            return makeToken_(REI_TOKEN_TYPE_LESS);
+            if (peek_() == '-') { advance_(); return makeToken_(REI_TOKEN_KIND_LEFT_ARROW); }
+            return makeToken_(REI_TOKEN_KIND_LESS);
         case '>':
             if (peek_() == '>')
             {
                 advance_();
-                if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_GREATER_GREATER_EQUAL); }
-                return makeToken_(REI_TOKEN_TYPE_GREATER_GREATER);
+                if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_GREATER_GREATER_EQUAL); }
+                return makeToken_(REI_TOKEN_KIND_GREATER_GREATER);
             }
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_GREATER_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_GREATER);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_GREATER_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_GREATER);
         case '=':
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_TYPE_EQUAL_EQUAL); }
-            return makeToken_(REI_TOKEN_TYPE_EQUAL);
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_EQUAL_EQUAL); }
+            return makeToken_(REI_TOKEN_KIND_EQUAL);
         default:
             return makeErrorToken_();
     }
@@ -379,7 +379,7 @@ static ReiToken scanToken_(void)
     {
         lexerState_.start = lexerState_.curr;
         ReiToken token;
-        token.type = REI_TOKEN_TYPE_EOF;
+        token.type = REI_TOKEN_KIND_EOF;
         token.lexeme.start = "";
         token.lexeme.length = 0;
         token.line = lexerState_.line;

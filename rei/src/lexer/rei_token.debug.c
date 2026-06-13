@@ -1,10 +1,10 @@
 #include "rei_token.h"
 #include <string.h>
-#include <inttypes.h>
+#include <intkinds.h>
 
-#define REI_TOKEN_TYPE_NAME_WIDTH 24
+#define REI_TOKEN_KIND_NAME_WIDTH 24
 
-static const char* tokenTypeNames_[REI_TOKEN_TYPE_MAX_COUNT] =
+static const char* tokenKindNames_[REI_TOKEN_KIND_MAX_COUNT] =
 {
     "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACKET", "RIGHT_BRACKET", "LEFT_BRACE", "RIGHT_BRACE",
     "LEFT_BRACKET_BRACKET", "RIGHT_BRACKET_BRACKET",
@@ -44,28 +44,28 @@ static const char* tokenTypeNames_[REI_TOKEN_TYPE_MAX_COUNT] =
     "EOF"
 };
 
-const char* reiTokenTypeToCstr(ReiTokenType type)
+const char* reiTokenKindToCstr(ReiTokenKind kind)
 {
-    return tokenTypeNames_[type];
+    return tokenKindNames_[kind];
 }
 char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
 {
-    const char* typeName = tokenTypeNames_[me->type];
-    switch (me->type)
+    const char* kindName = tokenKindNames_[me->kind];
+    switch (me->kind)
     {
-    case REI_TOKEN_TYPE_INT:
+    case REI_TOKEN_KIND_INT:
         snprintf(
             buff, len,
             "%-*s%" PRId16,
-            REI_TOKEN_TYPE_NAME_WIDTH, typeName,
+            REI_TOKEN_KIND_NAME_WIDTH, kindName,
             REI_AS_INT(me->literal)
         );
         break;
-    case REI_TOKEN_TYPE_FLOAT:
+    case REI_TOKEN_KIND_FLOAT:
         snprintf(
             buff, len,
             "%-*s%g",
-            REI_TOKEN_TYPE_NAME_WIDTH, typeName,
+            REI_TOKEN_KIND_NAME_WIDTH, kindName,
             REI_AS_FLOAT(me->literal)
         );
         break;
@@ -73,7 +73,7 @@ char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
         snprintf(
             buff, len,
             "%-*s%.*s",
-            REI_TOKEN_TYPE_NAME_WIDTH, typeName,
+            REI_TOKEN_KIND_NAME_WIDTH, kindName,
             me->lexeme.length, me->lexeme.start
         );
         break;

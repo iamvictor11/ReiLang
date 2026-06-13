@@ -3,7 +3,7 @@
 
 #include "rei_token.h"
 
-static const char* wordCloud_[REI_TOKEN_TYPE_MAX_COUNT] =
+static const char* wordCloud_[REI_TOKEN_KIND_MAX_COUNT] =
 {
     "(", ")", "[", "]", "{", "}",
     "[[", "]]",
