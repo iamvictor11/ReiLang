@@ -1,6 +1,6 @@
 #include "rei_token.h"
 #include <string.h>
-#include <intkinds.h>
+#include <inttypes.h>
 
 #define REI_TOKEN_KIND_NAME_WIDTH 24
 

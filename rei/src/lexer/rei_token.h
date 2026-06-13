@@ -149,7 +149,7 @@ typedef enum ReiTokenKind
 } ReiTokenKind;
 typedef struct ReiToken
 {
-    ReiTokenKind type;
+    ReiTokenKind kind;
     struct
     {
     const char* start;

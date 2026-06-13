@@ -28,7 +28,7 @@ static bool isCDigit_(char ch);
 static bool isAlpha_(char ch);
 static bool isAlphaDigit_(char ch);
 static void skipWhitespace_(void);
-static ReiToken makeToken_(ReiTokenKind type);
+static ReiToken makeToken_(ReiTokenKind kind);
 static ReiToken makeErrorToken_(void);
 static ReiTokenKind identifierType_(void);
 static ReiToken scanString_(char quote);
@@ -58,13 +58,13 @@ ReiResult reiLexerStart(ReiLexer* me)
     {
         ReiToken token = scanToken_();
         reiTokenBufferPush(me->tokens, &token);
-        if (token.type == REI_TOKEN_KIND_EOF) break;
+        if (token.kind == REI_TOKEN_KIND_EOF) break;
     }
     ReiToken* lastToken = reiTokenBufferBack(me->tokens);
-    if (reiTokenBufferEmpty(me->tokens) || lastToken->type != REI_TOKEN_KIND_EOF)
+    if (reiTokenBufferEmpty(me->tokens) || lastToken->kind != REI_TOKEN_KIND_EOF)
     {
         ReiToken eof;
-        eof.type = REI_TOKEN_KIND_EOF;
+        eof.kind = REI_TOKEN_KIND_EOF;
         eof.lexeme.start = "";
         eof.lexeme.length = 0;
         eof.line = lexerState_.line;
@@ -169,10 +169,10 @@ static void skipWhitespace_(void)
         }
     }
 }
-static ReiToken makeToken_(ReiTokenKind type)
+static ReiToken makeToken_(ReiTokenKind kind)
 {
     ReiToken token;
-    token.type = type;
+    token.kind = kind;
     token.lexeme.start = lexerState_.start;
     token.lexeme.length = (int)(lexerState_.curr - lexerState_.start);
     token.line = lexerState_.line;
@@ -183,7 +183,7 @@ static ReiToken makeErrorToken_(void)
 {
     lexerState_.res = REI_RESULT_LEXER_ERROR;
     ReiToken token;
-    token.type = REI_TOKEN_KIND_EOF;
+    token.kind = REI_TOKEN_KIND_EOF;
     token.lexeme.start = lexerState_.start;
     token.lexeme.length = (int)(lexerState_.curr - lexerState_.start);
     token.line = lexerState_.line;
@@ -231,7 +231,7 @@ static ReiToken scanNumber_(void)
 {
     lexerState_.start = lexerState_.curr - 1;
     while (isCDigit_(peek_())) advance_();
-    ReiTokenKind type = REI_TOKEN_KIND_INT;
+    ReiTokenKind kind = REI_TOKEN_KIND_INT;
     if ((peek_() == 'b' || peek_() == 'B' ||
         peek_() == 'o' || peek_() == 'O' ||
         peek_() == 'x' || peek_() == 'X') &&
@@ -242,7 +242,7 @@ static ReiToken scanNumber_(void)
     }
     else if (peek_() == '.' && isCDigit_(peekNext_()))
     {
-        type = REI_TOKEN_KIND_FLOAT;
+        kind = REI_TOKEN_KIND_FLOAT;
         advance_();
         while (isCDigit_(peek_())) advance_();
     }
@@ -250,19 +250,19 @@ static ReiToken scanNumber_(void)
         (peekNext_() == '+' || peekNext_() == '-') &&
         isCDigit_(peekNextNext_()))
     {
-        type = REI_TOKEN_KIND_FLOAT;
+        kind = REI_TOKEN_KIND_FLOAT;
         advance_();
         advance_();
         while (isCDigit_(peek_())) advance_();
     }
-    ReiToken token = makeToken_(type);
+    ReiToken token = makeToken_(kind);
     int length = lexerState_.curr - lexerState_.start;
     char buffer[length];
     memset(buffer, 0, length);
     memcpy(buffer, lexerState_.start, length);
-    if (type == REI_TOKEN_KIND_INT)
+    if (kind == REI_TOKEN_KIND_INT)
         token.literal = REI_MK_INT(reiCstrToInt(buffer));
-    else if (type == REI_TOKEN_KIND_FLOAT)
+    else if (kind == REI_TOKEN_KIND_FLOAT)
         token.literal = REI_MK_FLOAT(reiCharsToFloat(buffer));
     return token;
 }
@@ -270,8 +270,8 @@ static ReiToken scanIdentifier_(void)
 {
     lexerState_.start = lexerState_.curr - 1;
     while (isAlphaDigit_(peek_())) advance_();
-    ReiTokenKind type = identifierType_();
-    return makeToken_(type);
+    ReiTokenKind kind = identifierType_();
+    return makeToken_(kind);
 }
 static ReiToken scanOperator_(void)
 {
@@ -379,7 +379,7 @@ static ReiToken scanToken_(void)
     {
         lexerState_.start = lexerState_.curr;
         ReiToken token;
-        token.type = REI_TOKEN_KIND_EOF;
+        token.kind = REI_TOKEN_KIND_EOF;
         token.lexeme.start = "";
         token.lexeme.length = 0;
         token.line = lexerState_.line;
