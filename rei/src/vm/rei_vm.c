@@ -4,7 +4,7 @@
 
 ReiVM reiVMCreate(void)
 {
-    ReiVM me = (ReiVM)reiAllocator_g.malloc(reiAllocator_g.context, sizeof(ReiVM_T));
+    ReiVM me = reiMalloc(ReiVM_T, 1);
     if (me == NULL) return NULL;
     me->cache = NULL;
     return me;
@@ -13,8 +13,8 @@ void reiVMDestroy(ReiVM me)
 {
     if (me == NULL) return;
     if (me->cache)
-        reiAllocator_g.free(reiAllocator_g.context, me->cache);
-    reiAllocator_g.free(reiAllocator_g.context, me);
+        reiFree(me->cache);
+    reiFree(me);
 }
 
 ReiResult reiVMCompileModule(ReiVM me, const char* source)
