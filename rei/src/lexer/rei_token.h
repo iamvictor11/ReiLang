@@ -27,6 +27,7 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_COMMA,       // ,
     REI_TOKEN_TYPE_QUESTION,    // ?
     REI_TOKEN_TYPE_DOT,         // .
+    REI_TOKEN_TYPE_DOT_DOT,     // ..
     REI_TOKEN_TYPE_DOT_DOT_DOT, // ...
     REI_TOKEN_TYPE_COLON,       // :
     REI_TOKEN_TYPE_COLON_COLON,  // ::
