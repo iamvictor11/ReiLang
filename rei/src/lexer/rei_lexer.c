@@ -74,7 +74,7 @@ ReiResult reiLexerStart(ReiLexer* me)
 #if REI_ENABLE_DEBUG >= REI_DEBUG_LEVEL_TRACE
     if (lexerState_.res == REI_RESULT_SUCCESS)
     {
-        printf("tokens: %zu\n", me->tokens->size);
+        printf("lexer tokens: %zu\n", me->tokens->size);
         char buff[REI_MAX_BUFFER_SIZE] = {0};
         C_TEMPLATE_VECTOR_FOREACH(ReiToken, token, me->tokens)
             REI_DEBUG_LOG_TRACE(reiTokenToCstr(token, buff, REI_MAX_BUFFER_SIZE));

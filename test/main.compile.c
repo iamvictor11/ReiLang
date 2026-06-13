@@ -5,12 +5,13 @@
 #define TAB4 "    "
 
 static const char* script =
-"val := -12e+3;\n"
-"'哈基米'\n"
+"kon val = -12e+3;\n"
+"mut var = 11;\n"
+"hajimi := '哈基米'\n"
 "while (true)\n"
 "{\n"
 TAB4 "break;\n"
-"}"
+"}\n"
 "rename val vaal;"
 ;
 
@@ -20,6 +21,7 @@ int main()
     reiInitialize(NULL, NULL);
 
     ReiVM vm = reiVMCreate();
+    printf("source:\n%s\n", script);
     ReiResult res = reiVMCompileModule(vm, script);
     switch (res)
     {
