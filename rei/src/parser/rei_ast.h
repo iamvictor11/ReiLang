@@ -1,37 +1,58 @@
 #ifndef REI_PARSER_AST_H
 #define REI_PARSER_AST_H
 
-#define REI_DECL_AST_NODE(NAME) typedef struct Rei##NAME##Node Rei##NAME##Node;
-REI_DECL_AST_NODE(Root)
-REI_DECL_AST_NODE(Literal)
-REI_DECL_AST_NODE(Identifier)
-REI_DECL_AST_NODE(VariableDeclaration)
-REI_DECL_AST_NODE(EnumDeclaration)
-REI_DECL_AST_NODE(FlagDeclaration)
-REI_DECL_AST_NODE(FunctionDeclaration)
-REI_DECL_AST_NODE(ClassDeclaration)
-REI_DECL_AST_NODE(NamespaceDeclaration)
-REI_DECL_AST_NODE(UnaryExpression)
-REI_DECL_AST_NODE(BinaryExpression)
-REI_DECL_AST_NODE(AtixExpression)
-REI_DECL_AST_NODE(CallExpression)
-REI_DECL_AST_NODE(MemberExpression)
-REI_DECL_AST_NODE(BlockStatement)
-REI_DECL_AST_NODE(IfStatement)
-REI_DECL_AST_NODE(WhileStatement)
-REI_DECL_AST_NODE(BreakStatement)
-REI_DECL_AST_NODE(ContinueStatement)
-REI_DECL_AST_NODE(SwitchStatement)
-REI_DECL_AST_NODE(PassStatement)
-REI_DECL_AST_NODE(ReturnStatement)
-REI_DECL_AST_NODE(NewStatement)
-REI_DECL_AST_NODE(DelStatement)
-REI_DECL_AST_NODE(IsStatement)
-#undef REI_DECL_AST_NODE
+#include "../rei_internal.h"
+#include REI_C_TEMPLATE_LIB_CONTAINER_VECTOR_H
 
-struct ReiRootNode
+typedef enum ReiAstNodeType
 {
+    REI_AST_NODE_TYPE_ROOT,
+    REI_AST_NODE_TYPE_DECL_MUT,
+    REI_AST_NODE_TYPE_DECL_KON,
+    REI_AST_NODE_TYPE_DECL_ENUM,
+    REI_AST_NODE_TYPE_DECL_FLAG,
+    REI_AST_NODE_TYPE_DECL_FUNC,
+    REI_AST_NODE_TYPE_DECL_CLASS,
+    REI_AST_NODE_TYPE_EXPR_GROUP,
+    REI_AST_NODE_TYPE_EXPR_LITERAL,
+    REI_AST_NODE_TYPE_EXPR_IDENTIFIER,
+    REI_AST_NODE_TYPE_EXPR_UNARY,
+    REI_AST_NODE_TYPE_EXPR_BINARY,
+    REI_AST_NODE_TYPE_EXPR_AND,
+    REI_AST_NODE_TYPE_EXPR_OR,
+    REI_AST_NODE_TYPE_EXPR_ATIX,
+    REI_AST_NODE_TYPE_EXPR_CALL,
+    REI_AST_NODE_TYPE_STMT_BLOCK,
+    REI_AST_NODE_TYPE_STMT_IF,
+    REI_AST_NODE_TYPE_STMT_WHILE,
+    REI_AST_NODE_TYPE_STMT_BREAK,
+    REI_AST_NODE_TYPE_STMT_CONTINUE,
+    REI_AST_NODE_TYPE_STMT_SWITCH,
+    REI_AST_NODE_TYPE_STMT_PASS,
+    REI_AST_NODE_TYPE_STMT_RETURN,
+    REI_AST_NODE_TYPE_STMT_NEW,
+    REI_AST_NODE_TYPE_STMT_DEL,
+    REI_AST_NODE_TYPE_STMT_IS,
+    REI_AST_NODE_TYPE_MAX_COUNT
+} ReiAstNodeType;
+typedef enum ReiAstNodeCategory
+{
+    REI_AST_NODE_CATEGORY_ROOT,
+    REI_AST_NODE_CATEGORY_DECL,
+    REI_AST_NODE_CATEGORY_EXPR,
+    REI_AST_NODE_CATEGORY_STMT,
+    REI_AST_NODE_CATEGORY_MAX_COUNT
+} ReiAstNodeCategory;
+typedef struct ReiAst ReiAst, ReiAstNode;
+typedef ReiAstNode* ReiAstNodePtr;
+C_TEMPLATE_DECL_VECTOR(, rei, Rei, AstForest, ReiAstNodePtr)
+C_TEMPLATE_DEFN_VECTOR(, rei, Rei, AstForest, ReiAstNodePtr)
+struct ReiAst
+{
+    ReiAstNodeType type;
+    ReiAstNodeCategory category;
+    ReiAstNode* parent;
+    ReiAstForest* children;
 };
-
 
 #endif
