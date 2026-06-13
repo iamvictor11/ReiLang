@@ -84,74 +84,27 @@ C_TEMPLATE_DECL_ALLOCATOR(REI_API, rei, Rei)
 C_TEMPLATE_DEFN_ALLOCATOR(REI_API, rei, Rei, REI_API_CALL)
 
 typedef int8_t ReiBytecode;
-typedef struct ReiVM_T* ReiVM;
-typedef struct ReiObj ReiObj;
 
-typedef enum ReiStatus
+typedef enum ReiResult
 {
-    REI_STATUS_SUCCESS,
-    REI_STATUS_LEXER_ERROR,
-    REI_STATUS_PARSER_ERROR,
-    REI_STATUS_SEMANTIC_ERROR,
-    REI_STATUS_CODEGEN_ERROR,
-    REI_STATUS_RUNTIME_ERROR,
-    REI_STATUS_MAX_COUNT
-} ReiStatus;
-
-typedef enum ReiValueType
-{
-    REI_VALUE_TYPE_NIL,
-    REI_VALUE_TYPE_BOOL,
-    REI_VALUE_TYPE_INT,
-    REI_VALUE_TYPE_FLOAT,
-    REI_VALUE_TYPE_OBJ,
-    REI_VALUE_TYPE_MAX_COUNT
-} ReiValueType;
-typedef struct ReiValue
-{
-    ReiValueType type;
-    union
-    {
-        bool vBool;
-        int64_t vInt;
-        double vFloat;
-        ReiObj* pObj;
-    } as;
-} ReiValue;
-
-#define REI_IS_NIL(value)       ((value).type == REI_VALUE_TYPE_NIL)
-#define REI_IS_BOOL(value)      ((value).type == REI_VALUE_TYPE_BOOL)
-#define REI_IS_INT(value)       ((value).type == REI_VALUE_TYPE_INT)
-#define REI_IS_FLOAT(value)     ((value).type == REI_VALUE_TYPE_FLOAT)
-#define REI_IS_NUMBER(value)    ((value).type == REI_VALUE_TYPE_INT || (value).type == REI_VALUE_TYPE_FLOAT)
-#define REI_IS_OBJ(value)       ((value).type == REI_VALUE_TYPE_OBJ)
-#define REI_IS_UNDEFINED(value) ((value).type == REI_VALUE_TYPE_UNDEFINED)
-
-#define REI_AS_BOOL(value)      ((value).as.vBool)
-#define REI_AS_INT(value)       ((value).as.vInt)
-#define REI_AS_FLOAT(value)     ((value).as.vFloat)
-#define REI_AS_NUMBER(value)    ((value).as.vFloat)
-#define REI_AS_OBJ(value)       ((value).as.pObj)
-
-#define REI_MK_NIL          ((ReiValue){REI_VALUE_TYPE_NIL,     {.vBool = false}})
-#define REI_MK_BOOL(v)      ((ReiValue){REI_VALUE_TYPE_BOOL,    {.vBool = v}})
-#define REI_MK_INT(v)       ((ReiValue){REI_VALUE_TYPE_INT,     {.vInt = v}})
-#define REI_MK_FLOAT(v)     ((ReiValue){REI_VALUE_TYPE_FLOAT,   {.vFloat = v}})
-#define REI_MK_NUMBER(v)    ((ReiValue){REI_VALUE_TYPE_FLOAT,   {.vFloat = v}})
-#define REI_MK_OBJ(p)       ((ReiValue){REI_VALUE_TYPE_OBJ,     {.pObj = (ReiObj*)p}})
-
-typedef struct ReiResult
-{
-    ReiStatus status;
-    ReiValue value;
+    REI_RESULT_SUCCESS,
+    REI_RESULT_LEXER_ERROR,
+    REI_RESULT_PARSER_ERROR,
+    REI_RESULT_SEMANTIC_ERROR,
+    REI_RESULT_CODEGEN_ERROR,
+    REI_RESULT_RUNTIME_ERROR,
+    REI_RESULT_MAX_COUNT
 } ReiResult;
-typedef ReiResult(*ReiNativeFunc)(ReiVM vm, int argc, ReiValue* args);
 
 typedef struct ReiCallbacks
 {
     void* context;
-    bool (REI_API_CALL *debug)(void* ctx, ReiResult res);
+    bool (REI_API_CALL *debug)(void* ctx, ReiResult res, const char* msg);
 } ReiCallbacks;
+
+REI_API void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks);
+
+typedef struct ReiVM_T* ReiVM;
 
 REI_API ReiVM reiVMCreate(void);
 REI_API void reiVMDestroy(ReiVM me);
@@ -161,6 +114,8 @@ REI_API ReiResult reiVMLoadModule(ReiVM me, const ReiBytecode* code);
 REI_API ReiResult reiVMRunModule(ReiVM me);
 REI_API const ReiBytecode* reiVMCacheModule(ReiVM me);
 
-REI_API void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks);
+typedef void (*ReiNativeFn)(ReiVM vm);
+typedef void* (*ReiNewInstanceFn) (ReiVM* vm);
+typedef void (*ReiDelInstanceFn) (ReiVM* vm, void* user);
 
 #endif
