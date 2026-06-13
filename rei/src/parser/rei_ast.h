@@ -187,7 +187,8 @@ struct ReiAstStmtWhen
     ReiAstNode base;
     ReiAstNode* condition;
     ReiAstStmtBlock* block;
-    union {ReiAstStmtWhen* elifn, elsen;};
+    ReiAstStmtWhen* elifn;
+    ReiAstStmtBlock* elsen;
 };
 struct ReiAstStmtWhile
 {
