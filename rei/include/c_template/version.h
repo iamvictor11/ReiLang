@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#define C_TEMPLATE_DEFN_VERSION(ATTR, SPREFIX, LPREFIX) \
+#define C_TEMPLATE_VERSION_STRUCT(ATTR, SPREFIX, LPREFIX) \
     typedef struct LPREFIX##Version \
     { \
         const char* name; \
