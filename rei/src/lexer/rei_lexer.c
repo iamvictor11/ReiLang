@@ -42,6 +42,10 @@ void reiLexerInit(ReiLexer* me, const char* source)
 {
     me->source = source;
     me->tokens = reiTokenBufferCreate(NULL);
+    lexerState_.start = me->source;
+    lexerState_.curr = me->source;
+    lexerState_.line = 1;
+    lexerState_.res = REI_RESULT_SUCCESS;
 }
 void reiLexerFree(ReiLexer* me)
 {
@@ -50,10 +54,6 @@ void reiLexerFree(ReiLexer* me)
 ReiResult reiLexerStart(ReiLexer* me)
 {
     if (me == NULL || me->source == NULL) return REI_RESULT_LEXER_ERROR;
-    lexerState_.start = me->source;
-    lexerState_.curr = me->source;
-    lexerState_.line = 1;
-    lexerState_.res = REI_RESULT_SUCCESS;
     while (!isAtEnd_())
     {
         ReiToken token = scanToken_();
@@ -83,6 +83,7 @@ ReiResult reiLexerStart(ReiLexer* me)
     return lexerState_.res;
 }
 #pragma endregion
+#pragma region PIMPL
 static char peekPrev_(void)
 {
     if (lexerState_.prev == NULL) return '\0';
@@ -394,3 +395,4 @@ static ReiToken scanToken_(void)
         return scanString_(ch);
     return scanOperator_();
 }
+#pragma endregion
