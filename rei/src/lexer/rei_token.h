@@ -34,6 +34,7 @@ typedef enum ReiTokenType
 
     REI_TOKEN_TYPE_AND,             // &
     REI_TOKEN_TYPE_PIPE,            // |
+    REI_TOKEN_TYPE_CTRL,            // ^
     REI_TOKEN_TYPE_WAVE,            // ~
     REI_TOKEN_TYPE_LESS_LESS,       // <<
     REI_TOKEN_TYPE_GREATER_GREATER, // >>
