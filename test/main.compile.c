@@ -16,7 +16,7 @@ TAB4 "break;\n"
 int main()
 {
     osSetConsoleOutputCP_UTF8();
-    reiInitialize(NULL);
+    reiInitialize(NULL, NULL);
 
     ReiVM vm = reiVMCreate();
     ReiResult res = reiVMCompileModule(vm, script);

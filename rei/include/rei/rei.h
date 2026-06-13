@@ -49,11 +49,26 @@
 
 #include "stdint.h"
 #include "stdbool.h"
+#include REI_C_TEMPLATE_LIB_VERSION_H
 #include REI_C_TEMPLATE_LIB_ALLOCATOR_H
+
+C_TEMPLATE_VERSION_STRUCT(,rei, Rei)
+#define REI_VERSION \
+(ReiVersion) { \
+    .name = "REI", \
+    .major = 1, \
+    .minor = 1, \
+    .patch = 1, \
+    .user = NULL \
+}
+#define REI_VERSION_TO_UINT(MAJOR, MINOR, PATCH) C_TEMPLATE_VERSION_TO_UINT(MAJOR, MINOR, PATCH)
+#define REI_VERSION_CAST_UINT(VERSION) C_TEMPLATE_VERSION_CAST_UINT(VERSION)
+#define REI_UINT_TO_MAJOR(VERSION) C_TEMPLATE_UINT_TO_MAJOR(VERSION)
+#define REI_UINT_TO_MINOR(VERSION) C_TEMPLATE_UINT_TO_MINOR(VERSION)
+#define REI_UINT_TO_PATCH(VERSION) C_TEMPLATE_UINT_TO_PATCH(VERSION)
 
 C_TEMPLATE_DECL_ALLOCATOR(, rei, Rei)
 C_TEMPLATE_DEFN_ALLOCATOR(, rei, Rei)
-REI_API void reiInitialize(const ReiAllocator* allocator);
 
 typedef int8_t ReiBytecode;
 typedef struct ReiVM_T* ReiVM;
@@ -119,6 +134,11 @@ typedef struct ReiResult
 } ReiResult;
 typedef ReiResult(*ReiNativeFunc)(ReiVM vm, int argc, ReiValue* args);
 
+typedef struct ReiCallbacks
+{
+    void* context;
+    bool (*debug)(void* ctx, ReiResult res);
+} ReiCallbacks;
 
 REI_API ReiVM reiVMCreate(void);
 REI_API void reiVMDestroy(ReiVM me);
@@ -127,5 +147,7 @@ REI_API ReiResult reiVMCompileModule(ReiVM me, const char* source);
 REI_API ReiResult reiVMLoadModule(ReiVM me, const ReiBytecode* code);
 REI_API ReiResult reiVMRunModule(ReiVM me);
 REI_API const ReiBytecode* reiVMCacheModule(ReiVM me);
+
+REI_API void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks);
 
 #endif
