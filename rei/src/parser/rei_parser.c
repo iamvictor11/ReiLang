@@ -14,7 +14,7 @@ static Rei_ParserState parserState_ = {0};
 void reiParserInit(ReiParser* me, ReiTokenBuffer tokens)
 {
     me->tokens = tokens;
-    parserState_.curr = me->tokens;
+    parserState_.curr = me->tokens->data;
     parserState_.res = REI_RESULT_SUCCESS;
 }
 ReiResult reiParserStart(ReiParser* me)
