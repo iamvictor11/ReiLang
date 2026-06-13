@@ -194,14 +194,14 @@
     } \
     ATTR float SPREFIX##NAME##ToFloat(const LPREFIX##NAME me) \
     { \
-        return (float)SPREFIX##NAME##ToDouble(me);\
+        return (float)SPREFIX##NAME##ToDouble(me); \
     } \
     ATTR double SPREFIX##NAME##ToDouble(const LPREFIX##NAME me) \
     { \
         const char* str = SPREFIX##NAME##ToCstr(me); \
         if (str == NULL) return 0.0f; \
         size_t len = strlen(str); \
-        char* buf = (char*)(ALLOCATOR)->malloc((ALLOCATOR)->context, len + 1);\
+        char* buf = (char*)(ALLOCATOR)->malloc((ALLOCATOR)->context, len + 1); \
         if (!buf) return 0.0f; \
         size_t j = 0; \
         for (size_t i = 0; i < len; i++) \
