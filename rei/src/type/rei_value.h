@@ -6,10 +6,8 @@
 #include <stdint.h>
 #include REI_C_TEMPLATE_LIB_CONTAINER_STR_H
 
-typedef struct ReiObj           ReiObj;
+typedef struct ReiObject        ReiObject;
 typedef struct ReiObjString     ReiObjString;   // "" ''
-typedef struct ReiObjList       ReiObjList;     // [e,]
-typedef struct ReiObjMap        ReiObjMap;      // [k:e,]
 typedef struct ReiObjRange      ReiObjRange;    // i..n
 typedef struct ReiObjModule     ReiObjModule;
 typedef struct ReiObjFunction   ReiObjFunction;
@@ -25,7 +23,9 @@ typedef enum ReiValueType
     REI_VALUE_TYPE_BOOL,
     REI_VALUE_TYPE_INT,
     REI_VALUE_TYPE_FLOAT,
-    REI_VALUE_TYPE_OBJ,
+    REI_VALUE_TYPE_ENUM,
+    REI_VALUE_TYPE_FLAG,
+    REI_VALUE_TYPE_OBJECT,
     REI_VALUE_TYPE_UNDEFINED,
     REI_VALUE_TYPE_MAX_COUNT
 } ReiValueType;
@@ -37,7 +37,7 @@ typedef struct ReiValue
         bool vBool;
         int64_t vInt;
         double vFloat;
-        ReiObj* pObj;
+        ReiObject* pObject;
     } as;
 } ReiValue;
 
@@ -46,21 +46,27 @@ typedef struct ReiValue
 #define REI_IS_INT(value)       ((value).type == REI_VALUE_TYPE_INT)
 #define REI_IS_FLOAT(value)     ((value).type == REI_VALUE_TYPE_FLOAT)
 #define REI_IS_NUMBER(value)    ((value).type == REI_VALUE_TYPE_INT || (value).type == REI_VALUE_TYPE_FLOAT)
-#define REI_IS_OBJ(value)       ((value).type == REI_VALUE_TYPE_OBJ)
+#define REI_IS_ENUM(value)      ((value).type == REI_VALUE_TYPE_ENUM)
+#define REI_IS_FLAG(value)      ((value).type == REI_VALUE_TYPE_FLAG)
+#define REI_IS_OBJECT(value)    ((value).type == REI_VALUE_TYPE_OBJECT)
 #define REI_IS_UNDEFINED(value) ((value).type == REI_VALUE_TYPE_UNDEFINED)
 
 #define REI_AS_BOOL(value)      ((value).as.vBool)
 #define REI_AS_INT(value)       ((value).as.vInt)
 #define REI_AS_FLOAT(value)     ((value).as.vFloat)
 #define REI_AS_NUMBER(value)    ((value).as.vFloat)
-#define REI_AS_OBJ(value)       ((value).as.pObj)
+#define REI_AS_ENUM(value)      ((value).as.vInt)
+#define REI_AS_FLAG(value)      ((value).as.vInt)
+#define REI_AS_OBJECT(value)    ((value).as.pObject)
 
 #define REI_MK_NIL          ((ReiValue){REI_VALUE_TYPE_NIL,     {.vBool = false}})
 #define REI_MK_BOOL(v)      ((ReiValue){REI_VALUE_TYPE_BOOL,    {.vBool = v}})
 #define REI_MK_INT(v)       ((ReiValue){REI_VALUE_TYPE_INT,     {.vInt = v}})
 #define REI_MK_FLOAT(v)     ((ReiValue){REI_VALUE_TYPE_FLOAT,   {.vFloat = v}})
 #define REI_MK_NUMBER(v)    ((ReiValue){REI_VALUE_TYPE_FLOAT,   {.vFloat = v}})
-#define REI_MK_OBJ(p)       ((ReiValue){REI_VALUE_TYPE_OBJ,     {.pObj = (ReiObj*)p}})
+#define REI_MK_ENUM(v)      ((ReiValue){REI_VALUE_TYPE_ENUM,    {.vInt = (int64_t)v}})
+#define REI_MK_FLAG(v)      ((ReiValue){REI_VALUE_TYPE_FLAG,    {.vInt = (int64_t)v}})
+#define REI_MK_OBJECT(p)    ((ReiValue){REI_VALUE_TYPE_OBJECT,  {.pObject = (ReiObject*)p}})
 
 C_TEMPLATE_DECL_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
 C_TEMPLATE_DEFN_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
@@ -86,35 +92,31 @@ typedef enum ReiObjType
     REI_OBJ_TYPE_INSTANCE,
     REI_OBJ_TYPE_MAX_COUNT
 } ReiObjType;
-typedef struct ReiObj
+typedef struct ReiObject
 {
     ReiObjType type;
     bool isMarked;
-    ReiObj* next;
-} ReiObj;
+    ReiObject* next;
+} ReiObject;
 
-#define IS_STRING(value)    (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_STRING)
-#define IS_LIST(value)      (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_LIST)
-#define IS_MAP(value)       (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_MAP)
-#define IS_RANGE(value)     (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_RANGE)
-#define IS_MODULE(value)    (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_MODULE)
-#define IS_FUNCTION(value)  (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_FUNCTION)
-#define IS_CLOSURE(value)   (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_CLOSURE)
-#define IS_UPVALUE(value)   (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_UPVALUE)
-#define IS_METHOD(value)    (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_METHOD)
-#define IS_CLASS(value)     (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_CLASS)
-#define IS_INSTANCE(value)  (REI_IS_OBJ(value) && REI_AS_OBJ(value)->type == REI_OBJ_TYPE_INSTANCE)
+#define REI_IS_STRING(value)    (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_STRING)
+#define REI_IS_RANGE(value)     (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_RANGE)
+#define REI_IS_MODULE(value)    (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_MODULE)
+#define REI_IS_FUNCTION(value)  (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_FUNCTION)
+#define REI_IS_CLOSURE(value)   (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_CLOSURE)
+#define REI_IS_UPVALUE(value)   (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_UPVALUE)
+#define REI_IS_METHOD(value)    (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_METHOD)
+#define REI_IS_CLASS(value)     (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_CLASS)
+#define REI_IS_INSTANCE(value)  (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_INSTANCE)
 
-#define AS_STRING(value)    ((ReiObjString*)REI_AS_OBJ(value))
-#define AS_LIST(value)      ((ReiObjList*)REI_AS_OBJ(value))
-#define AS_MAP(value)       ((ReiObjMap*)REI_AS_OBJ(value))
-#define AS_RANGE(value)     ((ReiObjRange*)REI_AS_OBJ(value))
-#define AS_MODULE(value)    ((ReiObjModule*)REI_AS_OBJ(value))
-#define AS_FUNCTION(value)  ((ReiObjFunction*)REI_AS_OBJ(value))
-#define AS_CLOSURE(value)   ((ReiObjClosure*)REI_AS_OBJ(value))
-#define AS_UPVALUE(value)   ((ReiObjUpvalue*)REI_AS_OBJ(value))
-#define AS_METHOD(value)    ((ReiObjMethod*)REI_AS_OBJ(value))
-#define AS_CLASS(value)     ((ReiObjClass*)REI_AS_OBJ(value))
-#define AS_INSTANCE(value)  ((ReiObjInstance*)REI_AS_OBJ(value))
+#define REI_AS_STRING(value)    ((ReiObjString*)REI_AS_OBJECT(value))
+#define REI_AS_RANGE(value)     ((ReiObjRange*)REI_AS_OBJECT(value))
+#define REI_AS_MODULE(value)    ((ReiObjModule*)REI_AS_OBJECT(value))
+#define REI_AS_FUNCTION(value)  ((ReiObjFunction*)REI_AS_OBJECT(value))
+#define REI_AS_CLOSURE(value)   ((ReiObjClosure*)REI_AS_OBJECT(value))
+#define REI_AS_UPVALUE(value)   ((ReiObjUpvalue*)REI_AS_OBJECT(value))
+#define REI_AS_METHOD(value)    ((ReiObjMethod*)REI_AS_OBJECT(value))
+#define REI_AS_CLASS(value)     ((ReiObjClass*)REI_AS_OBJECT(value))
+#define REI_AS_INSTANCE(value)  ((ReiObjInstance*)REI_AS_OBJECT(value))
 
 #endif
