@@ -14,12 +14,10 @@ TAB4 "break;\n"
 "}"
 ;
 
-ReiAllocator reiAllocator_g;
-
 int main()
 {
     osSetConsoleOutputCP_UTF8();
-    reiAllocator_g = reiDefaultAllocator();
+    reiInitialize(NULL);
 
     ReiLexer lexer;
     printf("script: %s\n", script);

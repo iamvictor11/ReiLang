@@ -1,6 +1,30 @@
 #ifndef REI_REI_H
 #define REI_REI_H
 
+#if defined(_WIN32) || defined(_WIN64)
+    #ifdef REI_BUILD_DLL
+        #define REI_API __declspec(dllexport)
+    #else
+        #ifdef REI_USE_DLL
+            #define REI_API __declspec(dllimport)
+        #else
+            #define REI_API
+        #endif
+    #endif
+#elif defined(__linux__) || defined(__APPLE__)
+    #ifdef REI_BUILD_DLL
+        #define REI_API __attribute__((visibility("default")))
+    #else
+        #define REI_API
+    #endif
+#else
+    #define REI_API
+#endif
+#ifdef REI_STATIC_BUILD
+    #undef REI_API
+    #define REI_API
+#endif
+
 #define REI_C_TEMPLATE_LIB_CONTAINER_LIST_DOUBLY_H  "c_template/container/list.doubly.h"
 #define REI_C_TEMPLATE_LIB_CONTAINER_LIST_SINGLY_H  "c_template/container/list.singly.h"
 #define REI_C_TEMPLATE_LIB_CONTAINER_STR_H          "c_template/container/str.h"
@@ -20,10 +44,9 @@
 #include "stdbool.h"
 #include REI_C_TEMPLATE_LIB_ALLOCATOR_H
 
-C_TEMPLATE_DECL_ALLOCATOR(static inline, rei, Rei)
-C_TEMPLATE_DEFN_ALLOCATOR(static inline, rei, Rei)
-C_TEMPLATE_IMPL_ALLOCATOR(static inline, rei, Rei)
-extern ReiAllocator reiAllocator_g;
+C_TEMPLATE_DECL_ALLOCATOR(, rei, Rei)
+C_TEMPLATE_DEFN_ALLOCATOR(, rei, Rei)
+REI_API void reiInitialize(const ReiAllocator* allocator);
 
 typedef int8_t ReiBytecode;
 typedef struct ReiVM_T* ReiVM;
@@ -90,12 +113,12 @@ typedef struct ReiResult
 typedef ReiResult(*ReiNativeFunc)(ReiVM vm, int argc, ReiValue* args);
 
 
-ReiVM reiVMCreate(void);
-void reiVMDestroy(ReiVM me);
+REI_API ReiVM reiVMCreate(void);
+REI_API void reiVMDestroy(ReiVM me);
 
-ReiResult reiVMCompileModule(ReiVM me, const char* source);
-ReiResult reiVMLoadModule(ReiVM me, const ReiBytecode* code);
-ReiResult reiVMRunModule(ReiVM me);
-const ReiBytecode* reiVMCacheModule(ReiVM me);
+REI_API ReiResult reiVMCompileModule(ReiVM me, const char* source);
+REI_API ReiResult reiVMLoadModule(ReiVM me, const ReiBytecode* code);
+REI_API ReiResult reiVMRunModule(ReiVM me);
+REI_API const ReiBytecode* reiVMCacheModule(ReiVM me);
 
 #endif

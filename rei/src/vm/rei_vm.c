@@ -1,4 +1,5 @@
 #include "rei_vm.h"
+#include "../rei_allocator.h"
 #include "../lexer/rei_lexer.h"
 
 ReiVM reiVMCreate(void)
