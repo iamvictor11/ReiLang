@@ -49,11 +49,11 @@ void reiLexerFree(ReiLexer* me)
 }
 ReiResult reiLexerStart(ReiLexer* me)
 {
-    if (me == NULL || me->source == NULL) return (ReiResult){REI_STATUS_LEXER_ERROR, REI_MK_NIL};
+    if (me == NULL || me->source == NULL) return REI_RESULT_LEXER_ERROR;
     lexerState_.start = me->source;
     lexerState_.curr = me->source;
     lexerState_.line = 1;
-    lexerState_.res = (ReiResult){REI_STATUS_SUCCESS, REI_MK_NIL};
+    lexerState_.res = REI_RESULT_SUCCESS;
     while (!isAtEnd_())
     {
         ReiToken token = scanToken_();
@@ -72,7 +72,7 @@ ReiResult reiLexerStart(ReiLexer* me)
         reiTokenBufferPush(me->tokens, &eof);
     }
 #if REI_ENABLE_DEBUG >= REI_DEBUG_LEVEL_TRACE
-    if (lexerState_.res.status == REI_STATUS_SUCCESS)
+    if (lexerState_.res == REI_RESULT_SUCCESS)
     {
         printf("tokens: %zu\n", me->tokens->size);
         char buff[REI_MAX_BUFFER_SIZE] = {0};
@@ -181,7 +181,7 @@ static ReiToken makeToken_(ReiTokenType type)
 }
 static ReiToken makeErrorToken_(void)
 {
-    lexerState_.res = (ReiResult){REI_STATUS_LEXER_ERROR, REI_MK_NIL};
+    lexerState_.res = REI_RESULT_LEXER_ERROR;
     ReiToken token;
     token.type = REI_TOKEN_TYPE_EOF;
     token.lexeme.start = lexerState_.start;
