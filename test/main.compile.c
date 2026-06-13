@@ -6,7 +6,7 @@
 
 static const char* script =
 "val := -12e+3;\n"
-"'hajimi'\n"
+"'哈基米'\n"
 "while (true)\n"
 "{\n"
 TAB4 "break;\n"
