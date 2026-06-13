@@ -263,7 +263,7 @@ static ReiToken scanNumber_(void)
     if (type == REI_TOKEN_TYPE_INT)
         token.literal = REI_MK_INT(reiCstrToInt(buffer));
     else if (type == REI_TOKEN_TYPE_FLOAT)
-        token.literal = REI_MK_FLOAT(reiCstrToFloat(buffer));
+        token.literal = REI_MK_FLOAT(reiCharsToFloat(buffer));
     return token;
 }
 static ReiToken scanIdentifier_(void)

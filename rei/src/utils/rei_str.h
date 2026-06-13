@@ -53,10 +53,27 @@ static inline int64_t reiCstrToInt(const char* str)
     }
     return (int)(result * sign);
 }
+static inline double reiCharsToFloat(const char* chars)
+{
+    if (chars == NULL) return 0.0f;
+    const size_t len = REI_MAX_BUFFER_SIZE;
+    char buf[len];
+    memset(buf, 0, len);
+    if (!buf) return 0.0f;
+    size_t j = 0;
+    for (size_t i = 0; i < len; i++)
+    {
+        if (chars[i] == '\'') continue;
+        buf[j++] = chars[i];
+    }
+    buf[j] = '\0';
+    double val = strtod(buf, NULL);
+    return val;
+}
 static inline double reiCstrToFloat(const char* str)
 {
     if (str == NULL) return 0.0f;
-    const size_t len = 255;
+    size_t len = strlen(str);
     char buf[len];
     memset(buf, 0, len);
     if (!buf) return 0.0f;
