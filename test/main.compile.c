@@ -20,25 +20,25 @@ int main()
 
     ReiVM vm = reiVMCreate();
     ReiResult res = reiVMCompileModule(vm, script);
-    switch (res.status)
+    switch (res)
     {
-    case REI_STATUS_SUCCESS:
-        printf("REI_STATUS_SUCCESS\n");
+    case REI_RESULT_SUCCESS:
+        printf("REI_RESULT_SUCCESS\n");
         break;
-    case REI_STATUS_LEXER_ERROR:
-        printf("REI_STATUS_LEXER_ERROR\n");
+    case REI_RESULT_LEXER_ERROR:
+        printf("REI_RESULT_LEXER_ERROR\n");
         break;
-    case REI_STATUS_PARSER_ERROR:
-        printf("REI_STATUS_PARSER_ERROR\n");
+    case REI_RESULT_PARSER_ERROR:
+        printf("REI_RESULT_PARSER_ERROR\n");
         break;
-    case REI_STATUS_SEMANTIC_ERROR:
-        printf("REI_STATUS_SEMANTIC_ERROR\n");
+    case REI_RESULT_SEMANTIC_ERROR:
+        printf("REI_RESULT_SEMANTIC_ERROR\n");
         break;
-    case REI_STATUS_CODEGEN_ERROR:
-        printf("REI_STATUS_CODEGEN_ERROR\n");
+    case REI_RESULT_CODEGEN_ERROR:
+        printf("REI_RESULT_CODEGEN_ERROR\n");
         break;
-    case REI_STATUS_RUNTIME_ERROR:
-        printf("REI_STATUS_RUNTIME_ERROR\n");
+    case REI_RESULT_RUNTIME_ERROR:
+        printf("REI_RESULT_RUNTIME_ERROR\n");
         break;
     }
     reiVMDestroy(vm);
