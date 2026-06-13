@@ -24,7 +24,7 @@ ReiResult reiVMCompileModule(ReiVM me, const char* source)
     printf("source: %s\n", source);
     reiLexerInit(&lexer, source);
     res = reiLexerStart(&lexer);
-    if (res.status != REI_STATUS_SUCCESS) return res;
+    if (res != REI_RESULT_SUCCESS) return res;
     reiLexerFree(&lexer);
     return res;
 }
