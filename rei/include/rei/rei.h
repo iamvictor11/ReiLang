@@ -14,7 +14,7 @@
 #define REI_C_TEMPLATE_LIB_ALLOCATOR_H              "c_template/allocator.h"
 #define REI_C_TEMPLATE_LIB_VERSION_H                "c_template/version.h"
 // 风格
-#define REI_USE_UPPERCASE 1
+#define REI_USE_UPPERCASE 0
 // 调试
 #define REI_DEBUG_LEVEL_FATAL 1
 #define REI_DEBUG_LEVEL_ERROR 2
