@@ -10,13 +10,13 @@
     ATTR void* SPREFIX##AllocatorDefaultRealloc(void* ctx, void* ptr, size_t size); \
     ATTR void SPREFIX##AllocatorDefaultFree(void* ctx, void* ptr); \
     ATTR LPREFIX##Allocator SPREFIX##DefaultAllocator(void);
-#define C_TEMPLATE_DEFN_ALLOCATOR(ATTR, SPREFIX, LPREFIX) \
+#define C_TEMPLATE_DEFN_ALLOCATOR(ATTR, SPREFIX, LPREFIX, CALL) \
     typedef struct LPREFIX##Allocator \
     { \
         void* context; \
-        void* (*malloc)(void* ctx, size_t size); \
-        void* (*realloc)(void* ctx, void* ptr, size_t size); \
-        void  (*free)(void* ctx, void* ptr); \
+        void* (CALL *malloc)(void* ctx, size_t size); \
+        void* (CALL *realloc)(void* ctx, void* ptr, size_t size); \
+        void  (CALL *free)(void* ctx, void* ptr); \
     } LPREFIX##Allocator;
 #define C_TEMPLATE_IMPL_ALLOCATOR(ATTR, SPREFIX, LPREFIX) \
     ATTR void* SPREFIX##AllocatorDefaultMalloc(void* ctx, size_t size) \
