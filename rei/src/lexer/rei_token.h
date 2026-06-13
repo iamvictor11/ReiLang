@@ -12,7 +12,6 @@ typedef enum ReiTokenType
     REI_TOKEN_TYPE_LEFT_BRACE,              // {
     REI_TOKEN_TYPE_RIGHT_BRACE,             // }
 
-    REI_TOKEN_TYPE_LEFT_RIGHT_BRACKET,      // []
     REI_TOKEN_TYPE_LEFT_BRACKET_BRACKET,    // [[
     REI_TOKEN_TYPE_RIGHT_BRACKET_BRACKET,   // ]]
 
