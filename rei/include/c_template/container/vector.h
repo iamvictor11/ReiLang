@@ -409,17 +409,17 @@
     }
 #pragma endregion
 #pragma region Sugar
-#define C_TEMPLATE_VECTOR_FOREACH(TYPE, ELEM_PTR_NAME, CONTAINER) \
+#define C_TEMPLATE_VECTOR_FOREACH(TYPE, ELEM_PTR_NAME, CONTAINER_PTR) \
     for ( \
-        TYPE* ELEM_PTR_NAME = (CONTAINER)->data; \
-        ELEM_PTR_NAME != NULL && (size_t)(ELEM_PTR_NAME - (CONTAINER)->data) < (CONTAINER)->size; \
+        TYPE* ELEM_PTR_NAME = (CONTAINER_PTR)->data; \
+        ELEM_PTR_NAME != NULL && (size_t)(ELEM_PTR_NAME - (CONTAINER_PTR)->data) < (CONTAINER_PTR)->size; \
         ELEM_PTR_NAME++ \
     )
-#define C_TEMPLATE_VECTOR_RFOREACH(TYPE, ELEM_PTR_NAME, CONTAINER) \
+#define C_TEMPLATE_VECTOR_RFOREACH(TYPE, ELEM_PTR_NAME, CONTAINER_PTR) \
     for ( \
-        TYPE* ELEM_PTR_NAME = ((CONTAINER)->size > 0 ? &((CONTAINER)->data[(CONTAINER)->size - 1]) : NULL); \
+        TYPE* ELEM_PTR_NAME = ((CONTAINER_PTR)->size > 0 ? &((CONTAINER_PTR)->data[(CONTAINER_PTR)->size - 1]) : NULL); \
         ELEM_PTR_NAME != NULL; \
-        ELEM_PTR_NAME = (ELEM_PTR_NAME == (CONTAINER)->data ? NULL : ELEM_PTR_NAME - 1) \
+        ELEM_PTR_NAME = (ELEM_PTR_NAME == (CONTAINER_PTR)->data ? NULL : ELEM_PTR_NAME - 1) \
     )
 #pragma endregion
 
