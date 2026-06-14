@@ -41,7 +41,7 @@ static const char* tokenKindNames_[REI_TOKEN_KIND_MAX_COUNT] =
     "IMPORT", "AS",
     "RENAME",
     "__MAIN__",
-    "__INIT__", "__FREE__", "__ATIX__", "__CALL__", "__OPER__",
+    "__INIT__", "__FREE__", "__OPER__",
     "EOF"
 };
 

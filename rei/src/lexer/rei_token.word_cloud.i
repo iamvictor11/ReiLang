@@ -41,7 +41,7 @@ static const char* wordCloud_[REI_TOKEN_KIND_MAX_COUNT] =
     "IMPORT", "AS",
     "RENAME",
     "__MAIN__",
-    "__INIT__", "__FREE__", "__ATIX__", "__CALL__", "__OPER__",
+    "__INIT__", "__FREE__", "__OPER__",
     "#EOF"
 #else
     "nil", "true", "false",
@@ -66,7 +66,7 @@ static const char* wordCloud_[REI_TOKEN_KIND_MAX_COUNT] =
     "import", "as",
     "rename",
     "__main__",
-    "__init__", "__free__", "__atix__", "__call__", "__oper__",
+    "__init__", "__free__", "__oper__",
     "#eof"
 #endif
 };
