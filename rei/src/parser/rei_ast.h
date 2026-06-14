@@ -43,9 +43,14 @@ typedef enum ReiAstNodeCategory
     REI_AST_NODE_CATEGORY_MAX_COUNT
 } ReiAstNodeCategory;
 typedef struct ReiAst ReiAst, ReiAstNode;
+typedef ReiAst ReiAstDecl, ReiAstExpr, ReiAstStmt;
+typedef ReiAstNode ReiAstDeclNode, ReiAstExprNode, ReiAstStmtNode;
 typedef ReiAstNode* ReiAstNodePtr, ReiAstPtr;
+typedef ReiAstPtr ReiAstDeclPtr, ReiAstExprPtr, ReiAstStmtPtr;
+typedef ReiAstNodePtr ReiAstDeclNodePtr, ReiAstExprNodePtr, ReiAstStmtNodePtr;
 C_TEMPLATE_DECL_VECTOR(, rei, Rei, AstForest, ReiAstNodePtr)
 C_TEMPLATE_DEFN_VECTOR(, rei, Rei, AstForest, ReiAstNodePtr)
+typedef ReiAstForest ReiAstDeclForest, ReiAstExprForest, ReiAstStmtForest;
 struct ReiAst
 {
     ReiAstNodeType type;
@@ -53,7 +58,11 @@ struct ReiAst
     ReiAstNodePtr parent;
     uint32_t line;
 };
-#define REI_DECL_AST(NAME) typedef struct ReiAst##NAME ReiAst##NAME, ReiAst##NAME##Node;
+#define REI_DECL_AST(NAME) \
+    typedef struct ReiAst##NAME ReiAst##NAME, ReiAst##NAME##Node; \
+    typedef ReiAst##NAME##Node* ReiAst##NAME##NodePtr, ReiAst##NAME##Ptr; \
+    C_TEMPLATE_DECL_VECTOR(, rei, Rei, Ast##NAME##Forest, ReiAst##NAME##NodePtr) \
+    C_TEMPLATE_DEFN_VECTOR(, rei, Rei, Ast##NAME##Forest, ReiAst##NAME##NodePtr)
 REI_DECL_AST(Root)
 REI_DECL_AST(DeclMut)
 REI_DECL_AST(DeclKon)
@@ -90,33 +99,33 @@ struct ReiAstDeclMut
 {
     ReiAstNode base;
     ReiValue name;
-    ReiAstNode* expr;
+    ReiAstExpr* expr;
 };
 struct ReiAstDeclKon
 {
     ReiAstNode base;
     ReiValue name;
-    ReiAstNode* expr;
+    ReiAstExpr* expr;
 };
 struct ReiAstDeclFunc
 {
     ReiAstNode base;
     ReiValue name;
-    ReiAstForest args;
+    ReiAstExprIdentifierForest args;
     ReiAstStmtBlock* block;
-    ReiAstForest returns;
+    ReiAstStmtReturnForest returns;
 };
 struct ReiAstDeclClass
 {
     ReiAstNode base;
     ReiValue name;
-    ReiAstForest propertys;
-    ReiAstForest methods;
+    ReiAstDeclFuncForest propertys;
+    ReiAstDeclFuncForest methods;
 };
 struct ReiAstExprGroup
 {
     ReiAstNode base;
-    ReiAstForest exprs;
+    ReiAstExprForest exprs;
 };
 struct ReiAstExprLiteral
 {
@@ -126,39 +135,39 @@ struct ReiAstExprLiteral
 struct ReiAstExprIdentifier
 {
     ReiAstNode base;
-    ReiValue string;
+    ReiValue name;
 };
 struct ReiAstExprUnary
 {
     ReiAstNode base;
     ReiTokenKind oper;
-    ReiAstNode* expr;
+    ReiAstExpr* expr;
 };
 struct ReiAstExprBinary
 {
     ReiAstNode base;
-    ReiAstNode* leftExpr;
+    ReiAstExpr* leftExpr;
     ReiTokenKind oper;
-    ReiAstNode* rightExpr;
+    ReiAstExpr* rightExpr;
 };
 struct ReiAstExprLogic
 {
     ReiAstNode base;
-    ReiAstNode* leftExpr;
+    ReiAstExpr* leftExpr;
     ReiTokenKind oper;
-    ReiAstNode* rightExpr;
+    ReiAstExpr* rightExpr;
 };
 struct ReiAstExprAtix
 {
     ReiAstNode base;
-    ReiAstNode* leftExpr;
-    ReiAstNode* centerExpr;
+    ReiAstExpr* leftExpr;
+    ReiAstExpr* centerExpr;
 };
 struct ReiAstExprCall
 {
     ReiAstNode base;
-    ReiAstNode* expr;
-    ReiAstForest args;
+    ReiAstExpr* expr;
+    ReiAstExprIdentifier args;
 };
 struct ReiAstExprNew
 {
@@ -193,12 +202,12 @@ struct ReiAstStmtWhen
 struct ReiAstStmtWhile
 {
     ReiAstNode base;
-    ReiAstNode* doBlock;
+    ReiAstStmtBlock* doBlock;
     bool isUnitl;
-    ReiAstNode* condition;
+    ReiAstExpr* condition;
     ReiAstStmtBlock* block;
-    ReiAstForest breaks;
-    ReiAstForest continues;
+    ReiAstStmtBreakForest breaks;
+    ReiAstStmtContinueForest continues;
 };
 struct ReiAstStmtBreak
 {
@@ -213,7 +222,7 @@ struct ReiAstStmtContinue
 struct ReiAstStmtSwitch
 {
     ReiAstNode base;
-    ReiAstForest cases;
+    ReiAstStmtCaseForest cases;
     ReiAstStmtDefault* defaultBlock;
 };
 struct ReiAstStmtCase
@@ -237,6 +246,7 @@ struct ReiAstStmtReturn
 {
     ReiAstNode base;
     uint32_t depth;
+    ReiValue value;
 };
 
 #endif
