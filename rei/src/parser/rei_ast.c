@@ -32,7 +32,7 @@ void reiAstNodeDestroy(ReiAstNode* me, bool destroyChildren)
 {
     if (destroyChildren)
         C_TEMPLATE_VECTOR_FOREACH(ReiAstNodePtr, child, &(me->children))
-            reiAstNodeDestroy(child, true);
+            reiAstNodeDestroy(*child, true);
     reiFree(me);
 }
 void reiAstNodeAddChild(ReiAstNode* me, ReiAstNode* child)
