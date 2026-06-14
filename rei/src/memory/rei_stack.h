@@ -7,7 +7,7 @@ typedef struct ReiStack_T
 {
     ReiValue* bp;
     ReiValue* tp;
-    ReiValue data[REI_MAX_STACK_SIZE]
+    ReiValue data[REI_MAX_STACK_SIZE];
 } ReiStack_T;
 typedef ReiStack_T* ReiStack;
 typedef ReiValue* ReiRegId;
@@ -29,8 +29,8 @@ static inline bool reiStackCheck(ReiStack me, uint32_t count);
 #pragma region Impl
 static inline void reiStackInit(ReiStack me)
 {
-    me->bp = data;
-    me->tp = data;
+    me->bp = me->data;
+    me->tp = me->data;
 }
 static inline ReiValue* reiStackBp(ReiStack me)
 {
@@ -46,7 +46,7 @@ static inline ReiValue* reiStackData(ReiStack me)
 }
 static inline size_t reiStackSize(ReiStack me)
 {
-    return (size_t)(st->tp - st->data);
+    return (size_t)(me->tp - me->data);
 }
 static inline size_t reiStackCapacity(ReiStack me)
 {
@@ -54,11 +54,11 @@ static inline size_t reiStackCapacity(ReiStack me)
 }
 static inline bool reiStackEmpty(ReiStack me)
 {
-    return st->tp == st->data;
+    return me->tp == me->data;
 }
 static inline bool reiStackFull(ReiStack me)
 {
-    return st->tp >= st->data + REI_MAX_STACK_SIZE;
+    return ((me->tp) >= (me->data + REI_MAX_STACK_SIZE));
 }
 static inline void reiStackSetTp(ReiStack me, ReiValue* newTp)
 {
@@ -70,7 +70,7 @@ static inline void reiStackSetBp(ReiStack me, ReiValue* newBp)
 }
 static inline void reiStackPush(ReiStack me, ReiValue value)
 {
-    me->tp = value;
+    *(me->tp) = value;
     me->tp++;
 }
 static inline ReiValue reiStackPop(ReiStack me)
@@ -80,7 +80,7 @@ static inline ReiValue reiStackPop(ReiStack me)
 }
 static inline bool reiStackCheck(ReiStack me, uint32_t count)
 {
-    return ((st->tp + n) <= (st->data + REI_MAX_STACK_SIZE));
+    return ((me->tp + count) <= (me->data + REI_MAX_STACK_SIZE));
 }
 #pragma endregion
 
