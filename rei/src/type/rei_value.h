@@ -9,9 +9,7 @@
 typedef struct ReiObject        ReiObject;
 #define REI_DECL_OBJECT(NAME) typedef struct ReiObj##NAME ReiObj##NAME;
 REI_DECL_OBJECT(String)     // "" ''
-REI_DECL_OBJECT(Array)      // []
-REI_DECL_OBJECT(Rang)       // i..n
-REI_DECL_OBJECT(Module)
+REI_DECL_OBJECT(Range)      // i..n
 REI_DECL_OBJECT(Function)
 REI_DECL_OBJECT(Closure)
 REI_DECL_OBJECT(Upvalue)
@@ -23,11 +21,9 @@ REI_DECL_OBJECT(Instance)
 typedef enum ReiValueType
 {
     REI_VALUE_TYPE_NIL,
-    REI_VALUE_TYPE_BOOL,
-    REI_VALUE_TYPE_INT,
-    REI_VALUE_TYPE_FLOAT,
-    REI_VALUE_TYPE_ENUM,
-    REI_VALUE_TYPE_FLAG,
+    REI_VALUE_TYPE_BOOLEAN,
+    REI_VALUE_TYPE_INTEGER,
+    REI_VALUE_TYPE_FLOATING,
     REI_VALUE_TYPE_OBJECT,
     REI_VALUE_TYPE_UNDEFINED,
     REI_VALUE_TYPE_MAX_COUNT
@@ -37,39 +33,33 @@ typedef struct ReiValue
     ReiValueType type;
     union
     {
-        bool vBool;
-        int64_t vInt;
-        double vFloat;
+        bool vBoolean;
+        int64_t vInteger;
+        double vFloating;
         ReiObject* pObject;
     } as;
 } ReiValue;
 
 #define REI_IS_NIL(value)       ((value).type == REI_VALUE_TYPE_NIL)
-#define REI_IS_BOOL(value)      ((value).type == REI_VALUE_TYPE_BOOL)
-#define REI_IS_INT(value)       ((value).type == REI_VALUE_TYPE_INT)
-#define REI_IS_FLOAT(value)     ((value).type == REI_VALUE_TYPE_FLOAT)
-#define REI_IS_NUMBER(value)    ((value).type == REI_VALUE_TYPE_INT || (value).type == REI_VALUE_TYPE_FLOAT)
-#define REI_IS_ENUM(value)      ((value).type == REI_VALUE_TYPE_ENUM)
-#define REI_IS_FLAG(value)      ((value).type == REI_VALUE_TYPE_FLAG)
+#define REI_IS_BOOLEAN(value)   ((value).type == REI_VALUE_TYPE_BOOLEAN)
+#define REI_IS_INTEGER(value)   ((value).type == REI_VALUE_TYPE_INTEGER)
+#define REI_IS_FLOATING(value)  ((value).type == REI_VALUE_TYPE_FLOATING)
+#define REI_IS_NUMBER(value)    ((value).type == REI_VALUE_TYPE_INTEGER || (value).type == REI_VALUE_TYPE_FLOATING)
 #define REI_IS_OBJECT(value)    ((value).type == REI_VALUE_TYPE_OBJECT)
 #define REI_IS_UNDEFINED(value) ((value).type == REI_VALUE_TYPE_UNDEFINED)
 
-#define REI_AS_BOOL(value)      ((value).as.vBool)
-#define REI_AS_INT(value)       ((value).as.vInt)
-#define REI_AS_FLOAT(value)     ((value).as.vFloat)
-#define REI_AS_NUMBER(value)    ((value).as.vFloat)
-#define REI_AS_ENUM(value)      ((value).as.vInt)
-#define REI_AS_FLAG(value)      ((value).as.vInt)
+#define REI_AS_BOOLEAN(value)   ((value).as.vBoolean)
+#define REI_AS_INTEGER(value)   ((value).as.vInteger)
+#define REI_AS_FLOATING(value)  ((value).as.vFloating)
+#define REI_AS_NUMBER(value)    ((value).as.vFloating)
 #define REI_AS_OBJECT(value)    ((value).as.pObject)
 
-#define REI_MK_NIL          ((ReiValue){REI_VALUE_TYPE_NIL,     {.vBool = false}})
-#define REI_MK_BOOL(v)      ((ReiValue){REI_VALUE_TYPE_BOOL,    {.vBool = v}})
-#define REI_MK_INT(v)       ((ReiValue){REI_VALUE_TYPE_INT,     {.vInt = v}})
-#define REI_MK_FLOAT(v)     ((ReiValue){REI_VALUE_TYPE_FLOAT,   {.vFloat = v}})
-#define REI_MK_NUMBER(v)    ((ReiValue){REI_VALUE_TYPE_FLOAT,   {.vFloat = v}})
-#define REI_MK_ENUM(v)      ((ReiValue){REI_VALUE_TYPE_ENUM,    {.vInt = (int64_t)v}})
-#define REI_MK_FLAG(v)      ((ReiValue){REI_VALUE_TYPE_FLAG,    {.vInt = (int64_t)v}})
-#define REI_MK_OBJECT(p)    ((ReiValue){REI_VALUE_TYPE_OBJECT,  {.pObject = (ReiObject*)p}})
+#define REI_MK_NIL          ((ReiValue){REI_VALUE_TYPE_NIL,         {.vBoolean = false}})
+#define REI_MK_BOOLEAN(v)   ((ReiValue){REI_VALUE_TYPE_BOOLEAN,     {.vBoolean = v}})
+#define REI_MK_INTEGER(v)   ((ReiValue){REI_VALUE_TYPE_INTEGER,     {.vInteger = v}})
+#define REI_MK_FLOATING(v)  ((ReiValue){REI_VALUE_TYPE_FLOATING,    {.vFloating = v}})
+#define REI_MK_NUMBER(v)    ((ReiValue){REI_VALUE_TYPE_FLOATING,    {.vFloating = v}})
+#define REI_MK_OBJECT(p)    ((ReiValue){REI_VALUE_TYPE_OBJECT,      {.pObject = (ReiObject*)p}})
 
 C_TEMPLATE_DECL_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
 C_TEMPLATE_DEFN_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
@@ -83,10 +73,7 @@ C_TEMPLATE_DEFN_STRING(, rei, Rei, String)
 typedef enum ReiObjType
 {
     REI_OBJ_TYPE_STRING,
-    REI_OBJ_TYPE_LIST,
-    REI_OBJ_TYPE_MAP,
     REI_OBJ_TYPE_RANGE,
-    REI_OBJ_TYPE_MODULE,
     REI_OBJ_TYPE_FUNCTION,
     REI_OBJ_TYPE_CLOSURE,
     REI_OBJ_TYPE_UPVALUE,
@@ -104,7 +91,6 @@ typedef struct ReiObject
 
 #define REI_IS_STRING(value)    (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_STRING)
 #define REI_IS_RANGE(value)     (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_RANGE)
-#define REI_IS_MODULE(value)    (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_MODULE)
 #define REI_IS_FUNCTION(value)  (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_FUNCTION)
 #define REI_IS_CLOSURE(value)   (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_CLOSURE)
 #define REI_IS_UPVALUE(value)   (REI_IS_OBJECT(value) && REI_AS_OBJECT(value)->type == REI_OBJ_TYPE_UPVALUE)
@@ -114,7 +100,6 @@ typedef struct ReiObject
 
 #define REI_AS_STRING(value)    ((ReiObjString*)REI_AS_OBJECT(value))
 #define REI_AS_RANGE(value)     ((ReiObjRange*)REI_AS_OBJECT(value))
-#define REI_AS_MODULE(value)    ((ReiObjModule*)REI_AS_OBJECT(value))
 #define REI_AS_FUNCTION(value)  ((ReiObjFunction*)REI_AS_OBJECT(value))
 #define REI_AS_CLOSURE(value)   ((ReiObjClosure*)REI_AS_OBJECT(value))
 #define REI_AS_UPVALUE(value)   ((ReiObjUpvalue*)REI_AS_OBJECT(value))

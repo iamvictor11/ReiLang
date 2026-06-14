@@ -115,8 +115,26 @@ REI_API ReiResult reiVMLoadModule(ReiVM me, const ReiBytecode* code);
 REI_API ReiResult reiVMRunModule(ReiVM me);
 REI_API const ReiBytecode* reiVMCacheModule(ReiVM me);
 
-typedef void (*ReiNativeFn)(ReiVM vm);
-typedef void* (*ReiNewInstanceFn) (ReiVM* vm);
-typedef void (*ReiDelInstanceFn) (ReiVM* vm, void* user);
+REI_API bool reiIsBoolean(ReiVM vm, uint32_t i);
+REI_API bool reiIsInteger(ReiVM vm, uint32_t i);
+REI_API bool reiIsFloating(ReiVM vm, uint32_t i);
+REI_API bool reiIsString(ReiVM vm, uint32_t i);
+
+REI_API bool        reiAtBoolean(ReiVM vm, uint32_t i);
+REI_API int64_t     reiAtInteger(ReiVM vm, uint32_t i);
+REI_API double      reiAtFloating(ReiVM vm, uint32_t i);
+REI_API const char* reiAtString(ReiVM vm, uint32_t i);
+
+REI_API bool        reiToBoolean(ReiVM vm, uint32_t i);
+REI_API int64_t     reiToInteger(ReiVM vm, uint32_t i);
+REI_API double      reiToFloating(ReiVM vm, uint32_t i);
+REI_API const char* reiToString(ReiVM vm, uint32_t i);
+
+REI_API bool        reiRvBoolean(ReiVM vm, bool v);
+REI_API int64_t     reiRvInteger(ReiVM vm, bool v);
+REI_API double      reiRvFloating(ReiVM vm, bool v);
+REI_API const char* reiRvString(ReiVM vm, bool v);
+
+typedef int(*ReiNativeFn)(ReiVM vm);
 
 #endif

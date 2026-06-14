@@ -262,9 +262,9 @@ static ReiToken scanNumber_(void)
     memset(buffer, 0, length);
     memcpy(buffer, lexerState_.start, length);
     if (kind == REI_TOKEN_KIND_INT)
-        token.literal = REI_MK_INT(reiCstrToInt(buffer));
+        token.literal = REI_MK_INTEGER(reiCstrToInt(buffer));
     else if (kind == REI_TOKEN_KIND_FLOAT)
-        token.literal = REI_MK_FLOAT(reiCharsToFloat(buffer));
+        token.literal = REI_MK_FLOATING(reiCharsToFloat(buffer));
     return token;
 }
 static ReiToken scanIdentifier_(void)

@@ -32,7 +32,7 @@ static const char* tokenKindNames_[REI_TOKEN_KIND_MAX_COUNT] =
     "ENUM", "FLAG",
     "STRUCT", "CLASS", "INTERFACE", "TRAIT", "ATTRIBUTE",
     "PUBLIC", "PROTECTED", "PRIVATE",
-    "SUPER", "THIS",
+    "THIS", "SUPER",
     "ABSTRACT", "SEALED", "FINAL",
     "VIRTUAL", "OVERRIDE",
     "_GET_", "_SET_",
@@ -59,7 +59,7 @@ char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
             buff, len,
             "%-*s%" PRId16,
             REI_TOKEN_KIND_NAME_WIDTH, kindName,
-            REI_AS_INT(me->literal)
+            REI_AS_INTEGER(me->literal)
         );
         break;
     case REI_TOKEN_KIND_FLOAT:
@@ -67,7 +67,7 @@ char* reiTokenToCstr(const ReiToken* me, char* buff, size_t len)
             buff, len,
             "%-*s%g",
             REI_TOKEN_KIND_NAME_WIDTH, kindName,
-            REI_AS_FLOAT(me->literal)
+            REI_AS_FLOATING(me->literal)
         );
         break;
     default:
