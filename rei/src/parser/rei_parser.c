@@ -1,4 +1,5 @@
 #include "rei_parser.h"
+#include "rei_parser.rule.i"
 
 typedef struct Rei_ParserState
 {
@@ -26,4 +27,12 @@ void reiParserFree(ReiParser* me)
 }
 #pragma endregion
 #pragma region PIMPL
+static inline ReiAstNode* group_(ReiParser* parser, ReiToken token, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* call_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+{
+    return NULL;
+}
 #pragma endregion
