@@ -1,7 +1,7 @@
 #include "rei_lexer.h"
+#include "rei_token.word_cloud.i"
 #include <ctype.h>
 #include <string.h>
-#include "rei_token.word_cloud.i"
 #include "utils/rei_str.h"
 #include "../rei_debug.h"
 
