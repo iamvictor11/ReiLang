@@ -29,7 +29,7 @@ static bool isAlpha_(char ch);
 static bool isAlphaDigit_(char ch);
 static void skipWhitespace_(void);
 static ReiToken makeToken_(ReiTokenKind kind);
-static ReiToken makeErrorToken_(void);
+static ReiToken makeErrorToken_(const char* message);
 static ReiTokenKind identifierType_(void);
 static ReiToken scanString_(char quote);
 static ReiToken scanNumber_(void);
@@ -38,14 +38,17 @@ static ReiToken scanOperator_(void);
 static ReiToken scanToken_(void);
 #pragma endregion
 #pragma region Public
-void reiLexerInit(ReiLexer* me, const char* source)
+bool reiLexerInit(ReiLexer* me, const char* source)
 {
     me->source = source;
     me->tokens = reiTokenBufferCreate(NULL);
+    if (me->tokens == NULL)
+        return false;
     lexerState_.start = me->source;
     lexerState_.curr = me->source;
     lexerState_.line = 1;
     lexerState_.res = REI_RESULT_SUCCESS;
+    return true;
 }
 void reiLexerFree(ReiLexer* me)
 {
@@ -100,7 +103,6 @@ static char peekNext_(void)
 }
 static char peekNextNext_(void)
 {
-    if (peek_() == '\0') return '\0';
     if (peekNext_() == '\0') return '\0';
     return lexerState_.curr[2];
 }
@@ -180,8 +182,9 @@ static ReiToken makeToken_(ReiTokenKind kind)
     token.literal = REI_MK_NIL;
     return token;
 }
-static ReiToken makeErrorToken_(void)
+static ReiToken makeErrorToken_(const char* message)
 {
+    REI_DEBUG_LOG_ERROR(message);
     lexerState_.res = REI_RESULT_LEXER_ERROR;
     ReiToken token;
     token.kind = REI_TOKEN_KIND_EOF;
@@ -220,7 +223,7 @@ static ReiToken scanString_(char quote)
     }
     if (isAtEnd_())
     {
-        return makeErrorToken_();
+        return makeErrorToken_("字符串 未闭合！");
     }
     advance_();
     ReiToken token = makeToken_(REI_TOKEN_KIND_STRING);
@@ -370,7 +373,7 @@ static ReiToken scanOperator_(void)
             if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_EQUAL_EQUAL); }
             return makeToken_(REI_TOKEN_KIND_EQUAL);
         default:
-            return makeErrorToken_();
+            return makeErrorToken_("未定义的 符号！");
     }
 }
 static ReiToken scanToken_(void)

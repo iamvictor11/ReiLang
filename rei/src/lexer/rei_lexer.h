@@ -8,7 +8,7 @@ typedef struct ReiLexer
     const char* source;
     ReiTokenBuffer tokens;
 } ReiLexer;
-void reiLexerInit(ReiLexer* me, const char* source);
+bool reiLexerInit(ReiLexer* me, const char* source);
 ReiResult reiLexerStart(ReiLexer* me);
 void reiLexerFree(ReiLexer* me);
 
