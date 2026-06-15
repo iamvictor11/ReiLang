@@ -6,10 +6,10 @@
 
 typedef struct ReiParser
 {
-    ReiTokenBuffer tokens;
-    ReiAst ast;
+    const ReiTokenBuffer_T* tokens;
+    ReiAst* ast;
 } ReiParser;
-void reiParserInit(ReiParser* me, ReiTokenBuffer tokens);
+bool reiParserInit(ReiParser* me, const ReiTokenBuffer_T* tokens);
 ReiResult reiParserStart(ReiParser* me);
 void reiParserFree(ReiParser* me);
 
