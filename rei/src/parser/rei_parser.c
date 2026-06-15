@@ -27,6 +27,9 @@ void reiParserFree(ReiParser* me)
 }
 #pragma endregion
 #pragma region PIMPL
+#pragma region Decl
+#pragma endregion
+#pragma region Expr
 static inline ReiAstNode* group_(ReiParser* parser, ReiToken token, bool canAssign)
 {
     return NULL;
@@ -35,4 +38,35 @@ static inline ReiAstNode* call_(ReiParser* parser, ReiToken token, ReiAstNode* l
 {
     return NULL;
 }
+static inline ReiAstNode* question_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* dot_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* dotdot_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* binary_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* unary_(ReiParser* parser, ReiToken token, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* literal_(ReiParser* parser, ReiToken token, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* identifier_(ReiParser* parser, ReiToken token, bool canAssign)
+{
+    return NULL;
+}
+#pragma endregion
+#pragma region Stmt
+#pragma endregion
 #pragma endregion
