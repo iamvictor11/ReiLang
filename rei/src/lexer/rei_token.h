@@ -59,7 +59,7 @@ typedef enum ReiTokenKind
     REI_TOKEN_KIND_SLASH_EQUAL,             // /=
     REI_TOKEN_KIND_MODULO_EQUAL,            // %=
     REI_TOKEN_KIND_STAR_STAR_EQUAL,         // **=
-    
+
     REI_TOKEN_KIND_AND_EQUAL,               // &=
     REI_TOKEN_KIND_PIPE_EQUAL,              // |=
     REI_TOKEN_KIND_CTRL_EQUAL,              // ^=
@@ -140,7 +140,6 @@ typedef enum ReiTokenKind
     REI_TOKEN_KIND_RENAME,
 
     REI_TOKEN_KIND_DUNDER_MAIN,
-
     REI_TOKEN_KIND_DUNDER_INIT,
     REI_TOKEN_KIND_DUNDER_FREE,
     REI_TOKEN_KIND_DUNDER_OPER,
