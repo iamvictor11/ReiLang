@@ -304,7 +304,7 @@ static ReiToken scanOperator_(void)
             return makeToken_(REI_TOKEN_KIND_DOT);
         case ':':
             if (peek_() == ':') { advance_(); return makeToken_(REI_TOKEN_KIND_COLON_COLON); }
-            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_COLON_EQUAL); }
+            if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_WALRUS); }
             return makeToken_(REI_TOKEN_KIND_COLON);
         case '+':
             if (peek_() == '=') { advance_(); return makeToken_(REI_TOKEN_KIND_PLUS_EQUAL); }

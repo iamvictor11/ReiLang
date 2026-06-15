@@ -21,7 +21,7 @@ typedef enum ReiTokenKind
     REI_TOKEN_KIND_DOT_DOT,     // ..
     REI_TOKEN_KIND_DOT_DOT_DOT, // ...
     REI_TOKEN_KIND_COLON,       // :
-    REI_TOKEN_KIND_COLON_COLON,  // ::
+    REI_TOKEN_KIND_COLON_COLON, // ::
     REI_TOKEN_KIND_SEMICOLON,   // ;
     
     REI_TOKEN_KIND_PLUS,        // +
@@ -42,16 +42,16 @@ typedef enum ReiTokenKind
     REI_TOKEN_KIND_PIPE_PIPE,       // ||
     REI_TOKEN_KIND_BANG,            // !
     
-    REI_TOKEN_KIND_LESS,                    // <
-    REI_TOKEN_KIND_GREATER,                 // >
-    REI_TOKEN_KIND_COMPARE,                 // <=>
-    REI_TOKEN_KIND_EQUAL,                   // =
-    REI_TOKEN_KIND_EQUAL_EQUAL,             // ==
-    REI_TOKEN_KIND_BANG_EQUAL,              // !=
-    REI_TOKEN_KIND_LESS_EQUAL,              // <=
-    REI_TOKEN_KIND_GREATER_EQUAL,           // >=
+    REI_TOKEN_KIND_LESS,            // <
+    REI_TOKEN_KIND_GREATER,         // >
+    REI_TOKEN_KIND_EQUAL_EQUAL,     // ==
+    REI_TOKEN_KIND_BANG_EQUAL,      // !=
+    REI_TOKEN_KIND_LESS_EQUAL,      // <=
+    REI_TOKEN_KIND_GREATER_EQUAL,   // >=
+    REI_TOKEN_KIND_COMPARE,         // <=>
 
-    REI_TOKEN_KIND_COLON_EQUAL,             // :=
+    REI_TOKEN_KIND_WALRUS,  // :=
+    REI_TOKEN_KIND_EQUAL,   // =
 
     REI_TOKEN_KIND_PLUS_EQUAL,              // +=
     REI_TOKEN_KIND_MINUS_EQUAL,             // -=
@@ -59,8 +59,10 @@ typedef enum ReiTokenKind
     REI_TOKEN_KIND_SLASH_EQUAL,             // /=
     REI_TOKEN_KIND_MODULO_EQUAL,            // %=
     REI_TOKEN_KIND_STAR_STAR_EQUAL,         // **=
+    
     REI_TOKEN_KIND_AND_EQUAL,               // &=
     REI_TOKEN_KIND_PIPE_EQUAL,              // |=
+    REI_TOKEN_KIND_CTRL_EQUAL,              // ^=
     REI_TOKEN_KIND_WAVE_EQUAL,              // ~=
     REI_TOKEN_KIND_LESS_LESS_EQUAL,         // <<=
     REI_TOKEN_KIND_GREATER_GREATER_EQUAL,   // >>=
