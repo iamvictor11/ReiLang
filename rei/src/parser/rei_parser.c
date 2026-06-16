@@ -20,8 +20,23 @@ static inline const ReiToken* match_(ReiTokenKind tkk);
 static inline void consume_(ReiTokenKind tkk, const char* message);
 static inline bool isAtEnd_(void);
 static inline void error_(const char* message);
-static inline ReiAstNode* declaration_();
-static inline ReiAstNode* statement_();
+static inline ReiAstNode* declaration_(void);
+static inline ReiAstNode* mutDecl_(void);
+static inline ReiAstNode* konDecl_(void);
+static inline ReiAstNode* funcDecl_(void);
+static inline ReiAstNode* classDecl_(void);
+static inline ReiAstNode* expression_(void);
+static inline ReiAstNode* statement_(void);
+static inline ReiAstNode* blockStmt_(void);
+static inline ReiAstNode* whenStmt_(void);
+static inline ReiAstNode* loopStmt_(void);
+static inline ReiAstNode* breakStmt_(void);
+static inline ReiAstNode* continueStmt_(void);
+static inline ReiAstNode* switchStmt_(void);
+static inline ReiAstNode* passStmt_(void);
+static inline ReiAstNode* returnStmt_(void);
+static inline ReiAstNode* thisStmt_(void);
+static inline ReiAstNode* superStmt_(void);
 #pragma endregion
 #pragma region Public
 bool reiParserInit(ReiParser* me, const ReiTokenBuffer_T* tokens)
@@ -43,7 +58,7 @@ ReiResult reiParserStart(ReiParser* me)
     if (me == NULL || me->tokens == NULL) return REI_RESULT_PARSER_ERROR;
     while (!isAtEnd_())
     {
-        ReiAstNode* child = declaration_(me);
+        ReiAstNode* child = declaration_();
         reiAstNodeAddChild(me->ast, child);
         if (parserState_.res != REI_RESULT_SUCCESS) break;
         if (REI_HAS_ERROR)
@@ -110,7 +125,7 @@ static inline void error_(const char* message)
     parserState_.res = REI_RESULT_PARSER_ERROR;
 }
 #pragma region Decl
-static inline ReiAstNode* declaration_()
+static inline ReiAstNode* declaration_(void)
 {
     if (match_(REI_TOKEN_KIND_MUT))
     {
@@ -126,47 +141,107 @@ static inline ReiAstNode* declaration_()
     }
     return statement_();
 }
+static inline ReiAstNode* mutDecl_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* konDecl_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* funcDecl_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* classDecl_(void)
+{
+    return NULL;
+}
 #pragma endregion
 #pragma region Expr
-static inline ReiAstNode* group_(ReiParser* parser, ReiToken token, bool canAssign)
+static inline ReiAstNode* expression_(void)
 {
     return NULL;
 }
-static inline ReiAstNode* call_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+static inline ReiAstNode* groupExpr_(ReiToken token, bool canAssign)
 {
     return NULL;
 }
-static inline ReiAstNode* question_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+static inline ReiAstNode* callExpr_(ReiToken token, ReiAstNode* left, bool canAssign)
 {
     return NULL;
 }
-static inline ReiAstNode* dot_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+static inline ReiAstNode* questionExpr_(ReiToken token, ReiAstNode* left, bool canAssign)
 {
     return NULL;
 }
-static inline ReiAstNode* dotdot_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+static inline ReiAstNode* dotExpr_(ReiToken token, ReiAstNode* left, bool canAssign)
 {
     return NULL;
 }
-static inline ReiAstNode* binary_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign)
+static inline ReiAstNode* dotdotExpr_(ReiToken token, ReiAstNode* left, bool canAssign)
 {
     return NULL;
 }
-static inline ReiAstNode* unary_(ReiParser* parser, ReiToken token, bool canAssign)
+static inline ReiAstNode* binaryExpr_(ReiToken token, ReiAstNode* left, bool canAssign)
 {
     return NULL;
 }
-static inline ReiAstNode* literal_(ReiParser* parser, ReiToken token, bool canAssign)
+static inline ReiAstNode* unaryExpr_(ReiToken token, bool canAssign)
 {
     return NULL;
 }
-static inline ReiAstNode* identifier_(ReiParser* parser, ReiToken token, bool canAssign)
+static inline ReiAstNode* literalExpr_(ReiToken token, bool canAssign)
+{
+    return NULL;
+}
+static inline ReiAstNode* identifierExpr_(ReiToken token, bool canAssign)
 {
     return NULL;
 }
 #pragma endregion
 #pragma region Stmt
-static inline ReiAstNode* statement_()
+static inline ReiAstNode* statement_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* blockStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* whenStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* loopStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* breakStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* continueStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* switchStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* passStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* returnStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* thisStmt_(void)
+{
+    return NULL;
+}
+static inline ReiAstNode* superStmt_(void)
 {
     return NULL;
 }

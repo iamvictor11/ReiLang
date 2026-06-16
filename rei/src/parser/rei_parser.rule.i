@@ -24,8 +24,8 @@ typedef enum Rei_Precedence
     REI_PREC_UNDEFINE,
     REI_PREC_MAX_COUNT
 } Rei_Precedence;
-typedef ReiAstNode*(*ReiParsePrefixFn)(ReiParser* parser, ReiToken token, bool canAssign);
-typedef ReiAstNode*(*ReiParseInfixFn)(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign);
+typedef ReiAstNode*(*ReiParsePrefixFn)(ReiToken token, bool canAssign);
+typedef ReiAstNode*(*ReiParseInfixFn)(ReiToken token, ReiAstNode* left, bool canAssign);
 typedef struct Rei_ParseRule
 {
     ReiParsePrefixFn prefix;
@@ -33,19 +33,19 @@ typedef struct Rei_ParseRule
     Rei_Precedence precedence;
     bool startPoint;
 } Rei_ParseRule;
-static inline ReiAstNode* group_(ReiParser* parser, ReiToken token, bool canAssign);
-static inline ReiAstNode* call_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign);
-static inline ReiAstNode* question_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign);
-static inline ReiAstNode* dot_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign);
-static inline ReiAstNode* dotdot_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign);
-static inline ReiAstNode* binary_(ReiParser* parser, ReiToken token, ReiAstNode* left, bool canAssign);
-static inline ReiAstNode* unary_(ReiParser* parser, ReiToken token, bool canAssign);
-static inline ReiAstNode* literal_(ReiParser* parser, ReiToken token, bool canAssign);
-static inline ReiAstNode* identifier_(ReiParser* parser, ReiToken token, bool canAssign);
+static inline ReiAstNode* groupExpr_(ReiToken token, bool canAssign);
+static inline ReiAstNode* callExpr_(ReiToken token, ReiAstNode* left, bool canAssign);
+static inline ReiAstNode* questionExpr_(ReiToken token, ReiAstNode* left, bool canAssign);
+static inline ReiAstNode* dotExpr_(ReiToken token, ReiAstNode* left, bool canAssign);
+static inline ReiAstNode* dotdotExpr_(ReiToken token, ReiAstNode* left, bool canAssign);
+static inline ReiAstNode* binaryExpr_(ReiToken token, ReiAstNode* left, bool canAssign);
+static inline ReiAstNode* unaryExpr_(ReiToken token, bool canAssign);
+static inline ReiAstNode* literalExpr_(ReiToken token, bool canAssign);
+static inline ReiAstNode* identifierExpr_(ReiToken token, bool canAssign);
 static Rei_ParseRule parseRules[REI_TOKEN_KIND_MAX_COUNT] =
 {
     /* 区域 */
-    [REI_TOKEN_KIND_LEFT_PAREN]     = {group_,  call_,  REI_PREC_CALL,  true},  // (
+    [REI_TOKEN_KIND_LEFT_PAREN]     = {groupExpr_,  callExpr_,  REI_PREC_CALL,  true},  // (
     [REI_TOKEN_KIND_RIGHT_PAREN]    = {NULL,    NULL,   REI_PREC_NONE,  false}, // )
     [REI_TOKEN_KIND_LEFT_BRACKET]   = {NULL,    NULL,   REI_PREC_UNDEFINE,  true},  // [
     [REI_TOKEN_KIND_RIGHT_BRACKET]  = {NULL,    NULL,   REI_PREC_UNDEFINE,  false}, // ]
@@ -56,56 +56,56 @@ static Rei_ParseRule parseRules[REI_TOKEN_KIND_MAX_COUNT] =
     [REI_TOKEN_KIND_RIGHT_BRACKET_BRACKET]  = {NULL,    NULL,   REI_PREC_UNDEFINE,  false}, // ]]
     /* 符号 */
     [REI_TOKEN_KIND_COMMA]          = {NULL,    NULL,       REI_PREC_NONE,  false}, // ,
-    [REI_TOKEN_KIND_QUESTION]       = {NULL,    question_,  REI_PREC_CALL,  false}, // ?
-    [REI_TOKEN_KIND_DOT]            = {NULL,    dot_,       REI_PREC_CALL,  false}, // .
-    [REI_TOKEN_KIND_DOT_DOT]        = {NULL,    dotdot_,    REI_PREC_CALL,  false}, // ..
+    [REI_TOKEN_KIND_QUESTION]       = {NULL,    questionExpr_,  REI_PREC_CALL,  false}, // ?
+    [REI_TOKEN_KIND_DOT]            = {NULL,    dotExpr_,       REI_PREC_CALL,  false}, // .
+    [REI_TOKEN_KIND_DOT_DOT]        = {NULL,    dotdotExpr_,    REI_PREC_CALL,  false}, // ..
     [REI_TOKEN_KIND_DOT_DOT_DOT]    = {NULL,    NULL,       REI_PREC_UNDEFINE,  false}, // ...
     [REI_TOKEN_KIND_COLON]          = {NULL,    NULL,       REI_PREC_NONE,  false}, // :
     [REI_TOKEN_KIND_COLON_COLON]    = {NULL,    NULL,       REI_PREC_UNDEFINE,  false}, // ::
     [REI_TOKEN_KIND_SEMICOLON]      = {NULL,    NULL,       REI_PREC_NONE,  true}, // ;
     /* 数学运算 */
-    [REI_TOKEN_KIND_PLUS]       = {unary_,  binary_, REI_PREC_TERM,     false}, // +
-    [REI_TOKEN_KIND_MINUS]      = {NULL,    binary_, REI_PREC_TERM,     true},  // -
-    [REI_TOKEN_KIND_STAR]       = {NULL,    binary_, REI_PREC_FACTOR,   false}, // *
-    [REI_TOKEN_KIND_SLASH]      = {NULL,    binary_, REI_PREC_FACTOR,   false}, // /
-    [REI_TOKEN_KIND_MODULO]     = {NULL,    binary_, REI_PREC_FACTOR,   false}, // %
-    [REI_TOKEN_KIND_STAR_STAR]  = {NULL,    binary_, REI_PREC_POW,      false}, // **
+    [REI_TOKEN_KIND_PLUS]       = {unaryExpr_,  binaryExpr_, REI_PREC_TERM,     false}, // +
+    [REI_TOKEN_KIND_MINUS]      = {NULL,    binaryExpr_, REI_PREC_TERM,     true},  // -
+    [REI_TOKEN_KIND_STAR]       = {NULL,    binaryExpr_, REI_PREC_FACTOR,   false}, // *
+    [REI_TOKEN_KIND_SLASH]      = {NULL,    binaryExpr_, REI_PREC_FACTOR,   false}, // /
+    [REI_TOKEN_KIND_MODULO]     = {NULL,    binaryExpr_, REI_PREC_FACTOR,   false}, // %
+    [REI_TOKEN_KIND_STAR_STAR]  = {NULL,    binaryExpr_, REI_PREC_POW,      false}, // **
     /* 位运算 */
-    [REI_TOKEN_KIND_AND]                = {NULL,    binary_,    REI_PREC_BAND,  false}, // &
-    [REI_TOKEN_KIND_PIPE]               = {NULL,    binary_,    REI_PREC_BOR,   false}, // |
-    [REI_TOKEN_KIND_CTRL]               = {NULL,    binary_,    REI_PREC_BXOR,  false}, // ^
-    [REI_TOKEN_KIND_WAVE]               = {unary_,  NULL,       REI_PREC_UNARY, true},  // ~
-    [REI_TOKEN_KIND_LESS_LESS]          = {NULL,    binary_,    REI_PREC_SHIFT, false}, // <<
-    [REI_TOKEN_KIND_GREATER_GREATER]    = {NULL,    binary_,    REI_PREC_SHIFT, false}, // >>
+    [REI_TOKEN_KIND_AND]                = {NULL,    binaryExpr_,    REI_PREC_BAND,  false}, // &
+    [REI_TOKEN_KIND_PIPE]               = {NULL,    binaryExpr_,    REI_PREC_BOR,   false}, // |
+    [REI_TOKEN_KIND_CTRL]               = {NULL,    binaryExpr_,    REI_PREC_BXOR,  false}, // ^
+    [REI_TOKEN_KIND_WAVE]               = {unaryExpr_,  NULL,       REI_PREC_UNARY, true},  // ~
+    [REI_TOKEN_KIND_LESS_LESS]          = {NULL,    binaryExpr_,    REI_PREC_SHIFT, false}, // <<
+    [REI_TOKEN_KIND_GREATER_GREATER]    = {NULL,    binaryExpr_,    REI_PREC_SHIFT, false}, // >>
     /* 逻辑运算 */
-    [REI_TOKEN_KIND_AND_AND]    = {NULL,    binary_,    REI_PREC_LAND,  false}, // &&
-    [REI_TOKEN_KIND_PIPE_PIPE]  = {NULL,    binary_,    REI_PREC_LOR,   false}, // ||
-    [REI_TOKEN_KIND_BANG]       = {unary_,  NULL,       REI_PREC_UNARY, true},  // !
+    [REI_TOKEN_KIND_AND_AND]    = {NULL,    binaryExpr_,    REI_PREC_LAND,  false}, // &&
+    [REI_TOKEN_KIND_PIPE_PIPE]  = {NULL,    binaryExpr_,    REI_PREC_LOR,   false}, // ||
+    [REI_TOKEN_KIND_BANG]       = {unaryExpr_,  NULL,       REI_PREC_UNARY, true},  // !
     /* 比较运算 */
-    [REI_TOKEN_KIND_LESS]           = {NULL, binary_, REI_PREC_COMPARE, false}, // <
-    [REI_TOKEN_KIND_GREATER]        = {NULL, binary_, REI_PREC_COMPARE, false}, // >
-    [REI_TOKEN_KIND_EQUAL_EQUAL]    = {NULL, binary_, REI_PREC_EQUAL, false},   // ==
-    [REI_TOKEN_KIND_BANG_EQUAL]     = {NULL, binary_, REI_PREC_EQUAL, false},   // !=
-    [REI_TOKEN_KIND_LESS_EQUAL]     = {NULL, binary_, REI_PREC_COMPARE, false}, // <=
-    [REI_TOKEN_KIND_GREATER_EQUAL]  = {NULL, binary_, REI_PREC_COMPARE, false}, // >=
-    [REI_TOKEN_KIND_COMPARE]        = {NULL, binary_, REI_PREC_COMPARE, false}, // <=>
+    [REI_TOKEN_KIND_LESS]           = {NULL, binaryExpr_, REI_PREC_COMPARE, false}, // <
+    [REI_TOKEN_KIND_GREATER]        = {NULL, binaryExpr_, REI_PREC_COMPARE, false}, // >
+    [REI_TOKEN_KIND_EQUAL_EQUAL]    = {NULL, binaryExpr_, REI_PREC_EQUAL, false},   // ==
+    [REI_TOKEN_KIND_BANG_EQUAL]     = {NULL, binaryExpr_, REI_PREC_EQUAL, false},   // !=
+    [REI_TOKEN_KIND_LESS_EQUAL]     = {NULL, binaryExpr_, REI_PREC_COMPARE, false}, // <=
+    [REI_TOKEN_KIND_GREATER_EQUAL]  = {NULL, binaryExpr_, REI_PREC_COMPARE, false}, // >=
+    [REI_TOKEN_KIND_COMPARE]        = {NULL, binaryExpr_, REI_PREC_COMPARE, false}, // <=>
     /* 赋值运算 */
-    [REI_TOKEN_KIND_WALRUS] = {NULL, binary_, REI_PREC_ASSIGN, false},  // :=
-    [REI_TOKEN_KIND_EQUAL]  = {NULL, binary_, REI_PREC_NONE, false},    // =
+    [REI_TOKEN_KIND_WALRUS] = {NULL, binaryExpr_, REI_PREC_ASSIGN, false},  // :=
+    [REI_TOKEN_KIND_EQUAL]  = {NULL, binaryExpr_, REI_PREC_NONE, false},    // =
     /* 自数学运算 */
-    [REI_TOKEN_KIND_PLUS_EQUAL]         = {NULL, binary_, REI_PREC_EQUAL, false}, // +=
-    [REI_TOKEN_KIND_MINUS_EQUAL]        = {NULL, binary_, REI_PREC_EQUAL, false}, // -=
-    [REI_TOKEN_KIND_STAR_EQUAL]         = {NULL, binary_, REI_PREC_EQUAL, false}, // *=
-    [REI_TOKEN_KIND_SLASH_EQUAL]        = {NULL, binary_, REI_PREC_EQUAL, false}, // /=
-    [REI_TOKEN_KIND_MODULO_EQUAL]       = {NULL, binary_, REI_PREC_EQUAL, false}, // %=
-    [REI_TOKEN_KIND_STAR_STAR_EQUAL]    = {NULL, binary_, REI_PREC_EQUAL, false}, // **=
+    [REI_TOKEN_KIND_PLUS_EQUAL]         = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // +=
+    [REI_TOKEN_KIND_MINUS_EQUAL]        = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // -=
+    [REI_TOKEN_KIND_STAR_EQUAL]         = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // *=
+    [REI_TOKEN_KIND_SLASH_EQUAL]        = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // /=
+    [REI_TOKEN_KIND_MODULO_EQUAL]       = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // %=
+    [REI_TOKEN_KIND_STAR_STAR_EQUAL]    = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // **=
     /* 自位运算 */
-    [REI_TOKEN_KIND_AND_EQUAL]              = {NULL, binary_, REI_PREC_EQUAL, false}, // &=
-    [REI_TOKEN_KIND_PIPE_EQUAL]             = {NULL, binary_, REI_PREC_EQUAL, false}, // |=
-    [REI_TOKEN_KIND_CTRL_EQUAL]             = {NULL, binary_, REI_PREC_EQUAL, false}, // ^=
-    [REI_TOKEN_KIND_WAVE_EQUAL]             = {NULL, binary_, REI_PREC_EQUAL, false}, // ~=
-    [REI_TOKEN_KIND_LESS_LESS_EQUAL]        = {NULL, binary_, REI_PREC_EQUAL, false}, // <<=
-    [REI_TOKEN_KIND_GREATER_GREATER_EQUAL]  = {NULL, binary_, REI_PREC_EQUAL, false}, // >>=
+    [REI_TOKEN_KIND_AND_EQUAL]              = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // &=
+    [REI_TOKEN_KIND_PIPE_EQUAL]             = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // |=
+    [REI_TOKEN_KIND_CTRL_EQUAL]             = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // ^=
+    [REI_TOKEN_KIND_WAVE_EQUAL]             = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // ~=
+    [REI_TOKEN_KIND_LESS_LESS_EQUAL]        = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // <<=
+    [REI_TOKEN_KIND_GREATER_GREATER_EQUAL]  = {NULL, binaryExpr_, REI_PREC_EQUAL, false}, // >>=
     
     [REI_TOKEN_KIND_LEFT_ARROW]     = {NULL, NULL, REI_PREC_UNDEFINE, false}, // <-
     [REI_TOKEN_KIND_RIGHT_ARROW]    = {NULL, NULL, REI_PREC_UNDEFINE, false}, // ->
@@ -113,14 +113,14 @@ static Rei_ParseRule parseRules[REI_TOKEN_KIND_MAX_COUNT] =
     [REI_TOKEN_KIND_POUND]  = {NULL, NULL, REI_PREC_UNDEFINE, false}, // \#
     [REI_TOKEN_KIND_AT]     = {NULL, NULL, REI_PREC_UNDEFINE, false}, // @
     /* 字面量 */
-    [REI_TOKEN_KIND_NIL]    = {literal_, NULL, REI_PREC_NONE, true},
-    [REI_TOKEN_KIND_TRUE]   = {literal_, NULL, REI_PREC_NONE, true},
-    [REI_TOKEN_KIND_FALSE]  = {literal_, NULL, REI_PREC_NONE, true},
-    [REI_TOKEN_KIND_INT]    = {literal_, NULL, REI_PREC_NONE, true},
-    [REI_TOKEN_KIND_FLOAT]  = {literal_, NULL, REI_PREC_NONE, true},
-    [REI_TOKEN_KIND_STRING] = {literal_, NULL, REI_PREC_NONE, true},
+    [REI_TOKEN_KIND_NIL]    = {literalExpr_, NULL, REI_PREC_NONE, true},
+    [REI_TOKEN_KIND_TRUE]   = {literalExpr_, NULL, REI_PREC_NONE, true},
+    [REI_TOKEN_KIND_FALSE]  = {literalExpr_, NULL, REI_PREC_NONE, true},
+    [REI_TOKEN_KIND_INT]    = {literalExpr_, NULL, REI_PREC_NONE, true},
+    [REI_TOKEN_KIND_FLOAT]  = {literalExpr_, NULL, REI_PREC_NONE, true},
+    [REI_TOKEN_KIND_STRING] = {literalExpr_, NULL, REI_PREC_NONE, true},
     /* 标识符 */
-    [REI_TOKEN_KIND_IDENTIFIER] = {identifier_, NULL, REI_PREC_NONE, true},
+    [REI_TOKEN_KIND_IDENTIFIER] = {identifierExpr_, NULL, REI_PREC_NONE, true},
     /* 声明量 */
     [REI_TOKEN_KIND_MUT] = {NULL, NULL, REI_PREC_NONE, false},
     [REI_TOKEN_KIND_KON] = {NULL, NULL, REI_PREC_NONE, false},
