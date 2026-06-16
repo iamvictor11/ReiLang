@@ -62,6 +62,11 @@ ReiResult reiLexerStart(ReiLexer* me)
         ReiToken token = scanToken_();
         reiTokenBufferPush(me->tokens, &token);
         if (token.kind == REI_TOKEN_KIND_EOF) break;
+        if (REI_HAS_ERROR)
+        {
+            lexerState_.res = REI_RESULT_LEXER_ERROR;
+            break;
+        }
     }
     ReiToken* lastToken = reiTokenBufferBack(me->tokens);
     if (reiTokenBufferEmpty(me->tokens) || lastToken->kind != REI_TOKEN_KIND_EOF)

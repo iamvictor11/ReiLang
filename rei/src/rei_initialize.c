@@ -3,8 +3,8 @@
 
 C_TEMPLATE_IMPL_ALLOCATOR(, rei, Rei)
 
-ReiAllocator reiAllocator_g;
-ReiCallbacks reiCallbacks_g;
+ReiAllocator reiAllocator_g = {0};
+ReiCallbacks reiCallbacks_g = {0};
 
 void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks)
 {
@@ -14,9 +14,4 @@ void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks)
         reiAllocator_g = reiDefaultAllocator();
     if (callbacks)
         reiCallbacks_g = *callbacks;
-    else
-    {
-        reiCallbacks_g.context  = NULL;
-        reiCallbacks_g.debug    = NULL;
-    }
 }

@@ -9,12 +9,15 @@ ReiAstNode* reiAstNodeCreateEmpty(ReiAstNodeType type, ReiToken token)
     ReiAstNode* node = reiMalloc(ReiAstNode, 1);
     if (node != NULL)
     {
-        REI_DEBUG_LOG_FATAL("语法树节点 创建时 内存不足！");
         node->type = type;
         node->category = reiAstNodeTypeToCategory(type);
         node->token = token;
         node->parent = NULL;
         reiAstForestInit(&(node->children), NULL);
+    }
+    else
+    {
+        REI_DEBUG_LOG_FATAL("语法树节点 创建时 内存不足！");
     }
     return node;
 }

@@ -100,7 +100,7 @@ typedef enum ReiResult
 typedef struct ReiCallbacks
 {
     void* context;
-    bool (REI_API_CALL *debug)(void* ctx, ReiResult res, const char* msg);
+    bool (REI_API_CALL *debug)(void* ctx, int lvl, const char* msg);
 } ReiCallbacks;
 
 REI_API void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks);

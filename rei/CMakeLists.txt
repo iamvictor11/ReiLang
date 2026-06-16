@@ -53,5 +53,6 @@ PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/parser/rei_parser.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/type/rei_value.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/vm/rei_vm.c"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/rei_debug.c"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/rei_initialize.c"
 )

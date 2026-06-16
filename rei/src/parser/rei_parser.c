@@ -45,7 +45,12 @@ ReiResult reiParserStart(ReiParser* me)
     {
         ReiAstNode* child = declaration_(me);
         reiAstNodeAddChild(me->ast, child);
-        if (parserState_.res != REI_RESULT_SUCCESS) return parserState_.res;
+        if (parserState_.res != REI_RESULT_SUCCESS) break;
+        if (REI_HAS_ERROR)
+        {
+            parserState_.res = REI_RESULT_PARSER_ERROR;
+            break;
+        }
     }
 #if REI_ENABLE_DEBUG >= REI_DEBUG_LEVEL_TRACE
 #endif
