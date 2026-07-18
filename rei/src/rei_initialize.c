@@ -4,7 +4,7 @@
 ReiAllocator reiAllocator_g = {0};
 ReiCallbacks reiCallbacks_g = {0};
 
-void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks)
+REI_API void reiInitialize(const ReiAllocator* allocator, const ReiCallbacks* callbacks)
 {
     if (allocator)
         reiAllocator_g = *allocator;

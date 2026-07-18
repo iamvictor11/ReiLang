@@ -71,11 +71,11 @@ typedef struct ReiVersion
     .patch = 1, \
     .user = NULL \
 }
-#define REI_VERSION_TO_UINT(MAJOR, MINOR, PATCH) C_TEMPLATE_VERSION_TO_UINT(MAJOR, MINOR, PATCH)
-#define REI_VERSION_CAST_UINT(VERSION) C_TEMPLATE_VERSION_CAST_UINT(VERSION)
-#define REI_UINT_TO_MAJOR(VERSION) C_TEMPLATE_UINT_TO_MAJOR(VERSION)
-#define REI_UINT_TO_MINOR(VERSION) C_TEMPLATE_UINT_TO_MINOR(VERSION)
-#define REI_UINT_TO_PATCH(VERSION) C_TEMPLATE_UINT_TO_PATCH(VERSION)
+#define REI_VERSION_TO_UINT(MAJOR, MINOR, PATCH) (((uint32_t)(MAJOR) << 16) | ((uint32_t)(MINOR) << 8) | (uint32_t)(PATCH))
+#define REI_VERSION_CAST_UINT(VERSION) REI_VERSION_TO_UINT((VERSION).major, (VERSION).minor, (VERSION).patch)
+#define REI_UINT_TO_MAJOR(VERSION) (((VERSION) >> 16) & 0xFF)
+#define REI_UINT_TO_MINOR(VERSION) (((VERSION) >> 8) & 0xFF)
+#define REI_UINT_TO_PATCH(VERSION) ((VERSION) & 0xFF)
 
 typedef struct ReiAllocator
 {
@@ -112,29 +112,9 @@ REI_API ReiVM reiVMCreate(void);
 REI_API void reiVMDestroy(ReiVM me);
 
 REI_API ReiResult reiVMCompileModule(ReiVM me, const char* source);
-REI_API ReiResult reiVMLoadModule(ReiVM me, const ReiBytecode* code);
+REI_API ReiResult reiVMLoadModule(ReiVM me);
 REI_API ReiResult reiVMRunModule(ReiVM me);
-REI_API const ReiBytecode* reiVMCacheModule(ReiVM me);
-
-REI_API bool reiIsBoolean(ReiVM vm, uint32_t i);
-REI_API bool reiIsInteger(ReiVM vm, uint32_t i);
-REI_API bool reiIsFloating(ReiVM vm, uint32_t i);
-REI_API bool reiIsString(ReiVM vm, uint32_t i);
-
-REI_API bool        reiAtBoolean(ReiVM vm, uint32_t i);
-REI_API int64_t     reiAtInteger(ReiVM vm, uint32_t i);
-REI_API double      reiAtFloating(ReiVM vm, uint32_t i);
-REI_API const char* reiAtString(ReiVM vm, uint32_t i);
-
-REI_API bool        reiToBoolean(ReiVM vm, uint32_t i);
-REI_API int64_t     reiToInteger(ReiVM vm, uint32_t i);
-REI_API double      reiToFloating(ReiVM vm, uint32_t i);
-REI_API const char* reiToString(ReiVM vm, uint32_t i);
-
-REI_API bool        reiRvBoolean(ReiVM vm, bool v);
-REI_API int64_t     reiRvInteger(ReiVM vm, bool v);
-REI_API double      reiRvFloating(ReiVM vm, bool v);
-REI_API const char* reiRvString(ReiVM vm, bool v);
+REI_API void reiVMCacheModule(ReiVM me, const ReiBytecode* out);
 
 typedef int(*ReiNativeFn)(ReiVM vm);
 
