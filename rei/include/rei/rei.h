@@ -14,7 +14,6 @@
 // 极值
 #define REI_MAX_BUFFER_SIZE 256
 #define REI_MAX_IDENTIFIER_LEN REI_MAX_BUFFER_SIZE
-#define REI_MAX_STACK_SIZE 1000000
 
 #if defined(_WIN32) || defined(_WIN64)
     #if REI_STATIC_BUILD
