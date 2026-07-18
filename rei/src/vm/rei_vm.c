@@ -17,7 +17,7 @@ REI_API void reiVMDestroy(ReiVM me)
     reiFree(me);
 }
 #pragma region Module
-REI_API ReiResult reiVMCompileModule(ReiVM me, const char* source)
+REI_API ReiResult reiVMCompile(ReiVM me, const char* source)
 {
     ReiLexer lexer;
     // ReiParser parser;
@@ -34,13 +34,10 @@ REI_VM_COMPILE_MODULE_FUNC_FREE:
     reiLexerFree(&lexer);
     return res;
 }
-REI_API ReiResult reiVMLoadModule(ReiVM me)
+REI_API ReiResult reiVMLoad(ReiVM me)
 {
 }
-REI_API ReiResult reiVMRunModule(ReiVM me)
-{
-}
-REI_API void reiVMCacheModule(ReiVM me, const ReiBytecode* out)
+REI_API ReiResult reiVMRun(ReiVM me)
 {
 }
 #pragma endregion

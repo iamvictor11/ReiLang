@@ -111,10 +111,9 @@ typedef struct ReiVM_T* ReiVM;
 REI_API ReiVM reiVMCreate(void);
 REI_API void reiVMDestroy(ReiVM me);
 
-REI_API ReiResult reiVMCompileModule(ReiVM me, const char* source);
-REI_API ReiResult reiVMLoadModule(ReiVM me);
-REI_API ReiResult reiVMRunModule(ReiVM me);
-REI_API void reiVMCacheModule(ReiVM me, const ReiBytecode* out);
+REI_API ReiResult reiVMCompile(ReiVM me, const char* source);
+REI_API ReiResult reiVMLoad(ReiVM me);
+REI_API ReiResult reiVMRun(ReiVM me);
 
 typedef int(*ReiNativeFn)(ReiVM vm);
 
