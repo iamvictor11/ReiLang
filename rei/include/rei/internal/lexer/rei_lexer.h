@@ -1,5 +1,5 @@
-#ifndef REI_LEXER_LEXER_H
-#define REI_LEXER_LEXER_H
+#ifndef REI_INTERNAL_LEXER_LEXER_H
+#define REI_INTERNAL_LEXER_LEXER_H
 
 #include "rei_token.h"
 

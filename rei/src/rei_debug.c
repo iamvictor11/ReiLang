@@ -1,5 +1,5 @@
-#include "rei_debug.h"
-#include "rei_callbacks.h"
+#include "rei/internal/rei_debug.h"
+#include "rei/internal/rei_callbacks.h"
 #include <stdio.h>
 #include <assert.h>
 
@@ -36,5 +36,5 @@ void reiDebugLogAssert(bool expr, const char* message)
 {
     if (expr) return;
     printf("[REI::ASSERT]\t%s\n", message);
-    assert(false);
+    assert(expr);
 }

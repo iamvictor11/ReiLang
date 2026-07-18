@@ -1,5 +1,4 @@
 #include "rei/rei.h"
-#include REI_C_TEMPLATE_LIB_PLATFORM_CONSOLE_H
 #include <stdio.h>
 
 #define TAB4 "    "
@@ -16,7 +15,8 @@ TAB4 "break;\n"
 
 int main()
 {
-    osSetConsoleOutputCP_UTF8();
+    printf("\x1b%%G");
+
     reiInitialize(NULL, NULL);
 
     ReiVM vm = reiVMCreate();
@@ -24,27 +24,27 @@ int main()
     ReiResult res = reiVMCompileModule(vm, script);
     switch (res)
     {
-    case REI_RESULT_SUCCESS:
-        printf("REI_RESULT_SUCCESS\n");
+    case REI_SUCCESS:
+        printf("REI_SUCCESS\n");
         break;
-    case REI_RESULT_LEXER_ERROR:
-        printf("REI_RESULT_LEXER_ERROR\n");
+    case REI_ERROR_LEXER:
+        printf("REI_ERROR_LEXER\n");
         break;
-    case REI_RESULT_PARSER_ERROR:
-        printf("REI_RESULT_PARSER_ERROR\n");
+    case REI_ERROR_PARSER:
+        printf("REI_ERROR_PARSER\n");
         break;
-    case REI_RESULT_SEMANTIC_ERROR:
-        printf("REI_RESULT_SEMANTIC_ERROR\n");
+    case REI_ERROR_SEMANTIC:
+        printf("REI_ERROR_SEMANTIC\n");
         break;
-    case REI_RESULT_CODEGEN_ERROR:
-        printf("REI_RESULT_CODEGEN_ERROR\n");
+    case REI_ERROR_CODEGEN:
+        printf("REI_ERROR_CODEGEN\n");
         break;
-    case REI_RESULT_RUNTIME_ERROR:
-        printf("REI_RESULT_RUNTIME_ERROR\n");
+    case REI_ERROR_RUNTIME:
+        printf("REI_ERROR_RUNTIME\n");
         break;
     }
     reiVMDestroy(vm);
 
-    osGetChar();
-    return EXIT_SUCCESS;
+    scanf("%c");
+    return 0;
 }

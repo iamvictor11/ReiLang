@@ -1,14 +1,14 @@
-#ifndef C_TEMPLATE_CONTAINER_STR_H
-#define C_TEMPLATE_CONTAINER_STR_H
+#ifndef REI_INTERNAL_UTILS_STR_H
+#define REI_INTERNAL_UTILS_STR_H
 
-#include "vector.h"
+#include "rei/internal/utils/rei_vector.h"
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdio.h>
 
 #pragma region Dec
-#define C_TEMPLATE_DECL_STRING(ATTR, SPREFIX, LPREFIX, NAME) \
-    C_TEMPLATE_DECL_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char) \
+#define REI_DECL_STRING(ATTR, SPREFIX, LPREFIX, NAME) \
+    REI_DECL_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char) \
     /* 创建 */ \
     ATTR bool SPREFIX##NAME##InitFromCstr(LPREFIX##NAME me, const char* cstr); \
     ATTR bool SPREFIX##NAME##InitFromFormat(LPREFIX##NAME me, const char* format, ...); \
@@ -32,12 +32,12 @@
     ATTR size_t SPREFIX##NAME##Hash(const LPREFIX##NAME me);
 #pragma endregion
 #pragma region Def
-#define C_TEMPLATE_DEFN_STRING(ATTR, SPREFIX, LPREFIX, NAME) \
-    C_TEMPLATE_DEFN_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char)
+#define REI_DEFN_STRING(ATTR, SPREFIX, LPREFIX, NAME) \
+    REI_DEFN_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char)
 #pragma endregion
 #pragma region Impl
-#define C_TEMPLATE_IMPL_STRING(ATTR, SPREFIX, LPREFIX, NAME, ALLOCATOR) \
-    C_TEMPLATE_IMPL_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char, ALLOCATOR) \
+#define REI_IMPL_STRING(ATTR, SPREFIX, LPREFIX, NAME, ALLOCATOR) \
+    REI_IMPL_VECTOR(ATTR, SPREFIX, LPREFIX, NAME, char, ALLOCATOR) \
     /* 私有 */ \
     ATTR LPREFIX##NAME SPREFIX##NAME##_CreateFromVFormat(const char* format, va_list args) \
     { \
@@ -226,8 +226,8 @@
     }
 #pragma endregion
 #pragma region Sugar
-#define C_TEMPLATE_STRING_FOREACH(ELEM_PTR_NAME, CONTAINER_PTR) C_TEMPLATE_VECTOR_FOREACH(char, ELEM_PTR_NAME, CONTAINER_PTR)
-#define C_TEMPLATE_STRING_RFOREACH(ELEM_PTR_NAME, CONTAINER_PTR) C_TEMPLATE_VECTOR_RFOREACH(char, ELEM_PTR_NAME, CONTAINER_PTR)
+#define REI_STRING_FOREACH(ELEM_PTR_NAME, CONTAINER_PTR) REI_VECTOR_FOREACH(char, ELEM_PTR_NAME, CONTAINER_PTR)
+#define REI_STRING_RFOREACH(ELEM_PTR_NAME, CONTAINER_PTR) REI_VECTOR_RFOREACH(char, ELEM_PTR_NAME, CONTAINER_PTR)
 #pragma endregion
 
 #endif

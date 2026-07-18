@@ -1,5 +1,5 @@
-#ifndef REI_LEXER_TOKEN_H
-#define REI_LEXER_TOKEN_H
+#ifndef REI_INTERNAL_LEXER_TOKEN_H
+#define REI_INTERNAL_LEXER_TOKEN_H
 
 #include "../type/rei_value.h"
 
@@ -159,8 +159,8 @@ typedef struct ReiToken
     uint32_t line;
 } ReiToken;
 
-C_TEMPLATE_DECL_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
-C_TEMPLATE_DEFN_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
+REI_DECL_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
+REI_DEFN_VECTOR(, rei, Rei, TokenBuffer, ReiToken)
 
 #include "rei_token.debug.i"
 

@@ -1,4 +1,4 @@
-#include "rei_token.h"
+#include "rei/internal/lexer/rei_token.h"
 #include <string.h>
 #include <inttypes.h>
 

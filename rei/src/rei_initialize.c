@@ -1,7 +1,5 @@
-#include "rei_allocator.h"
-#include "rei_callbacks.h"
-
-C_TEMPLATE_IMPL_ALLOCATOR(, rei, Rei)
+#include "rei/internal/rei_allocator.h"
+#include "rei/internal/rei_callbacks.h"
 
 ReiAllocator reiAllocator_g = {0};
 ReiCallbacks reiCallbacks_g = {0};

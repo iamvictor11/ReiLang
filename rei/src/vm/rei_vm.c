@@ -1,7 +1,6 @@
-#include "rei_vm.h"
-#include "../rei_allocator.h"
-#include "../lexer/rei_lexer.h"
-#include "../parser/rei_parser.h"
+#include "rei/internal/vm/rei_vm.h"
+#include "rei/internal/rei_allocator.h"
+#include "rei/internal/lexer/rei_lexer.h"
 
 ReiVM reiVMCreate(void)
 {
@@ -21,25 +20,17 @@ void reiVMDestroy(ReiVM me)
 ReiResult reiVMCompileModule(ReiVM me, const char* source)
 {
     ReiLexer lexer;
-    ReiParser parser;
+    // ReiParser parser;
     if (!reiLexerInit(&lexer, source))
     {
         reiLexerFree(&lexer);
-        return REI_RESULT_LEXER_ERROR;
-    }
-    if (!reiParserInit(&parser, lexer.tokens))
-    {
-        reiParserFree(&parser);
-        reiLexerFree(&lexer);
-        return REI_RESULT_PARSER_ERROR;
+        return REI_ERROR_LEXER;
     }
     ReiResult res;
     res = reiLexerStart(&lexer);
-    if (res != REI_RESULT_SUCCESS) goto REI_VM_COMPILE_MODULE_FUNC_FREE;
-    res = reiParserStart(&parser);
-    if (res != REI_RESULT_SUCCESS) goto REI_VM_COMPILE_MODULE_FUNC_FREE;
+    if (res != REI_SUCCESS) goto REI_VM_COMPILE_MODULE_FUNC_FREE;
 REI_VM_COMPILE_MODULE_FUNC_FREE:
-    reiParserFree(&parser);
+    // reiParserFree(&parser);
     reiLexerFree(&lexer);
     return res;
 }

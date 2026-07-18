@@ -1,6 +1,7 @@
-#ifndef REI_UTILS_STR_H
-#define REI_UTILS_STR_H
+#ifndef REI_INTERNAL_UTILS_CSTR_H
+#define REI_INTERNAL_UTILS_CSTR_H
 
+#include "rei/rei.h"
 #include <stdint.h>
 #include <ctype.h>
 #include <string.h>

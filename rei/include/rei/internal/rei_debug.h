@@ -1,5 +1,5 @@
-#ifndef REI_DEBUG_H
-#define REI_DEBUG_H
+#ifndef REI_INTERNAL_DEBUG_H
+#define REI_INTERNAL_DEBUG_H
 
 #include <stdbool.h>
 

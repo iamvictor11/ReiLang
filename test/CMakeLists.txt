@@ -14,7 +14,6 @@ function(setup_target TARGET_NAME)
     )
     target_sources(${TARGET_NAME}
     PRIVATE
-        "${CMAKE_CURRENT_SOURCE_DIR}/src/kua.c"
     )
     target_link_libraries(${TARGET_NAME}
     PUBLIC

@@ -1,12 +1,12 @@
 #ifndef REI_TYPE_VALUE_H
 #define REI_TYPE_VALUE_H
 
-#include "rei_internal.h"
+#include "rei/rei.h"
+#include "rei/internal/utils/rei_string.h"
 #include <stdbool.h>
 #include <stdint.h>
-#include REI_C_TEMPLATE_LIB_CONTAINER_STR_H
 
-typedef struct ReiObject        ReiObject;
+typedef struct ReiObject ReiObject;
 #define REI_DECL_OBJECT(NAME) typedef struct ReiObj##NAME ReiObj##NAME;
 REI_DECL_OBJECT(String)     // "" ''
 REI_DECL_OBJECT(Range)      // i..n
@@ -62,14 +62,14 @@ typedef struct ReiValue
 #define REI_MK_NUMBER(VAL)      ((ReiValue){REI_VALUE_TYPE_FLOATING,    {.vFloating = VAL}})
 #define REI_MK_OBJECT(PTR)      ((ReiValue){REI_VALUE_TYPE_OBJECT,      {.pObject = (ReiObject*)(PTR)}})
 
-C_TEMPLATE_DECL_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
-C_TEMPLATE_DEFN_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
-C_TEMPLATE_DECL_VECTOR(, rei, Rei, UIntBuffer, uint32_t)
-C_TEMPLATE_DEFN_VECTOR(, rei, Rei, UIntBuffer, uint32_t)
-C_TEMPLATE_DECL_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
-C_TEMPLATE_DEFN_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
-C_TEMPLATE_DECL_STRING(, rei, Rei, String)
-C_TEMPLATE_DEFN_STRING(, rei, Rei, String)
+REI_DECL_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
+REI_DEFN_VECTOR(, rei, Rei, ByteBuffer, ReiBytecode)
+REI_DECL_VECTOR(, rei, Rei, UIntBuffer, uint32_t)
+REI_DEFN_VECTOR(, rei, Rei, UIntBuffer, uint32_t)
+REI_DECL_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
+REI_DEFN_VECTOR(, rei, Rei, ValueBuffer, ReiValue)
+REI_DECL_STRING(, rei, Rei, String)
+REI_DEFN_STRING(, rei, Rei, String)
 
 typedef enum ReiObjType
 {

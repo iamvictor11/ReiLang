@@ -1,7 +1,7 @@
-#ifndef REI_LEXER_WORD_CLOUD_I
-#define REI_LEXER_WORD_CLOUD_I
+#ifndef REI_INTERNAL_LEXER_TOKEN_WORD_CLOUD_I
+#define REI_INTERNAL_LEXER_TOKEN_WORD_CLOUD_I
 
-#include "rei_token.h"
+#include "rei/internal/lexer/rei_token.h"
 
 static const char* wordCloud_[REI_TOKEN_KIND_MAX_COUNT] =
 {

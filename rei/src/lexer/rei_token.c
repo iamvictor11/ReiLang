@@ -1,4 +1,4 @@
-#include "rei_token.h"
-#include "../rei_allocator.h"
+#include "rei/internal/lexer/rei_token.h"
+#include "rei/internal/rei_allocator.h"
 
-C_TEMPLATE_IMPL_VECTOR(, rei, Rei, TokenBuffer, ReiToken, &reiAllocator_g)
+REI_IMPL_VECTOR(, rei, Rei, TokenBuffer, ReiToken, &reiAllocator_g)

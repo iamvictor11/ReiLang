@@ -1,7 +1,7 @@
-#ifndef REI_CALLBACKS_H
-#define REI_CALLBACKS_H
+#ifndef REI_INTERNAL_CALLBACKS_H
+#define REI_INTERNAL_CALLBACKS_H
 
-#include "rei_internal.h"
+#include "rei/rei.h"
 
 extern ReiCallbacks reiCallbacks_g;
 

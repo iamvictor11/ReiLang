@@ -1,5 +1,5 @@
-#ifndef REI_OPCODE_H
-#define REI_OPCODE_H
+#ifndef REI_INTERNAL_OPCODE_H
+#define REI_INTERNAL_OPCODE_H
 
 typedef enum ReiOpcode
 {

@@ -1,9 +1,9 @@
-#include "rei_lexer.h"
-#include "rei_token.word_cloud.i"
+#include "rei/internal/lexer/rei_lexer.h"
+#include "rei/internal/lexer/rei_token.word_cloud.i"
 #include <ctype.h>
 #include <string.h>
-#include "utils/rei_str.h"
-#include "../rei_debug.h"
+#include "rei/internal/utils/rei_cstr.h"
+#include "rei/internal/rei_debug.h"
 
 typedef struct Rei_LexerState
 {
@@ -47,7 +47,7 @@ bool reiLexerInit(ReiLexer* me, const char* source)
     lexerState_.start = me->source;
     lexerState_.curr = me->source;
     lexerState_.line = 1;
-    lexerState_.res = REI_RESULT_SUCCESS;
+    lexerState_.res = REI_SUCCESS;
     return true;
 }
 void reiLexerFree(ReiLexer* me)
@@ -56,7 +56,7 @@ void reiLexerFree(ReiLexer* me)
 }
 ReiResult reiLexerStart(ReiLexer* me)
 {
-    if (me == NULL || me->source == NULL) return REI_RESULT_LEXER_ERROR;
+    if (me == NULL || me->source == NULL) return REI_ERROR_LEXER;
     while (!isAtEnd_())
     {
         ReiToken token = scanToken_();
@@ -64,7 +64,7 @@ ReiResult reiLexerStart(ReiLexer* me)
         if (token.kind == REI_TOKEN_KIND_EOF) break;
         if (REI_HAS_ERROR)
         {
-            lexerState_.res = REI_RESULT_LEXER_ERROR;
+            lexerState_.res = REI_ERROR_LEXER;
             break;
         }
     }
@@ -80,11 +80,11 @@ ReiResult reiLexerStart(ReiLexer* me)
         reiTokenBufferPush(me->tokens, &eof);
     }
 #if REI_ENABLE_DEBUG >= REI_DEBUG_LEVEL_TRACE
-    if (lexerState_.res == REI_RESULT_SUCCESS)
+    if (lexerState_.res == REI_SUCCESS)
     {
         printf("lexer tokens: %zu\n", me->tokens->size);
         char buff[REI_MAX_BUFFER_SIZE] = {0};
-        C_TEMPLATE_VECTOR_FOREACH(ReiToken, token, me->tokens)
+        REI_VECTOR_FOREACH(ReiToken, token, me->tokens)
             REI_DEBUG_LOG_TRACE(reiTokenToCstr(token, buff, REI_MAX_BUFFER_SIZE));
     }
 #endif
@@ -190,7 +190,7 @@ static ReiToken makeToken_(ReiTokenKind kind)
 static ReiToken makeErrorToken_(const char* message)
 {
     REI_DEBUG_LOG_ERROR(message);
-    lexerState_.res = REI_RESULT_LEXER_ERROR;
+    lexerState_.res = REI_ERROR_LEXER;
     ReiToken token;
     token.kind = REI_TOKEN_KIND_EOF;
     token.lexeme.start = lexerState_.start;
@@ -202,7 +202,7 @@ static ReiToken makeErrorToken_(const char* message)
 static ReiTokenKind identifierType_(void)
 {
     int length = lexerState_.curr - lexerState_.start;
-    char buffer[REI_MAX_IDENTIFIER_NAME_LEN] = {0};
+    char buffer[REI_MAX_IDENTIFIER_LEN] = {0};
     if (length >= (int)sizeof(buffer)) return REI_TOKEN_KIND_IDENTIFIER;
     memcpy(buffer, lexerState_.start, length);
     for (int i = 0; wordCloud_[i] != NULL; i++)

@@ -2,17 +2,6 @@
 #define REI_REI_H
 
 #define REI_STATIC_BUILD 0
-// 第三方库
-#define REI_C_TEMPLATE_LIB_CONTAINER_LIST_DOUBLY_H  "c_template/container/list.doubly.h"
-#define REI_C_TEMPLATE_LIB_CONTAINER_LIST_SINGLY_H  "c_template/container/list.singly.h"
-#define REI_C_TEMPLATE_LIB_CONTAINER_STR_H          "c_template/container/str.h"
-#define REI_C_TEMPLATE_LIB_CONTAINER_VECTOR_H       "c_template/container/vector.h"
-#define REI_C_TEMPLATE_LIB_PLATFORM_CONSOLE_H       "c_template/platform/console.h"
-#define REI_C_TEMPLATE_LIB_PLATFORM_KUA_H           "c_template/platform/kua.h"
-#define REI_C_TEMPLATE_LIB_TYPE_UUID_H              "c_template/type/uuid.h"
-#define REI_C_TEMPLATE_LIB_UTILS_RANDOM_GEN_H       "c_template/utils/random_gen.h"
-#define REI_C_TEMPLATE_LIB_ALLOCATOR_H              "c_template/allocator.h"
-#define REI_C_TEMPLATE_LIB_VERSION_H                "c_template/version.h"
 // 风格
 #define REI_USE_UPPERCASE 0
 // 调试
@@ -24,7 +13,7 @@
 #define REI_ENABLE_DEBUG REI_DEBUG_LEVEL_TRACE
 // 极值
 #define REI_MAX_BUFFER_SIZE 256
-#define REI_MAX_IDENTIFIER_NAME_LEN REI_MAX_BUFFER_SIZE
+#define REI_MAX_IDENTIFIER_LEN REI_MAX_BUFFER_SIZE
 #define REI_MAX_STACK_SIZE 1000000
 
 #if defined(_WIN32) || defined(_WIN64)
@@ -63,12 +52,20 @@
 
 #include "stdint.h"
 #include "stdbool.h"
-#include REI_C_TEMPLATE_LIB_VERSION_H
-#include REI_C_TEMPLATE_LIB_ALLOCATOR_H
 
-C_TEMPLATE_VERSION_STRUCT(,rei, Rei)
+typedef char ReiIdentifier[REI_MAX_IDENTIFIER_LEN];
+
+typedef struct ReiVersion
+{
+    ReiIdentifier name;
+    uint8_t major;
+    uint8_t minor;
+    uint8_t patch;
+    void* user;
+} ReiVersion;
 #define REI_VERSION \
-(ReiVersion) { \
+(ReiVersion) \
+{ \
     .name = "REI", \
     .major = 1, \
     .minor = 1, \
@@ -81,19 +78,24 @@ C_TEMPLATE_VERSION_STRUCT(,rei, Rei)
 #define REI_UINT_TO_MINOR(VERSION) C_TEMPLATE_UINT_TO_MINOR(VERSION)
 #define REI_UINT_TO_PATCH(VERSION) C_TEMPLATE_UINT_TO_PATCH(VERSION)
 
-C_TEMPLATE_DECL_ALLOCATOR(REI_API, rei, Rei)
-C_TEMPLATE_DEFN_ALLOCATOR(REI_API, rei, Rei, REI_API_CALL)
+typedef struct ReiAllocator
+{
+    void* context;
+    void* (REI_API_CALL *malloc)(void* ctx, size_t size);
+    void* (REI_API_CALL *realloc)(void* ctx, void* ptr, size_t size);
+    void  (REI_API_CALL *free)(void* ctx, void* ptr);
+} ReiAllocator;
 
 typedef int8_t ReiBytecode;
 
 typedef enum ReiResult
 {
-    REI_RESULT_SUCCESS,
-    REI_RESULT_LEXER_ERROR,
-    REI_RESULT_PARSER_ERROR,
-    REI_RESULT_SEMANTIC_ERROR,
-    REI_RESULT_CODEGEN_ERROR,
-    REI_RESULT_RUNTIME_ERROR,
+    REI_SUCCESS,
+    REI_ERROR_LEXER,
+    REI_ERROR_PARSER,
+    REI_ERROR_SEMANTIC,
+    REI_ERROR_CODEGEN,
+    REI_ERROR_RUNTIME,
     REI_RESULT_MAX_COUNT
 } ReiResult;
 
