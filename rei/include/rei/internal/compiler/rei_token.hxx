@@ -115,7 +115,8 @@ enum E
     CASE,
     DEFAULT,
 
-    ARGS,
+    FN,
+    ARGC,
     ARGV,
     RETURN,
 
@@ -234,7 +235,8 @@ static inline const char* string_ReiTokenKind(rei::TokenKind::E kind)
         case SWITCH:    return "SWITCH";
         case CASE:      return "CASE";
         case DEFAULT:   return "DEFAULT";
-        case ARGS:      return "ARGS";
+        case FN:        return "FN";
+        case ARGC:      return "ARGC";
         case ARGV:      return "ARGV";
         case RETURN:    return "RETURN";
         case ENUM:      return "ENUM";
