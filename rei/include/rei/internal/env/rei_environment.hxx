@@ -7,34 +7,35 @@
 namespace rei
 {
 using id_t = uint32_t;
+// enum 
 
 class Environment final
 {
 private:
-    id_t type_count_ = 0;
-    std::unordered_map<std::string, id_t> type_name_to_id_;
-    std::unordered_map<id_t, std::string> type_id_to_name_;
+    id_t symbol_count_ = 0;
+    std::unordered_map<std::string, id_t> symbol_name_to_id_;
+    std::unordered_map<id_t, std::string> symbol_id_to_name_;
 public:
     Environment() = default;
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
     Environment(Environment&& other) noexcept :
-        type_count_(other.type_count_),
-        type_name_to_id_(std::move(other.type_name_to_id_)),
-        type_id_to_name_(std::move(other.type_id_to_name_)) {}
+        symbol_count_(other.symbol_count_),
+        symbol_name_to_id_(std::move(other.symbol_name_to_id_)),
+        symbol_id_to_name_(std::move(other.symbol_id_to_name_)) {}
     Environment& operator=(Environment&& other) noexcept
     {
         destructor_();
-        type_count_         = other.type_count_;
-        type_name_to_id_    = std::move(other.type_name_to_id_);
-        type_id_to_name_    = std::move(other.type_id_to_name_);
+        symbol_count_       = other.symbol_count_;
+        symbol_name_to_id_  = std::move(other.symbol_name_to_id_);
+        symbol_id_to_name_  = std::move(other.symbol_id_to_name_);
         return *this;
     }
     ~Environment() { destructor_(); }
 private:
     void destructor_() {};
 public:
-    auto typeId(const std::string& name) const -> id_t { return type_name_to_id_.at(name); }
+    auto typeId(const std::string& name) const -> id_t { return symbol_name_to_id_.at(name); }
 public:
     // struct ConstantRegistrar final
     // {
@@ -92,8 +93,21 @@ public:
         StructureRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
     public:
         auto align(int size) -> StructureRegistrar&;
-        auto field(id_t id, const std::string& name) -> StructureRegistrar&;
+        auto field(id_t id, const std::string& name, bool ptr = false) -> StructureRegistrar&;
         auto alias(const std::string& name) -> StructureRegistrar&;
+    public:
+        auto submit() -> id_t;
+    };
+    struct FunctionRegistrar final
+    {
+    private:
+        Environment& env_;
+        std::string name_;
+    public:
+        FunctionRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
+    public:
+        auto arg(id_t id, const std::string& name, bool ptr);
+        auto ret(id_t id);
     public:
         auto submit() -> id_t;
     };
@@ -102,9 +116,10 @@ public:
     // auto variable(const std::string& name) -> VariableRegistrar { return {*this, name}; }
     auto enumeration(const std::string& name) -> EnumerationRegistrar { return {*this, name}; }
     auto structure(const std::string& name) -> StructureRegistrar { return {*this, name}; }
+    auto function(const std::string& name) -> FunctionRegistrar { return {*this, name}; }
 private:
-    void primitive_(const std::string& name)
-    {
-    }
+    // void primitive_(const std::string& name, )
+    // {
+    // }
 };
 }

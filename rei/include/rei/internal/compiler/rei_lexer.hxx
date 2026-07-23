@@ -42,10 +42,10 @@ private:
     void lexString_();
     void lexIdentifier_();
 private:
-    void addToken_(TokenKind::E kind);
-    void addToken_(TokenKind::E kind, uint64_t i);
-    void addToken_(TokenKind::E kind, double f);
-    void addToken_(TokenKind::E kind, const std::string& str);
+    void addToken_(TokenKind kind);
+    void addToken_(TokenKind kind, uint64_t i);
+    void addToken_(TokenKind kind, double f);
+    void addToken_(TokenKind kind, const std::string& str);
 };
 class Lexer final
 {

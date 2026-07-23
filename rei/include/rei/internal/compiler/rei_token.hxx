@@ -5,9 +5,7 @@
 
 namespace rei
 {
-namespace TokenKind
-{
-enum E
+enum TokenKind
 {
     TK_LEFT_PAREN,      // (
     TK_RIGHT_PAREN,     // )
@@ -127,10 +125,9 @@ enum E
     
     TK_EOF
 };
-}
 struct Token final
 {
-    TokenKind::E kind;
+    TokenKind kind;
     std::string_view lexeme;
     union
     {
@@ -140,11 +137,11 @@ struct Token final
     std::string str;
     uint32_t line;
 };
-auto keywordToTokenKind(std::string_view keyword) -> TokenKind::E;
+auto keywordToTokenKind(std::string_view keyword) -> TokenKind;
 }
-static inline const char* string_ReiTokenKind(rei::TokenKind::E kind)
+static inline const char* string_ReiTokenKind(rei::TokenKind kind)
 {
-    using namespace rei::TokenKind;
+    using namespace rei;
     switch (kind)
     {
         case TK_LEFT_PAREN:     return "TK_LEFT_PAREN";

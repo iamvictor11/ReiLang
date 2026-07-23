@@ -65,7 +65,7 @@ namespace rei
             assert(!okey() && "rei::Result not have error!");
             error().report();
         }
-        auto check() -> Result
+        auto check() -> Result&
         {
             if (!okey())
                 error().report();
@@ -106,7 +106,7 @@ namespace rei
             assert(!okey() && "rei::Result not have error!");
             error().report();
         }
-        auto check() -> Result<void>
+        auto check() -> Result<void>&
         {
             if (!okey())
                 error().report();

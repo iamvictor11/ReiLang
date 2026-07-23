@@ -5,12 +5,11 @@
 
 namespace rei
 {
-using namespace TokenKind;
-auto keywordToTokenKind(std::string_view keyword) -> TokenKind::E
+auto keywordToTokenKind(std::string_view keyword) -> TokenKind
 {
     static const auto keywords = []()
     {
-        auto arr = std::to_array<std::pair<std::string_view, TokenKind::E>>({
+        auto arr = std::to_array<std::pair<std::string_view, TokenKind>>({
             {"void", TK_VOID},
             {"char", TK_CHAR},
             {"short", TK_SHORT},
@@ -44,7 +43,7 @@ auto keywordToTokenKind(std::string_view keyword) -> TokenKind::E
             {"offsetof", TK_OFFSETOF},
             {"typeof", TK_TYPEOF}
         });
-        std::ranges::sort(arr, std::less<>{}, &std::pair<std::string_view, TokenKind::E>::first);
+        std::ranges::sort(arr, std::less<>{}, &std::pair<std::string_view, TokenKind>::first);
         return arr;
     }();
     auto it = std::lower_bound(

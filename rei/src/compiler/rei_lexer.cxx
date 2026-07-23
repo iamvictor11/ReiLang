@@ -4,7 +4,6 @@
 
 namespace rei
 {
-using namespace TokenKind;
 LexerState::LexerState(const std::string& source, Error& error) : source_(source), error_(error)
 {
     while (!isAtEnd_()) scan_();
@@ -174,7 +173,7 @@ void LexerState::lexOther_(char c)
         lexIdentifier_();
         return;
     }
-    error_.title = "Lexer::lexOther_";
+    error_.title = "LexerState::lexOther_";
     error_.message = std::format("unknown char '{}'(HEX: 0x{:02x}) [{}]!", c, (unsigned char)c, line_);
     error_.code = REI_ERROR_LEXER;
 }
@@ -223,7 +222,35 @@ void LexerState::lexNumber_()
 }
 void LexerState::lexChar_()
 {
-    
+    Token token {};
+    token.kind = TK_CHAR;
+    char c = advance_();
+    if (c == '\\')
+    {
+        if (isAtEnd_())
+        {
+            error_.title = "LexerState::lexChar_";
+            error_.message = std::format("unclosed char [{}]", line_);
+            error_.code = REI_ERROR_LEXER;
+        }
+        char next = advance_();
+        switch (next)
+        {
+            case 'n':  token.literal.i = static_cast<uint64_t>('\n'); break;
+            case 'r':  token.literal.i = static_cast<uint64_t>('\r'); break;
+            case 't':  token.literal.i = static_cast<uint64_t>('\t'); break;
+            case '\\': token.literal.i = static_cast<uint64_t>('\\'); break;
+            case '"':  token.literal.i = static_cast<uint64_t>('"');  break;
+            case '\'': token.literal.i = static_cast<uint64_t>('\''); break;
+        }
+    }
+    if (isAtEnd_() || !match_('\''))
+    {
+        error_.title = "LexerState::lexChar_";
+        error_.message = std::format("unclosed char [{}]", line_);
+        error_.code = REI_ERROR_LEXER;
+    }
+    token.literal.i = static_cast<uint64_t>(c);
 }
 void LexerState::lexString_()
 {
@@ -231,7 +258,6 @@ void LexerState::lexString_()
     while (peek_() != '"' && !isAtEnd_())
     {
         char c = advance_();
-        // 转义字符
         if (c == '\\')
         {
             if (isAtEnd_()) break;
@@ -254,7 +280,7 @@ void LexerState::lexString_()
     }
     if (isAtEnd_())
     {
-        error_.title = "Lexer::lexString_";
+        error_.title = "LexerState::lexString_";
         error_.message = std::format("unclosed string [{}]!", line_);
         error_.code = REI_ERROR_LEXER;
         return;
@@ -268,12 +294,12 @@ void LexerState::lexIdentifier_()
     { return isalnum(c) || c == '_'; };
     while (isidentifier(peek_())) pass_();
     std::string_view lexeme {source_.data() + start_, curr_ - start_};
-    TokenKind::E kind = keywordToTokenKind(lexeme);
+    TokenKind kind = keywordToTokenKind(lexeme);
     addToken_(kind);
 }
 #pragma endregion
 #pragma region Add
-void LexerState::addToken_(TokenKind::E kind)
+void LexerState::addToken_(TokenKind kind)
 {
     Token token {};
     token.kind = kind;
@@ -281,7 +307,7 @@ void LexerState::addToken_(TokenKind::E kind)
     token.line = line_;
     tokens_.push_back(token);
 }
-void LexerState::addToken_(TokenKind::E kind, uint64_t i)
+void LexerState::addToken_(TokenKind kind, uint64_t i)
 {
     Token token {};
     token.kind = kind;
@@ -290,7 +316,7 @@ void LexerState::addToken_(TokenKind::E kind, uint64_t i)
     token.line = line_;
     tokens_.push_back(token);
 }
-void LexerState::addToken_(TokenKind::E kind, double f)
+void LexerState::addToken_(TokenKind kind, double f)
 {
     Token token {};
     token.kind = kind;
@@ -299,7 +325,7 @@ void LexerState::addToken_(TokenKind::E kind, double f)
     token.line = line_;
     tokens_.push_back(token);
 }
-void LexerState::addToken_(TokenKind::E kind, const std::string& str)
+void LexerState::addToken_(TokenKind kind, const std::string& str)
 {
     Token token {};
     token.kind = kind;

@@ -9,6 +9,6 @@ namespace rei
         printf("[REI::Lexer]\n");
         for (auto& token : tokens)
             printf("%s\n", string_ReiTokenKind(token.kind));
-        return {lexer_.error()};
+        return {Image{}};
     }
 }
