@@ -2,11 +2,12 @@
 #include <cstdint>
 #include <cctype>
 #include <string>
+#include <string_view>
 #include <cstdlib>
 
 namespace rei
 {
-static inline auto stringToInt(const std::string& str) -> int64_t
+static inline auto stringToInt(std::string_view str) -> uint64_t
 {
     size_t pos = 0;
     while (pos < str.length() && isspace((unsigned char)str[pos])) pos++;
@@ -40,7 +41,7 @@ static inline auto stringToInt(const std::string& str) -> int64_t
             pos--;
         }
     }
-    long result = 0;
+    long res = 0;
     const std::string digits = "0123456789ABCDEF";
     while (pos < str.length())
     {
@@ -59,12 +60,12 @@ static inline auto stringToInt(const std::string& str) -> int64_t
             }
         }
         if (digit == -1) break;
-        result = result * base + digit;
+        res = res * base + digit;
         pos++;
     }
-    return (int64_t)(result * sign);
+    return (uint64_t)(res * sign);
 }
-static inline auto stringToFloat(const std::string& str) -> double
+static inline auto stringToFloat(std::string_view str) -> double
 {
     if (str.empty()) return 0.0;
     std::string cleaned;

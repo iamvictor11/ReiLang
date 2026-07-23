@@ -5,50 +5,65 @@ namespace rei
 {
 namespace Opcode
 {
-enum E
+enum E : uint8_t
 {
-    NOP,
-    MOV, MOVK,
-    LOAD, LOADK,
-    STOR, STORK,
-    UADD, IADD, FADD,
-    USUB, ISUB, FSUB,
-    UMUL, IMUL, FMUL,
-    UDIV, IDIV, FDIV,
-    UMOD, IMOD, FMOD,
-    UCMP, ICMP, FCMP,
-    UADDK, IADDK, FADDK,
-    USUBK, ISUBK, FSUBK,
-    UMULK, IMULK, FMULK,
-    UDIVK, IDIVK, FDIVK,
-    UMODK, IMODK, FMODK,
-    UCMPK, ICMPK, FCMPK,
-    SHL, SHR, SAR,
-    SHLK, SHRK, SARK,
-    BAND, BANDK,
-    BOR, BORK,
-    BXOR, BXORK,
-    BNOT, BNOTK,
-    U2I, I2U, I2F, F2I,
-    UEX, IEX,
-    JMP,
-    JMPE, JMPNE,
-    JMPA, JMPB,
-    JMPL, JMPG,
-    CALL,
-    RET,
-    HALT
+    OP_NOP,
+    OP_MOV, OP_MOVK,
+    OP_LOAD, OP_LOADK,
+    OP_STOR, OP_STORK,
+    OP_UADD, OP_IADD, OP_FADD,
+    OP_USUB, OP_ISUB, OP_FSUB,
+    OP_UMUL, OP_IMUL, OP_FMUL,
+    OP_UDIV, OP_IDIV, OP_FDIV,
+    OP_UMOD, OP_IMOD, OP_FMOD,
+    OP_UCMP, OP_ICMP, OP_FCMP,
+    OP_UADDK, OP_IADDK, OP_FADDK,
+    OP_USUBK, OP_ISUBK, OP_FSUBK,
+    OP_UMULK, OP_IMULK, OP_FMULK,
+    OP_UDIVK, OP_IDIVK, OP_FDIVK,
+    OP_UMODK, OP_IMODK, OP_FMODK,
+    OP_UCMPK, OP_ICMPK, OP_FCMPK,
+    OP_SHL, OP_SHR, OP_SAR,
+    OP_SHLK, OP_SHRK, OP_SARK,
+    OP_BAND, OP_BANDK,
+    OP_BOR, OP_BORK,
+    OP_BXOR, OP_BXORK,
+    OP_BNOT, OP_BNOTK,
+    OP_U2I, OP_I2U, OP_I2F, OP_F2I,
+    OP_UEX, OP_IEX,
+    OP_JMP,
+    OP_JMPE, OP_JMPNE,
+    OP_JMPA, OP_JMPB,
+    OP_JMPL, OP_JMPG,
+    OP_CALL,
+    OP_RET,
+    OP_HALT,
+    OPCODE_COUNT
 };
 }
 namespace Reg
 {
-enum E
+enum E : uint8_t
 {
-    R0, R1, R2, R3, R4, R5, R6, R7, R8, R9, R10, R11, R12, R13, R14, R15,
-    T0, T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11, T12, T13, T14, T15,
-    IP, SP, FP, LR,
+    RG_R0, RG_R1, RG_R2, RG_R3, RG_R4, RG_R5, RG_R6, RG_R7, RG_R8, RG_R9, RG_R10, RG_R11, RG_R12, RG_R13, RG_R14, RG_R15,
+    RG_T0, RG_T1, RG_T2, RG_T3, RG_T4, RG_T5, RG_T6, RG_T7, RG_T8, RG_T9, RG_T10, RG_T11, RG_T12, RG_T13, RG_T14, RG_T15,
+    RG_IP, RG_SP, RG_FP, RG_LR,
     REG_COUNT
 };
 template<int N> constexpr E ARG = static_cast<E>(R0 + N);
+}
+namespace ConditionCode
+{
+enum F : uint8_t
+{
+    CC_00 = 0,
+    CC_ZF = 1 << 0,
+    CC_SF = 1 << 1,
+    CC_OF = 1 << 2,
+    CC_CF = 1 << 3,
+    CC_AF = 1 << 4,
+    CC_PF = 1 << 5,
+    CC_ALL = UINT8_MAX
+};
 }
 }

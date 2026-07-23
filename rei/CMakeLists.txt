@@ -16,6 +16,7 @@ target_sources(${TARGET_SNAME}
 PRIVATE
     "${CMAKE_CURRENT_SOURCE_DIR}/src/asm/rei_vm.cxx"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/rei_lexer.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/rei_token.cxx"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/env/rei_environment.cxx"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/rei_allocation_callbacks.cxx"
     "${CMAKE_CURRENT_SOURCE_DIR}/src/rei.cxx"

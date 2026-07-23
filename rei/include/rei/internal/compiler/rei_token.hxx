@@ -1,6 +1,7 @@
 #pragma once
-#include <string_view>
 #include <cstdint>
+#include <string_view>
+#include <string>
 
 namespace rei
 {
@@ -8,125 +9,123 @@ namespace TokenKind
 {
 enum E
 {
-    LEFT_PAREN,     // (
-    RIGHT_PAREN,    // )
-    LEFT_BRACKET,   // [
-    RIGHT_BRACKET,  // ]
-    LEFT_BRACE,     // {
-    RIGHT_BRACE,    // }
+    TK_LEFT_PAREN,      // (
+    TK_RIGHT_PAREN,     // )
+    TK_LEFT_BRACKET,    // [
+    TK_RIGHT_BRACKET,   // ]
+    TK_LEFT_BRACE,      // {
+    TK_RIGHT_BRACE,     // }
 
-    LEFT_BRACKET_BRACKET,   // [[
-    RIGHT_BRACKET_BRACKET,  // ]]
+    TK_LEFT_BRACKET_BRACKET,    // [[ (暂无作用)
+    TK_RIGHT_BRACKET_BRACKET,   // ]] (暂无作用)
 
-    COMMA,          // ,
-    QUESTION,       // ?
-    DOT,            // .
-    DOT_DOT,        // ..
-    DOT_DOT_DOT,    // ...
-    COLON,          // :
-    COLON_COLON,    // ::
-    SEMICOLON,      // ;
+    TK_COMMA,       // ,
+    TK_QUESTION,    // ?
+    TK_DOT,         // .
+    TK_DOT_DOT,     // .. (暂无作用)
+    TK_DOT_DOT_DOT, // ... (暂无作用)
+    TK_COLON,       // :
+    TK_COLON_COLON, // :: (暂无作用)
+    TK_SEMICOLON,   // ;
     
-    PLUS,   // +
-    MINUS,  // -
-    STAR,   // *
-    SLASH,  // /
-    MODULO, // %
+    TK_PLUS,    // +
+    TK_MINUS,   // -
+    TK_STAR,    // *
+    TK_SLASH,   // /
+    TK_MODULO,  // %
 
-    PLUS_PLUS,      // ++
-    MINUS_MINUS,    // --
+    TK_PLUS_PLUS,   // ++
+    TK_MINUS_MINUS, // --
 
-    AND,                // &
-    PIPE,               // |
-    CARET,              // ^
-    TILDE,              // ~
-    LESS_LESS,          // <<
-    GREATER_GREATER,    // >>
+    TK_AND,             // &
+    TK_PIPE,            // |
+    TK_CARET,           // ^
+    TK_TILDE,           // ~
+    TK_LESS_LESS,       // <<
+    TK_GREATER_GREATER, // >>
 
-    AND_AND,    // &&
-    PIPE_PIPE,  // ||
-    BANG,       // !
+    TK_AND_AND,     // &&
+    TK_PIPE_PIPE,   // ||
+    TK_BANG,        // !
     
-    LESS,           // <
-    GREATER,        // >
-    EQUAL_EQUAL,    // ==
-    BANG_EQUAL,     // !=
-    LESS_EQUAL,     // <=
-    GREATER_EQUAL,  // >=
-    COMPARE,        // <=>
+    TK_LESS,            // <
+    TK_GREATER,         // >
+    TK_EQUAL_EQUAL,     // ==
+    TK_BANG_EQUAL,      // !=
+    TK_LESS_EQUAL,      // <=
+    TK_GREATER_EQUAL,   // >=
+    TK_COMPARE,         // <=>
 
-    WALRUS,  // :=
-    EQUAL,   // =
+    TK_WALRUS,  // := (暂无作用)
+    TK_EQUAL,   // =
 
-    PLUS_EQUAL,     // +=
-    MINUS_EQUAL,    // -=
-    STAR_EQUAL,     // *=
-    SLASH_EQUAL,    // /=
-    MODULO_EQUAL,   // %=
+    TK_PLUS_EQUAL,      // +=
+    TK_MINUS_EQUAL,     // -=
+    TK_STAR_EQUAL,      // *=
+    TK_SLASH_EQUAL,     // /=
+    TK_MODULO_EQUAL,    // %=
 
-    AND_EQUAL,              // &=
-    PIPE_EQUAL,             // |=
-    CARET_EQUAL,            // ^=
-    TILDE_EQUAL,            // ~=
-    LESS_LESS_EQUAL,        // <<=
-    GREATER_GREATER_EQUAL,  // >>=
+    TK_AND_EQUAL,               // &=
+    TK_PIPE_EQUAL,              // |=
+    TK_CARET_EQUAL,             // ^=
+    TK_TILDE_EQUAL,             // ~=
+    TK_LESS_LESS_EQUAL,         // <<=
+    TK_GREATER_GREATER_EQUAL,   // >>=
 
-    LEFT_ARROW,     // <-
-    RIGHT_ARROW,    // ->
+    TK_LEFT_ARROW,  // <- (暂无作用)
+    TK_RIGHT_ARROW, // ->
 
-    POUND,  // \#
-    AT,     // @
+    TK_POUND,   // \# (暂无作用)
+    TK_AT,      // @ (暂无作用)
 
-    VOID,      // void
-    CHAR,      // char     8
-    SHORT,     // short    16
-    INT,       // int      32
-    LONG,      // long     64
-    FLOAT,     // float
-    DOUBLE,    // double
+    TK_LIT_INT,
+    TK_LIT_FLOAT,
+    TK_LIT_STRING,
 
-    SIGNED,    // signed
-    UNSIGNED,  // unsigned
+    TK_IDENTIFIER,
 
-    ALIGNAS, // alignas()
+    TK_VOID,    // void
+    TK_CHAR,    // char     8
+    TK_SHORT,   // short    16
+    TK_INT,     // int      32
+    TK_LONG,    // long     64
+    TK_FLOAT,   // float
+    TK_DOUBLE,  // double
 
-    LIT_INT,
-    LIT_FLOAT,
-    LIT_STRING,
+    TK_SIGNED,      // signed
+    TK_UNSIGNED,    // unsigned
 
-    IDENTIFIER,
+    TK_KON, // kon
+    TK_MUT, // mut (暂无作用)
 
-    KON, // kon
-    MUT, // mut
+    TK_IF,      // if
+    TK_ELIF,    // elif
+    TK_ELSE,    // else
 
-    IF,     // if
-    ELIF,   // elif
-    ELSE,   // else
+    TK_FOR,         // for
+    TK_WHILE,       // while
+    TK_DO,          // do
+    TK_CONTINUE,    // continue
+    TK_BREAK,       // break
 
-    FOR,        // for
-    WHILE,      // while
-    DO,         // do
-    CONTINUE,   // continue
-    BREAK,      // break
+    TK_SWITCH,  // switch
+    TK_CASE,    // case
+    TK_DEFAULT, // default
 
-    SWITCH,     // switch
-    CASE,       // case
-    DEFAULT,    // default
+    TK_FN,      // fn
+    TK_RETURN,  // return
 
-    FN,     // fn
-    RETURN, // return
+    TK_ENUM,    // enum
+    TK_STRUCT,  // struct
+    TK_ALIGNAS, // alignas
+    TK_TYPEDEF, // typedef
 
-    ENUM,   // enum
-    STRUCT, // struct
-
-    TYPEDEF, // typedef
-
-    SIZEOF,     // sizeof()
-    ALIGNOF,    // alignof()
-    OFFSETOF,   // offsetof()
-    TYPEOF,     // typeof()
+    TK_SIZEOF,      // sizeof
+    TK_ALIGNOF,     // alignof
+    TK_OFFSETOF,    // offsetof
+    TK_TYPEOF,      // typeof
     
-    LIT_EOF
+    TK_EOF
 };
 }
 struct Token final
@@ -137,107 +136,108 @@ struct Token final
     {
         uint64_t i;
         double f;
-        bool b;
     } literal;
+    std::string str;
     uint32_t line;
 };
+auto keywordToTokenKind(std::string_view keyword) -> TokenKind::E;
 }
 static inline const char* string_ReiTokenKind(rei::TokenKind::E kind)
 {
     using namespace rei::TokenKind;
     switch (kind)
     {
-        case LEFT_PAREN:    return "LEFT_PAREN";
-        case RIGHT_PAREN:   return "RIGHT_PAREN";
-        case LEFT_BRACKET:  return "LEFT_BRACKET";
-        case RIGHT_BRACKET: return "RIGHT_BRACKET";
-        case LEFT_BRACE:    return "LEFT_BRACE";
-        case RIGHT_BRACE:   return "RIGHT_BRACE";
-        case LEFT_BRACKET_BRACKET:  return "LEFT_BRACKET_BRACKET";
-        case RIGHT_BRACKET_BRACKET: return "RIGHT_BRACKET_BRACKET";
-        case COMMA:         return "COMMA";
-        case QUESTION:      return "QUESTION";
-        case DOT:           return "DOT";
-        case DOT_DOT:       return "DOT_DOT";
-        case DOT_DOT_DOT:   return "DOT_DOT_DOT";
-        case COLON:         return "COLON";
-        case COLON_COLON:   return "COLON_COLON";
-        case SEMICOLON:     return "SEMICOLON";
-        case PLUS:      return "PLUS";
-        case MINUS:     return "MINUS";
-        case STAR:      return "STAR";
-        case SLASH:     return "SLASH";
-        case MODULO:    return "MODULO";
-        case AND:   return "AND";
-        case PIPE:  return "PIPE";
-        case CARET: return "CARET";
-        case TILDE: return "TILDE";
-        case LESS_LESS:         return "LESS_LESS";
-        case GREATER_GREATER:   return "GREATER_GREATER";
-        case AND_AND:   return "AND_AND";
-        case PIPE_PIPE: return "PIPE_PIPE";
-        case BANG:      return "BANG";
-        case LESS:          return "LESS";
-        case GREATER:       return "GREATER";
-        case EQUAL_EQUAL:   return "EQUAL_EQUAL";
-        case BANG_EQUAL:    return "BANG_EQUAL";
-        case LESS_EQUAL:    return "LESS_EQUAL";
-        case GREATER_EQUAL: return "GREATER_EQUAL";
-        case COMPARE:       return "COMPARE";
-        case WALRUS:    return "WALRUS";
-        case EQUAL:     return "EQUAL";
-        case PLUS_EQUAL:    return "PLUS_EQUAL";
-        case MINUS_EQUAL:   return "MINUS_EQUAL";
-        case STAR_EQUAL:    return "STAR_EQUAL";
-        case SLASH_EQUAL:   return "SLASH_EQUAL";
-        case MODULO_EQUAL:  return "MODULO_EQUAL";
-        case AND_EQUAL:             return "AND_EQUAL";
-        case PIPE_EQUAL:            return "PIPE_EQUAL";
-        case CARET_EQUAL:           return "CARET_EQUAL";
-        case TILDE_EQUAL:           return "TILDE_EQUAL";
-        case LESS_LESS_EQUAL:       return "LESS_LESS_EQUAL";
-        case GREATER_GREATER_EQUAL: return "GREATER_GREATER_EQUAL";
-        case LEFT_ARROW:    return "LEFT_ARROW";
-        case RIGHT_ARROW:   return "RIGHT_ARROW";
-        case POUND: return "POUND";
-        case AT:    return "AT";
-        case VOID:      return "VOID";
-        case CHAR:      return "CHAR";
-        case SHORT:     return "SHORT";
-        case INT:       return "INT";
-        case LONG:      return "LONG";
-        case FLOAT:     return "FLOAT";
-        case DOUBLE:    return "DOUBLE";
-        case SIGNED:    return "SIGNED";
-        case UNSIGNED:  return "UNSIGNED";
-        case ALIGNAS: return "ALIGNAS";
-        case LIT_INT:       return "LIT_INT";
-        case LIT_FLOAT:     return "LIT_FLOAT";
-        case LIT_STRING:    return "LIT_STRING";
-        case IDENTIFIER: return "IDENTIFIER";
-        case KON: return "KON";
-        case MUT: return "MUT";
-        case IF:    return "IF";
-        case ELIF:  return "ELIF";
-        case ELSE:  return "ELSE";
-        case FOR:       return "FOR";
-        case WHILE:     return "WHILE";
-        case DO:        return "DO";
-        case CONTINUE:  return "CONTINUE";
-        case BREAK:     return "BREAK";
-        case SWITCH:    return "SWITCH";
-        case CASE:      return "CASE";
-        case DEFAULT:   return "DEFAULT";
-        case FN:        return "FN";
-        case RETURN:    return "RETURN";
-        case ENUM:      return "ENUM";
-        case STRUCT:    return "STRUCT";
-        case TYPEDEF: return "TYPEDEF";
-        case SIZEOF:    return "SIZEOF";
-        case ALIGNOF:   return "ALIGNOF";
-        case OFFSETOF:  return "OFFSETOF";
-        case TYPEOF:    return "TYPEOF";
-        case LIT_EOF: return "LIT_EOF";
-        default: return "UNKNOWN_REI_TOKEN_KIND";
+        case TK_LEFT_PAREN:     return "TK_LEFT_PAREN";
+        case TK_RIGHT_PAREN:    return "TK_RIGHT_PAREN";
+        case TK_LEFT_BRACKET:   return "TK_LEFT_BRACKET";
+        case TK_RIGHT_BRACKET:  return "TK_RIGHT_BRACKET";
+        case TK_LEFT_BRACE:     return "TK_LEFT_BRACE";
+        case TK_RIGHT_BRACE:    return "TK_RIGHT_BRACE";
+        case TK_LEFT_BRACKET_BRACKET:   return "TK_LEFT_BRACKET_BRACKET";
+        case TK_RIGHT_BRACKET_BRACKET:  return "TK_RIGHT_BRACKET_BRACKET";
+        case TK_COMMA:          return "TK_COMMA";
+        case TK_QUESTION:       return "TK_QUESTION";
+        case TK_DOT:            return "TK_DOT";
+        case TK_DOT_DOT:        return "TK_DOT_DOT";
+        case TK_DOT_DOT_DOT:    return "TK_DOT_DOT_DOT";
+        case TK_COLON:          return "TK_COLON";
+        case TK_COLON_COLON:    return "TK_COLON_COLON";
+        case TK_SEMICOLON:      return "TK_SEMICOLON";
+        case TK_PLUS:   return "TK_PLUS";
+        case TK_MINUS:  return "TK_MINUS";
+        case TK_STAR:   return "TK_STAR";
+        case TK_SLASH:  return "TK_SLASH";
+        case TK_MODULO: return "TK_MODULO";
+        case TK_AND:    return "TK_AND";
+        case TK_PIPE:   return "TK_PIPE";
+        case TK_CARET:  return "TK_CARET";
+        case TK_TILDE:  return "TK_TILDE";
+        case TK_LESS_LESS:          return "TK_LESS_LESS";
+        case TK_GREATER_GREATER:    return "TK_GREATER_GREATER";
+        case TK_AND_AND:    return "TK_AND_AND";
+        case TK_PIPE_PIPE:  return "TK_PIPE_PIPE";
+        case TK_BANG:       return "TK_BANG";
+        case TK_LESS:           return "TK_LESS";
+        case TK_GREATER:        return "TK_GREATER";
+        case TK_EQUAL_EQUAL:    return "TK_EQUAL_EQUAL";
+        case TK_BANG_EQUAL:     return "TK_BANG_EQUAL";
+        case TK_LESS_EQUAL:     return "TK_LESS_EQUAL";
+        case TK_GREATER_EQUAL:  return "TK_GREATER_EQUAL";
+        case TK_COMPARE:        return "TK_COMPARE";
+        case TK_WALRUS: return "TK_WALRUS";
+        case TK_EQUAL:  return "TK_EQUAL";
+        case TK_PLUS_EQUAL:     return "TK_PLUS_EQUAL";
+        case TK_MINUS_EQUAL:    return "TK_MINUS_EQUAL";
+        case TK_STAR_EQUAL:     return "TK_STAR_EQUAL";
+        case TK_SLASH_EQUAL:    return "TK_SLASH_EQUAL";
+        case TK_MODULO_EQUAL:   return "TK_MODULO_EQUAL";
+        case TK_AND_EQUAL:              return "TK_AND_EQUAL";
+        case TK_PIPE_EQUAL:             return "TK_PIPE_EQUAL";
+        case TK_CARET_EQUAL:            return "TK_CARET_EQUAL";
+        case TK_TILDE_EQUAL:            return "TK_TILDE_EQUAL";
+        case TK_LESS_LESS_EQUAL:        return "TK_LESS_LESS_EQUAL";
+        case TK_GREATER_GREATER_EQUAL:  return "TK_GREATER_GREATER_EQUAL";
+        case TK_LEFT_ARROW:     return "TK_LEFT_ARROW";
+        case TK_RIGHT_ARROW:    return "TK_RIGHT_ARROW";
+        case TK_POUND:  return "TK_POUND";
+        case TK_AT:     return "TK_AT";
+        case TK_LIT_INT:    return "TK_LIT_INT";
+        case TK_LIT_FLOAT:  return "TK_LIT_FLOAT";
+        case TK_LIT_STRING: return "TK_LIT_STRING";
+        case TK_IDENTIFIER: return "TK_IDENTIFIER";
+        case TK_VOID:   return "TK_VOID";
+        case TK_CHAR:   return "TK_CHAR";
+        case TK_SHORT:  return "TK_SHORT";
+        case TK_INT:    return "TK_INT";
+        case TK_LONG:   return "TK_LONG";
+        case TK_FLOAT:  return "TK_FLOAT";
+        case TK_DOUBLE: return "TK_DOUBLE";
+        case TK_SIGNED:     return "TK_SIGNED";
+        case TK_UNSIGNED:   return "TK_UNSIGNED";
+        case TK_KON: return "TK_KON";
+        case TK_MUT: return "TK_MUT";
+        case TK_IF:     return "TK_IF";
+        case TK_ELIF:   return "TK_ELIF";
+        case TK_ELSE:   return "TK_ELSE";
+        case TK_FOR:        return "TK_FOR";
+        case TK_WHILE:      return "TK_WHILE";
+        case TK_DO:         return "TK_DO";
+        case TK_CONTINUE:   return "TK_CONTINUE";
+        case TK_BREAK:      return "TK_BREAK";
+        case TK_SWITCH:     return "TK_SWITCH";
+        case TK_CASE:       return "TK_CASE";
+        case TK_DEFAULT:    return "TK_DEFAULT";
+        case TK_FN:     return "TK_FN";
+        case TK_RETURN: return "TK_RETURN";
+        case TK_ENUM:       return "TK_ENUM";
+        case TK_STRUCT:     return "TK_STRUCT";
+        case TK_ALIGNAS:    return "TK_ALIGNAS";
+        case TK_TYPEDEF:    return "TK_TYPEDEF";
+        case TK_SIZEOF:     return "TK_SIZEOF";
+        case TK_ALIGNOF:    return "TK_ALIGNOF";
+        case TK_OFFSETOF:   return "TK_OFFSETOF";
+        case TK_TYPEOF:     return "TK_TYPEOF";
+        case TK_EOF: return "TK_EOF";
+        default: return "TK_UNKNOWN";
     }
 }
