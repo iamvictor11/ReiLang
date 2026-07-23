@@ -50,7 +50,7 @@ enum E : uint8_t
     RG_IP, RG_SP, RG_FP, RG_LR,
     REG_COUNT
 };
-template<int N> constexpr E ARG = static_cast<E>(R0 + N);
+template<int N> constexpr E ARG = static_cast<E>(RG_R0 + N);
 }
 namespace ConditionCode
 {

@@ -21,6 +21,7 @@ function(target_setup TARGET_NAME)
     )
     target_link_libraries(${TARGET_NAME}
     PUBLIC
+        rei
     )
     set_property(TARGET ${TARGET_NAME} PROPERTY INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
     target_compile_options(${TARGET_NAME}

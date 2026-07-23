@@ -1,4 +1,5 @@
 #pragma once
+#include <iostream>
 #include "rei/rei.hxx"
 
 static inline void fs_useUTF8()
