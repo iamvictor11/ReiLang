@@ -222,8 +222,6 @@ void LexerState::lexNumber_()
 }
 void LexerState::lexChar_()
 {
-    Token token {};
-    token.kind = TK_CHAR;
     char c = advance_();
     if (c == '\\')
     {
@@ -236,12 +234,12 @@ void LexerState::lexChar_()
         char next = advance_();
         switch (next)
         {
-            case 'n':  token.literal.i = static_cast<uint64_t>('\n'); break;
-            case 'r':  token.literal.i = static_cast<uint64_t>('\r'); break;
-            case 't':  token.literal.i = static_cast<uint64_t>('\t'); break;
-            case '\\': token.literal.i = static_cast<uint64_t>('\\'); break;
-            case '"':  token.literal.i = static_cast<uint64_t>('"');  break;
-            case '\'': token.literal.i = static_cast<uint64_t>('\''); break;
+            case 'n':  c = '\n'; break;
+            case 'r':  c = '\r'; break;
+            case 't':  c = '\t'; break;
+            case '\\': c = '\\'; break;
+            case '"':  c = '"';  break;
+            case '\'': c = '\''; break;
         }
     }
     if (isAtEnd_() || !match_('\''))
@@ -250,7 +248,7 @@ void LexerState::lexChar_()
         error_.message = std::format("unclosed char [{}]", line_);
         error_.code = REI_ERROR_LEXER;
     }
-    token.literal.i = static_cast<uint64_t>(c);
+    addToken_(TK_CHAR, static_cast<uint64_t>(c));
 }
 void LexerState::lexString_()
 {
