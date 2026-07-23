@@ -33,10 +33,13 @@ enum E
     SLASH,  // /
     MODULO, // %
 
+    PLUS_PLUS,      // ++
+    MINUS_MINUS,    // --
+
     AND,                // &
     PIPE,               // |
-    CTRL,               // ^
-    WAVE,               // ~
+    CARET,              // ^
+    TILDE,              // ~
     LESS_LESS,          // <<
     GREATER_GREATER,    // >>
 
@@ -63,8 +66,8 @@ enum E
 
     AND_EQUAL,              // &=
     PIPE_EQUAL,             // |=
-    CTRL_EQUAL,             // ^=
-    WAVE_EQUAL,             // ~=
+    CARET_EQUAL,            // ^=
+    TILDE_EQUAL,            // ~=
     LESS_LESS_EQUAL,        // <<=
     GREATER_GREATER_EQUAL,  // >>=
 
@@ -74,57 +77,54 @@ enum E
     POUND,  // \#
     AT,     // @
 
-    TYPE_VOID,
-    TYPE_CHAR,
-    TYPE_UCHAR,
-    TYPE_SHORT,
-    TYPE_USHORT,
-    TYPE_INT,
-    TYPE_UINT,
-    TYPE_LONG,
-    TYPE_ULONG,
-    TYPE_FLOAT,
-    TYPE_DOUBLE,
-    TYPE_BOOL,
-    TYPE_STRING,
-    TYPE_LAMBDA,
+    VOID,      // void
+    CHAR,      // char     8
+    SHORT,     // short    16
+    INT,       // int      32
+    LONG,      // long     64
+    FLOAT,     // float
+    DOUBLE,    // double
+
+    SIGNED,    // signed
+    UNSIGNED,  // unsigned
+
+    ALIGNAS, // alignas()
 
     LIT_INT,
     LIT_FLOAT,
-    LIT_TRUE,
-    LIT_FALSE,
     LIT_STRING,
 
     IDENTIFIER,
 
-    KON,
-    MUT,
+    KON, // kon
+    MUT, // mut
 
-    IF,
-    ELIF,
-    ELSE,
+    IF,     // if
+    ELIF,   // elif
+    ELSE,   // else
 
-    FOR,
-    WHILE,
-    UNTIL,
-    DO,
-    CONTINUE,
-    BREAK,
+    FOR,        // for
+    WHILE,      // while
+    DO,         // do
+    CONTINUE,   // continue
+    BREAK,      // break
 
-    SWITCH,
-    CASE,
-    DEFAULT,
+    SWITCH,     // switch
+    CASE,       // case
+    DEFAULT,    // default
 
-    FN,
-    ARGC,
-    ARGV,
-    RETURN,
+    FN,     // fn
+    RETURN, // return
 
-    ENUM,
-    STRUCT,
-    TRAIT,
-    IMPL,
-    HAS,
+    ENUM,   // enum
+    STRUCT, // struct
+
+    TYPEDEF, // typedef
+
+    SIZEOF,     // sizeof()
+    ALIGNOF,    // alignof()
+    OFFSETOF,   // offsetof()
+    TYPEOF,     // typeof()
     
     LIT_EOF
 };
@@ -170,8 +170,8 @@ static inline const char* string_ReiTokenKind(rei::TokenKind::E kind)
         case MODULO:    return "MODULO";
         case AND:   return "AND";
         case PIPE:  return "PIPE";
-        case CTRL:  return "CTRL";
-        case WAVE:  return "WAVE";
+        case CARET: return "CARET";
+        case TILDE: return "TILDE";
         case LESS_LESS:         return "LESS_LESS";
         case GREATER_GREATER:   return "GREATER_GREATER";
         case AND_AND:   return "AND_AND";
@@ -193,32 +193,26 @@ static inline const char* string_ReiTokenKind(rei::TokenKind::E kind)
         case MODULO_EQUAL:  return "MODULO_EQUAL";
         case AND_EQUAL:             return "AND_EQUAL";
         case PIPE_EQUAL:            return "PIPE_EQUAL";
-        case CTRL_EQUAL:            return "CTRL_EQUAL";
-        case WAVE_EQUAL:            return "WAVE_EQUAL";
+        case CARET_EQUAL:           return "CARET_EQUAL";
+        case TILDE_EQUAL:           return "TILDE_EQUAL";
         case LESS_LESS_EQUAL:       return "LESS_LESS_EQUAL";
         case GREATER_GREATER_EQUAL: return "GREATER_GREATER_EQUAL";
         case LEFT_ARROW:    return "LEFT_ARROW";
         case RIGHT_ARROW:   return "RIGHT_ARROW";
         case POUND: return "POUND";
         case AT:    return "AT";
-        case TYPE_VOID:     return "TYPE_VOID";
-        case TYPE_CHAR:     return "TYPE_CHAR";
-        case TYPE_UCHAR:    return "TYPE_UCHAR";
-        case TYPE_SHORT:    return "TYPE_SHORT";
-        case TYPE_USHORT:   return "TYPE_USHORT";
-        case TYPE_INT:      return "TYPE_INT";
-        case TYPE_UINT:     return "TYPE_UINT";
-        case TYPE_LONG:     return "TYPE_LONG";
-        case TYPE_ULONG:    return "TYPE_ULONG";
-        case TYPE_FLOAT:    return "TYPE_FLOAT";
-        case TYPE_DOUBLE:   return "TYPE_DOUBLE";
-        case TYPE_BOOL:     return "TYPE_BOOL";
-        case TYPE_STRING:   return "TYPE_STRING";
-        case TYPE_LAMBDA:   return "TYPE_LAMBDA";
+        case VOID:      return "VOID";
+        case CHAR:      return "CHAR";
+        case SHORT:     return "SHORT";
+        case INT:       return "INT";
+        case LONG:      return "LONG";
+        case FLOAT:     return "FLOAT";
+        case DOUBLE:    return "DOUBLE";
+        case SIGNED:    return "SIGNED";
+        case UNSIGNED:  return "UNSIGNED";
+        case ALIGNAS: return "ALIGNAS";
         case LIT_INT:       return "LIT_INT";
         case LIT_FLOAT:     return "LIT_FLOAT";
-        case LIT_TRUE:      return "LIT_TRUE";
-        case LIT_FALSE:     return "LIT_FALSE";
         case LIT_STRING:    return "LIT_STRING";
         case IDENTIFIER: return "IDENTIFIER";
         case KON: return "KON";
@@ -228,7 +222,6 @@ static inline const char* string_ReiTokenKind(rei::TokenKind::E kind)
         case ELSE:  return "ELSE";
         case FOR:       return "FOR";
         case WHILE:     return "WHILE";
-        case UNTIL:     return "UNTIL";
         case DO:        return "DO";
         case CONTINUE:  return "CONTINUE";
         case BREAK:     return "BREAK";
@@ -236,14 +229,14 @@ static inline const char* string_ReiTokenKind(rei::TokenKind::E kind)
         case CASE:      return "CASE";
         case DEFAULT:   return "DEFAULT";
         case FN:        return "FN";
-        case ARGC:      return "ARGC";
-        case ARGV:      return "ARGV";
         case RETURN:    return "RETURN";
         case ENUM:      return "ENUM";
         case STRUCT:    return "STRUCT";
-        case TRAIT:     return "TRAIT";
-        case IMPL:      return "IMPL";
-        case HAS:       return "HAS";
+        case TYPEDEF: return "TYPEDEF";
+        case SIZEOF:    return "SIZEOF";
+        case ALIGNOF:   return "ALIGNOF";
+        case OFFSETOF:  return "OFFSETOF";
+        case TYPEOF:    return "TYPEOF";
         case LIT_EOF: return "LIT_EOF";
         default: return "UNKNOWN_REI_TOKEN_KIND";
     }

@@ -1,26 +1,110 @@
 #pragma once
+#include <string>
+#include <cstdint>
+#include <type_traits>
+#include <unordered_map>
 
 namespace rei
 {
+using id_t = uint32_t;
+
 class Environment final
 {
+private:
+    id_t type_count_ = 0;
+    std::unordered_map<std::string, id_t> type_name_to_id_;
+    std::unordered_map<id_t, std::string> type_id_to_name_;
 public:
-    template<typename StructureType>
+    Environment() = default;
+    Environment(const Environment&) = delete;
+    Environment& operator=(const Environment&) = delete;
+    Environment(Environment&& other) noexcept :
+        type_count_(other.type_count_),
+        type_name_to_id_(std::move(other.type_name_to_id_)),
+        type_id_to_name_(std::move(other.type_id_to_name_)) {}
+    Environment& operator=(Environment&& other) noexcept
+    {
+        destructor_();
+        type_count_         = other.type_count_;
+        type_name_to_id_    = std::move(other.type_name_to_id_);
+        type_id_to_name_    = std::move(other.type_id_to_name_);
+        return *this;
+    }
+    ~Environment() { destructor_(); }
+private:
+    void destructor_() {};
+public:
+    auto typeId(const std::string& name) const -> id_t { return type_name_to_id_.at(name); }
+public:
+    // struct ConstantRegistrar final
+    // {
+    // private:
+    //     Environment& env_;
+    //     std::string name_;
+    // public:
+    //     ConstantRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
+    // public:
+    //     auto type(id_t id) -> ConstantRegistrar&;
+    //     auto value(void* v) -> ConstantRegistrar&;
+    // public:
+    //     void submit();
+    // };
+    // struct VariableRegistrar final
+    // {
+    // private:
+    //     Environment& env_;
+    //     std::string name_;
+    // public:
+    //     VariableRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
+    // public:
+    //     auto type(id_t id) -> VariableRegistrar&;
+    //     auto value(void* v) -> VariableRegistrar&;
+    // public:
+    //     void submit();
+    // };
+    struct EnumerationRegistrar final
+    {
+    private:
+        Environment& env_;
+        std::string name_;
+    private:
+        uint64_t count_ = 0;
+    public:
+        EnumerationRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
+    public:
+        auto integer(id_t id) -> EnumerationRegistrar&;
+        auto item(const std::string& name) -> EnumerationRegistrar& { return item_(name, count_); }
+        template<typename T>
+        auto item(const std::string& name, T value) -> EnumerationRegistrar&
+        { static_assert(std::is_integral_v<T>, "enumeration must is integral type"); return item_(name, static_cast<uint64_t>(value)); }
+        auto alias(const std::string& name) -> EnumerationRegistrar&;
+    public:
+        auto submit() -> id_t;
+    private:
+        auto item_(const std::string& name, uint64_t value) -> EnumerationRegistrar&;
+    };
     struct StructureRegistrar final
     {
     private:
-        VirtualMachine& vm_;
+        Environment& env_;
         std::string name_;
     public:
-        StructureRegistrar(VirtualMachine& vm, const std::string& name) : vm_(vm), name_(name) {}
+        StructureRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
     public:
-        template<typename FieldType>
-        auto field(const std::string& name, FieldType StructureType::* field_ptr) -> StructureRegistrar&;
+        auto align(int size) -> StructureRegistrar&;
+        auto field(id_t id, const std::string& name) -> StructureRegistrar&;
+        auto alias(const std::string& name) -> StructureRegistrar&;
     public:
-        void submit();
+        auto submit() -> id_t;
     };
 public:
-    template<typename T>
-    auto structure(const std::string& name) -> StructureRegistrar<T> { return {*this, name}; }
+    // auto constant(const std::string& name) -> ConstantRegistrar { return {*this, name}; }
+    // auto variable(const std::string& name) -> VariableRegistrar { return {*this, name}; }
+    auto enumeration(const std::string& name) -> EnumerationRegistrar { return {*this, name}; }
+    auto structure(const std::string& name) -> StructureRegistrar { return {*this, name}; }
+private:
+    void primitive_(const std::string& name)
+    {
+    }
 };
 }
