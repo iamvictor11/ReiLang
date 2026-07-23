@@ -12,8 +12,30 @@ typedef struct ReiAllocationCallbacks
     void* (*realloc)(void* ctx, void* ptr, size_t size);
     void (*free)(void* ctx, void* ptr);
 } ReiAllocationCallbacks;
-extern ReiAllocationCallbacks reiAllocationCallbacks_g;
-#define reiMalloc(TYPE, COUNT)          ((TYPE*)reiAllocationCallbacks_g.malloc(reiAllocationCallbacks_g.context, sizeof(TYPE) * COUNT))
-#define reiRealloc(TYPE, PTR, COUNT)    ((TYPE*)reiAllocationCallbacks_g.realloc(reiAllocationCallbacks_g.context, PTR, sizeof(TYPE) * COUNT))
-#define reiFree(PTR)                    (reiAllocationCallbacks_g.free(reiAllocationCallbacks_g.context, PTR))
+#define reiMalloc(CALLBACKS, TYPE, COUNT)       ((TYPE*)(CALLBACKS).malloc((CALLBACKS).context, sizeof(TYPE) * COUNT))
+#define reiRealloc(CALLBACKS, TYPE, PTR, COUNT) ((TYPE*)(CALLBACKS).realloc((CALLBACKS).context, PTR, sizeof(TYPE) * COUNT))
+#define reiFree(CALLBACKS, PTR)                 ((CALLBACKS).free((CALLBACKS).context, PTR))
+static inline void* reiAllocationCallbacksDefaultMalloc(void* ctx, size_t size)
+{
+    (void)ctx;
+    return malloc(size);
+}
+static inline void* reiAllocationCallbacksDefaultRealloc(void* ctx, void* ptr, size_t size)
+{
+    (void)ctx;
+    return realloc(ptr, size);
+}
+static inline void reiAllocationCallbacksDefaultFree(void* ctx, void* ptr)
+{
+    (void)ctx;
+    free(ptr);
+}
+#define REI_DEFAULT_ALLOCATION_CALLBACKS \
+    (ReiAllocationCallbacks) \
+    { \
+        .context = NULL, \
+        .malloc = reiAllocationCallbacksDefaultMalloc, \
+        .realloc = reiAllocationCallbacksDefaultRealloc, \
+        .free = reiAllocationCallbacksDefaultFree \
+    };
 }

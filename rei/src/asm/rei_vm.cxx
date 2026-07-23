@@ -6,5 +6,7 @@ namespace rei
     {
         std::vector<Token> tokens = lexer_.compile(source);
         if (!lexer_.error().empty()) return {lexer_.error()};
+        for (auto& token : tokens)
+            printf(string_ReiTokenKind(token.kind));
     }
 }
