@@ -37,7 +37,7 @@ auto keywordToTokenKind(std::string_view keyword) -> TokenKind
             {"enum", TK_ENUM},
             {"struct", TK_STRUCT},
             {"alignas", TK_ALIGNAS},
-            {"typedef", TK_TYPEDEF},
+            {"as", TK_AS},
             {"sizeof", TK_SIZEOF},
             {"alignof", TK_ALIGNOF},
             {"offsetof", TK_OFFSETOF},

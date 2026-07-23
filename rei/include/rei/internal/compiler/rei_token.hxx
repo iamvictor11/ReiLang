@@ -116,7 +116,7 @@ enum TokenKind
     TK_ENUM,    // enum
     TK_STRUCT,  // struct
     TK_ALIGNAS, // alignas
-    TK_TYPEDEF, // typedef
+    TK_AS,      // as (别名) 例：old_identifier as new_identifier;
 
     TK_SIZEOF,      // sizeof
     TK_ALIGNOF,     // alignof
@@ -229,7 +229,7 @@ static inline const char* string_ReiTokenKind(rei::TokenKind kind)
         case TK_ENUM:       return "TK_ENUM";
         case TK_STRUCT:     return "TK_STRUCT";
         case TK_ALIGNAS:    return "TK_ALIGNAS";
-        case TK_TYPEDEF:    return "TK_TYPEDEF";
+        case TK_AS:         return "TK_AS";
         case TK_SIZEOF:     return "TK_SIZEOF";
         case TK_ALIGNOF:    return "TK_ALIGNOF";
         case TK_OFFSETOF:   return "TK_OFFSETOF";

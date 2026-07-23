@@ -3,20 +3,24 @@
 #include <cstdint>
 #include <type_traits>
 #include <unordered_map>
+#include <vector>
 
 namespace rei
 {
 using id_t = uint32_t;
-// enum 
 
 class Environment final
 {
 private:
     id_t symbol_count_ = 0;
-    std::unordered_map<std::string, id_t> symbol_name_to_id_;
-    std::unordered_map<id_t, std::string> symbol_id_to_name_;
+    std::unordered_map<std::string, id_t> symbol_name_to_id_ {};
+    std::vector<std::string> symbol_id_to_name_ {};
 public:
     Environment() = default;
+    Environment(uint32_t space)
+    {
+        symbol_id_to_name_.reserve(space);
+    }
     Environment(const Environment&) = delete;
     Environment& operator=(const Environment&) = delete;
     Environment(Environment&& other) noexcept :
@@ -35,34 +39,9 @@ public:
 private:
     void destructor_() {};
 public:
-    auto typeId(const std::string& name) const -> id_t { return symbol_name_to_id_.at(name); }
+    auto id(const std::string& name) const -> id_t { return symbol_name_to_id_.at(name); }
+    auto name(id_t id) const -> const std::string& { return symbol_id_to_name_[id]; }
 public:
-    // struct ConstantRegistrar final
-    // {
-    // private:
-    //     Environment& env_;
-    //     std::string name_;
-    // public:
-    //     ConstantRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
-    // public:
-    //     auto type(id_t id) -> ConstantRegistrar&;
-    //     auto value(void* v) -> ConstantRegistrar&;
-    // public:
-    //     void submit();
-    // };
-    // struct VariableRegistrar final
-    // {
-    // private:
-    //     Environment& env_;
-    //     std::string name_;
-    // public:
-    //     VariableRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
-    // public:
-    //     auto type(id_t id) -> VariableRegistrar&;
-    //     auto value(void* v) -> VariableRegistrar&;
-    // public:
-    //     void submit();
-    // };
     struct EnumerationRegistrar final
     {
     private:
@@ -93,7 +72,7 @@ public:
         StructureRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
     public:
         auto align(int size) -> StructureRegistrar&;
-        auto field(id_t id, const std::string& name, bool ptr = false) -> StructureRegistrar&;
+        auto field(id_t id, const std::string& name, int indirection = 0) -> StructureRegistrar&;
         auto alias(const std::string& name) -> StructureRegistrar&;
     public:
         auto submit() -> id_t;
@@ -106,17 +85,18 @@ public:
     public:
         FunctionRegistrar(Environment& env, const std::string& name) : env_(env), name_(name) {}
     public:
-        auto arg(id_t id, const std::string& name, bool ptr);
-        auto ret(id_t id);
+        auto arg(id_t id, const std::string& name, int indirection = 0);
+        auto ret(id_t id, int indirection = 0);
     public:
         auto submit() -> id_t;
     };
 public:
-    // auto constant(const std::string& name) -> ConstantRegistrar { return {*this, name}; }
-    // auto variable(const std::string& name) -> VariableRegistrar { return {*this, name}; }
+    auto constant(id_t id, const std::string& name, void* value);
+    auto variable(id_t id, const std::string& name, void* value);
     auto enumeration(const std::string& name) -> EnumerationRegistrar { return {*this, name}; }
     auto structure(const std::string& name) -> StructureRegistrar { return {*this, name}; }
     auto function(const std::string& name) -> FunctionRegistrar { return {*this, name}; }
+    void alias(id_t id, const std::string& name) { symbol_name_to_id_[name] = id; }
 private:
     // void primitive_(const std::string& name, )
     // {
