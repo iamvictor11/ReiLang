@@ -1,6 +1,6 @@
 add_library(rei STATIC)
 
-function(setup_target TARGET_SNAME TARGET_LNAME)
+function(target_setup TARGET_SNAME TARGET_LNAME)
 target_compile_definitions(${TARGET_SNAME}
 PRIVATE
     ${TARGET_LNAME}_BUILD_DEBUG=$<IF:$<CONFIG:Debug>,1,0>
@@ -9,53 +9,22 @@ PRIVATE
 target_include_directories(${TARGET_SNAME}
 PUBLIC
     "include"
+PRIVATE
     "src"
 )
-target_compile_options(${TARGET_SNAME}
+target_sources(${TARGET_SNAME}
 PRIVATE
-    -fno-exceptions
-    -fno-rtti
-    $<$<CONFIG:Debug>:
-        -O0
-        -g
-    >
-    $<$<CONFIG:Release>:
-        -O3
-        -DNDEBUG
-        -fomit-frame-pointer
-        -fno-semantic-interposition
-        -ffunction-sections
-        -fdata-sections
-    >
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/asm/rei_vm.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/rei_lexer.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/compiler/rei_token.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/env/rei_environment.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/rei.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/rei_error.cxx"
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/rei_log.cxx"
 )
-target_link_options(${TARGET_SNAME}
-PRIVATE
-    $<$<CONFIG:Release>:
-        -s
-        -Wl,--gc-sections
-    >
+target_link_libraries(${TARGET_SNAME}
+PUBLIC
 )
 endfunction()
 
-setup_target(rei REI)
-target_sources(rei
-PRIVATE
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/common.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/env.complie.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/env.runtime.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/base/string.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/lexer/lexer.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/lexer/token.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.decl.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.expr.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/parser/parser.stmt.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/vm.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/vm.run.cgoto.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/core/vm.run.switch.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/debug/log.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/stl/stl.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/stl/util.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/util/error.cpp"
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/util/file.cpp"
-)
+target_setup(rei REI)
